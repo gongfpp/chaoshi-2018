@@ -1,15 +1,22 @@
-build/art_raw/
-build/audio_tmp/
-build/mac/
-build/shots/
-build/web/
+# ---- 构建产物（仅本地，不入库）----
+build/
+gui-*-dists/
 game/dists/
 game/saves/
+game/cache/
+game/game/cache/
 game/log.txt
 game/traceback.txt
 game/errors.txt
-game/cache/
-game/game/cache/
 *.rpyc
-.DS_Store
+
+# ---- 素材源 ----
+# 思源/Noto CJK 字体体积大，见 docs/资产清单.md 的获取方式；
+# 游戏运行所需的副本已在 game/game/*.otf 中随源码提供。
+assets-src/fonts/
 generated-images/
+
+# ---- 本地环境 ----
+.workbuddy/
+.DS_Store
+__pycache__/
