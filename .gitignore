@@ -1,0 +1,15 @@
+build/art_raw/
+build/audio_tmp/
+build/mac/
+build/shots/
+build/web/
+game/dists/
+game/saves/
+game/log.txt
+game/traceback.txt
+game/errors.txt
+game/cache/
+game/game/cache/
+*.rpyc
+.DS_Store
+generated-images/

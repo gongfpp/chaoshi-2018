@@ -1,0 +1,244 @@
+# 由 tools/gen_game.py 自动生成，请勿手改。
+
+label ch12:
+    call screen chapter_card("第十二章", "一月十八")
+    $ qian = 4300
+    $ debt = 85000
+    scene bg_room
+    with fade
+    play music "audio/bgm/room_night.ogg" fadein 1.5
+    play sound "audio/sfx/phone_notify.ogg"
+    "那单是烧烤，地址在两公里外。"
+    "祥子看着屏幕上的倒计时，又看了看床上的人。"
+    "三十二分钟。来回四十分钟。她睡着了，呼吸很重，但没有再喊疼。"
+    menu:
+        "先把手上那单送完":
+            $ c_zaodao = False
+            $ qian += 6
+        "立刻掉头回家":
+            $ c_zaodao = True
+            jump ch12_alt
+    "他点了“接单”。"
+    "出门的时候，他把门轻轻带上。楼道里的声控灯亮了，照着他往下走的脚。"
+    scene bg_road
+    with fade
+    play music "audio/bgm/city_night.ogg" fadein 1.5
+    "凌晨的杭州很冷。路上没有车，只有他一个。"
+    "他骑得很快，二十五码，不能再快。风从领口灌进去，他把脖子缩起来。"
+    "烧烤店在一条小巷里，卷帘门拉开一半，老板在里面刷手机。"
+    boss "「这么晚还有单？」"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「嗯。」"
+    boss "「几号？」"
+    xz "「三十七。」"
+    "老板把串装进锡纸盒，打了个结。"
+    boss "「路上慢点。」"
+    "祥子接过餐，塞进箱子。他掏出手机，想给刘蕾打个电话。"
+    "屏幕上没有未接来电。"
+    "他犹豫了一下，把手机塞回兜里，骑上车。"
+    scene bg_alley
+    with fade
+    play music "audio/bgm/tense.ogg" fadein 1.5
+    "送完那单，是凌晨一点二十。"
+    "他往回骑。骑到五堡巷口，看见十二号二楼的灯亮着。"
+    "他心里“咯噔”一下。"
+    scene bg_room
+    with fade
+    play music "audio/bgm/silence_tense.ogg" fadein 1.5
+    "门是虚掩的。"
+    "他推开门。刘蕾躺在床上，身体弓着，嘴张着，嘴角有白沫。床单湿了一片。"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「刘蕾！」"
+    xz "「刘蕾！」"
+    "他扑过去，摇她的肩。她的眼睛半睁着，眼球往上翻，怎么叫都不应。"
+    "他摸她的脸，滚烫。"
+    "他掏出手机，手指发抖，按了三次才按对 120。"
+    xz "「喂！120！我老婆抽了！怀孕三十三周！」"
+    op "「地址。」"
+    xz "「五堡十二号！二楼！」"
+    op "「病人有没有意识？」"
+    xz "「没有！她抽了！」"
+    op "「让她侧躺，别按住她，把周围的东西挪开。我们马上派车。」"
+    scene bg_alley
+    with fade
+    play music "audio/bgm/siren_far.ogg" fadein 1.5
+    "救护车二十分钟才到。"
+    "不是路远，是卡口。"
+    "巷口的铁马还在，两个穿红马甲的人拦着车，要看通行证、要测体温、要登记。祥子跑过去，一边喊一边比划。"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「我老婆在里面！抽了！」"
+    vol "「登记一下，马上。」"
+    xz "「登记什么！人都快不行了！」"
+    vol "「规定。」"
+    "那个“规定”用了二十二分钟。"
+
+label ch12_join:
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_night.ogg" fadein 1.5
+    "区一医院没有床位。"
+    "急诊的护士看了一眼，说：“产科满了，我们这儿收不了重度子痫，转市一。”"
+    "祥子站在急诊大厅里，怀里抱着刘蕾。她的身体还在抽，一阵一阵。"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「转院？怎么转？」"
+    nurse "「救护车送。你再签个字。」"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_night.ogg" fadein 1.5
+    "市一医院，凌晨五点五十。"
+    "急诊室的灯很亮，白得刺眼。医生量了血压，看了瞳孔，语速很快。"
+    doc "「血压一百九，一百二。重度子痫前期，合并子痫发作。孕三十三周。马上手术。」"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「医生，救她。」"
+    doc "「我们尽力。你先签字。」"
+    "祥子接过笔。纸上是“手术知情同意书”，密密麻麻一页字。他看不清，只看见“大出血”“羊水栓塞”“深静脉血栓”“切除子宫”“死亡”。"
+    "他签了。手抖得写不成字，“杨”字的三点水连成一团。"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_tense.ogg" fadein 1.5
+    "护士又递过来一张单子。"
+    nurse "「押金一万。去一楼交。」"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「现在？」"
+    nurse "「现在。不交不排手术。」"
+    "祥子摸出手机。余额：四千三百。"
+    "他站在缴费窗口前，手指在通讯录上滑了三遍。"
+    "第一个想到的是老刘。他按了拨号，又挂了。"
+    "第二个是王大勇。他打过去，响了两声就接了。"
+    wd "「祥子？这么早？」"
+    xz "「哥，我媳妇在医院，要手术，押金一万，我差六千。」"
+    wd "「……」"
+    wd "「你等十分钟。」"
+    "八分钟后，六千到账。"
+    "祥子把一万交进去，拿到一张粉色的收据。他捏着那张纸，站在大厅里，浑身发抖。"
+    "不是冷的。"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_tense.ogg" fadein 1.5
+    "手术室的灯亮起来，是六点十分。"
+    "祥子坐在门口的塑料椅上。"
+    "走廊很长，灯管有一根在闪，一闪一闪。对面墙上挂着一个钟，秒针走得很慢。"
+    "六点四十，护士出来，让他签一份同意书，说可能要切除子宫。他签了。"
+    "七点二十，护士出来说血不够，要调血，先调两千毫升。"
+    "八点，老刘来了。九点，刘蕾的两个表姐来了。十点，王站长来了，站了十分钟，走了。"
+    "十二点，医生出来说，出血止不住，正在想办法。"
+    "十三点，护士又出来，让他签病危通知。"
+    "他签了。手抖得写不成字。"
+    "十四点二十，手术室的灯灭了。"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_low.ogg" fadein 1.5
+    "护士抱着一个裹在蓝布里的东西，飞快地从手术室门口走过去。祥子只看见一团紫红色的皮肤，一只手腕，细得像筷子。"
+    nurse "「女孩，一千六百克。送新生儿科。」"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「大人呢？」"
+    nurse "「还在抢救。」"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_tense.ogg" fadein 1.5
+    "十五点，ICU 的门开了，一张床推进去。他看见她的脸，白的，插着管子。"
+    "十六点，护士让他在外面等。"
+    "十七点，十八点，十九点。"
+    "他在走廊里走，从这头走到那头，一共二十七步。他数过。"
+    "二十点，他给姐姐打电话。姐姐在电话那头哭。"
+    "二十一点，他去楼下买了一个包子，咬了两口，扔了。"
+    "二十二点，他坐在椅子上，睡着了十分钟。"
+    "二十三点，他醒了。"
+    "零点，一点，两点，三点。"
+    "四点三十五分，医生出来了。"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_low.ogg" fadein 1.5
+    "四点三十五分，医生出来了。"
+    "他摘下口罩，脸上有汗。"
+    doc "「对不起。产后大出血，DIC，我们输了六千毫升血，没救回来。」"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「……」"
+    xz "「你说什么？」"
+    doc "「你太太……走了。」"
+    "祥子站在原地。"
+    "他听见走廊尽头有推车的声音，听见有人在哭，听见广播在叫一个名字。"
+    "他忽然想起昨天晚上，她背对着他，说“我躺一会儿就好”。"
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_low.ogg" fadein 1.5
+    scene cg_hospital
+    with fade
+    "老刘是六点到的。"
+    "他穿着一件旧棉袄，头发乱着，脸上没有血色。他走到祥子面前，站住。"
+    "祥子以为他会打他。"
+    "老刘没有。他只是问："
+    show lt normal at sprite_left
+    with dissolve
+    lt "「押金交了吗？」"
+    show xz tired at sprite_right
+    with dissolve
+    xz "「……交了。」"
+    lt "「多少？」"
+    xz "「一万。」"
+    lt "「后面还要多少？」"
+    xz "「不知道。」"
+    lt "「……」"
+    "老刘转过身，走到走廊尽头，蹲下去，抱住头。"
+    "他没有哭出声。肩膀一抖一抖的，抖了很久。"
+    scene bg_hospital
+    with fade
+    scene bg_hospital
+    with fade
+    play music "audio/bgm/hospital_low.ogg" fadein 1.5
+    "第二天，祥子去新生儿科看孩子。"
+    "隔着玻璃，一排暖箱，每个箱子里有一个小小的身体，身上插着管子，头上贴着电极。"
+    "护士指给他看：第三个。"
+    nurse "「一千五百八十克。呼吸还行，要吃奶，一次两毫升。」"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「她能活吗？」"
+    nurse "「早产儿，看后面。你先去交费。」"
+    xz "「多少？」"
+    nurse "「先交三万。」"
+    "祥子站在玻璃前面。"
+    "那个小小的身体在动，手伸出来，五指张开，像在抓什么。"
+    "他把手贴在玻璃上。"
+    "玻璃是凉的。"
+    scene bg_room
+    with fade
+    play music "audio/bgm/room_empty.ogg" fadein 1.5
+    "回到家，是下午。"
+    "屋里还是他走的时候那个样子。床单上有一片干了的印子，她的拖鞋在床边，一只正一只反。"
+    "梳妆台上有一把梳子，上面缠着几根头发，黑的，有几根白的。"
+    "祥子把梳子拿起来，看了看，放回原处。"
+    "他坐在床沿，看见她的账本还摊在桌上。"
+    "最后一页写着：{b}12 月 20 日。产检 600。住院押金 10000（未交）。{/b}"
+    "下面有一行小字，是她的笔迹，写得很轻："
+    "{b}给孩子取名：杨念。{/b}"
+    "祥子把账本合上，抱在怀里。"
+    "窗外天黑了。楼下有人在做饭，油下锅的声音，很响。"
+    "他坐在黑里，一动不动。"
+    scene bg_room
+    with fade
+    play music "audio/bgm/room_empty.ogg" fadein 1.5
+    "三月中旬，他把所有的单子摊在床上，算了一遍。"
+    "住院押金一万。剖宫产加七天 ICU，七万六。女儿在新生儿科住了二十一天，三万二。"
+    "一共十一万八。"
+    "新农合异地报销，跑了两趟，报下来两万一千。"
+    "自付九万七。"
+    show xz tired at sprite_left
+    with dissolve
+    xz "「九万七。」"
+    "他对着账本说。"
+    "九万七，他跑两万一千单。"
+    "他把单子一张一张叠好，用皮筋捆上，放进一个塑料袋，塞到床底下。"
+    "那张床底下，还有他的记账本，曹先生送的地图册，和一对印着“百年”的杯子。"
+    xz "「刘蕾。」"
+    "他叫了一声。"
+    "没有人应。"
+
+    jump ch13

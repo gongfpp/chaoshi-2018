@@ -1,0 +1,396 @@
+[
+  {
+    "chapter": "ch01",
+    "title": "三月雨",
+    "chars": 2572,
+    "scenes": [
+      "bg_station_arrival",
+      "bg_alley",
+      "bg_shop",
+      "bg_station",
+      "bg_rain",
+      "bg_station",
+      "bg_station",
+      "bg_room",
+      "bg_room"
+    ],
+    "lines": 132
+  },
+  {
+    "chapter": "ch02",
+    "title": "单王",
+    "chars": 2622,
+    "scenes": [
+      "bg_road",
+      "bg_alley",
+      "bg_alley",
+      "bg_station",
+      "bg_road_rain",
+      "bg_cao",
+      "bg_cao",
+      "bg_road",
+      "bg_station",
+      "bg_room"
+    ],
+    "lines": 144
+  },
+  {
+    "chapter": "ch03",
+    "title": "调度室",
+    "chars": 2289,
+    "scenes": [
+      "bg_station",
+      "bg_office",
+      "bg_station",
+      "bg_office",
+      "bg_office",
+      "bg_alley",
+      "bg_office",
+      "bg_room"
+    ],
+    "lines": 142
+  },
+  {
+    "chapter": "ch04",
+    "title": "自己的车",
+    "chars": 2010,
+    "scenes": [
+      "bg_shop",
+      "bg_shop",
+      "bg_shop",
+      "bg_road",
+      "bg_river",
+      "cg_bike",
+      "bg_cao",
+      "bg_station",
+      "bg_road",
+      "bg_river",
+      "bg_room"
+    ],
+    "lines": 112
+  },
+  {
+    "chapter": "ch05",
+    "title": "四十五天",
+    "chars": 1993,
+    "scenes": [
+      "bg_alley",
+      "bg_alley",
+      "bg_police",
+      "bg_alley",
+      "bg_alley",
+      "bg_market",
+      "bg_market",
+      "bg_alley",
+      "bg_room"
+    ],
+    "lines": 145
+  },
+  {
+    "chapter": "ch06",
+    "title": "老马的车",
+    "chars": 2612,
+    "scenes": [
+      "bg_station",
+      "bg_rain",
+      "bg_station",
+      "bg_rain",
+      "bg_alley",
+      "bg_alley",
+      "bg_station",
+      "bg_station",
+      "bg_room",
+      "bg_station",
+      "bg_room"
+    ],
+    "lines": 183
+  },
+  {
+    "chapter": "ch07",
+    "title": "新国标",
+    "chars": 2136,
+    "scenes": [
+      "bg_station",
+      "bg_alley",
+      "bg_police",
+      "bg_road",
+      "bg_road",
+      "bg_office",
+      "bg_office",
+      "bg_alley",
+      "bg_shop"
+    ],
+    "lines": 147
+  },
+  {
+    "chapter": "ch08",
+    "title": "彩礼",
+    "chars": 2150,
+    "scenes": [
+      "bg_station",
+      "bg_office",
+      "bg_alley",
+      "bg_alley",
+      "bg_shop",
+      "bg_room",
+      "bg_room",
+      "bg_shop"
+    ],
+    "lines": 162
+  },
+  {
+    "chapter": "ch09",
+    "title": "喜酒",
+    "chars": 2402,
+    "scenes": [
+      "bg_wedding",
+      "bg_wedding",
+      "bg_wedding",
+      "bg_wedding",
+      "bg_room",
+      "bg_room",
+      "bg_room",
+      "bg_shop"
+    ],
+    "lines": 163
+  },
+  {
+    "chapter": "ch10",
+    "title": "封城",
+    "chars": 2326,
+    "scenes": [
+      "bg_station",
+      "bg_alley",
+      "bg_station",
+      "bg_road",
+      "bg_road_rain",
+      "bg_road",
+      "bg_room",
+      "bg_room",
+      "bg_alley",
+      "bg_alley"
+    ],
+    "lines": 179
+  },
+  {
+    "chapter": "ch11",
+    "title": "建档",
+    "chars": 2758,
+    "scenes": [
+      "bg_room",
+      "bg_hospital",
+      "bg_office",
+      "bg_office",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_station",
+      "bg_road",
+      "bg_hospital",
+      "bg_room",
+      "bg_room",
+      "bg_room"
+    ],
+    "lines": 221
+  },
+  {
+    "chapter": "ch12",
+    "title": "一月十八",
+    "chars": 1988,
+    "scenes": [
+      "bg_room",
+      "bg_road",
+      "bg_alley",
+      "bg_room",
+      "bg_alley",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "cg_hospital",
+      "bg_hospital",
+      "bg_hospital",
+      "bg_room",
+      "bg_room"
+    ],
+    "lines": 150
+  },
+  {
+    "chapter": "ch13",
+    "title": "卖车",
+    "chars": 2587,
+    "scenes": [
+      "bg_shop",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_room",
+      "bg_cao",
+      "bg_hospital",
+      "bg_station_arrival",
+      "bg_home",
+      "bg_home",
+      "bg_home",
+      "bg_station_arrival",
+      "bg_night_street",
+      "bg_room",
+      "bg_station",
+      "bg_road"
+    ],
+    "lines": 204
+  },
+  {
+    "chapter": "ch14",
+    "title": "小福",
+    "chars": 3083,
+    "scenes": [
+      "bg_alley",
+      "bg_ktv",
+      "bg_alley",
+      "bg_alley",
+      "bg_police",
+      "bg_cao",
+      "bg_cao",
+      "bg_cao",
+      "bg_cao",
+      "bg_alley",
+      "bg_night_street",
+      "bg_ktv",
+      "bg_room",
+      "bg_office",
+      "bg_office"
+    ],
+    "lines": 256
+  },
+  {
+    "chapter": "ch15",
+    "title": "服务分",
+    "chars": 1973,
+    "scenes": [
+      "bg_station",
+      "bg_station",
+      "bg_station",
+      "bg_road",
+      "bg_station",
+      "bg_road",
+      "bg_road_rain",
+      "bg_hospital",
+      "bg_station_arrival",
+      "bg_night_street",
+      "bg_room"
+    ],
+    "lines": 159
+  },
+  {
+    "chapter": "ch16",
+    "title": "三月十二",
+    "chars": 2648,
+    "scenes": [
+      "bg_night_street",
+      "bg_alley",
+      "bg_alley",
+      "bg_room",
+      "bg_room",
+      "bg_room",
+      "bg_room",
+      "bg_room",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_room",
+      "bg_station_arrival",
+      "bg_home",
+      "bg_home",
+      "bg_funeral",
+      "cg_funeral",
+      "bg_funeral",
+      "bg_night_street",
+      "bg_room"
+    ],
+    "lines": 237
+  },
+  {
+    "chapter": "ch17",
+    "title": "念念",
+    "chars": 1767,
+    "scenes": [
+      "bg_room",
+      "bg_room",
+      "bg_night_street",
+      "bg_night_street",
+      "bg_road",
+      "bg_room",
+      "bg_alley",
+      "bg_home",
+      "bg_room",
+      "bg_room",
+      "bg_alley",
+      "bg_room",
+      "bg_night_street"
+    ],
+    "lines": 150
+  },
+  {
+    "chapter": "ch18",
+    "title": "群",
+    "chars": 1975,
+    "scenes": [
+      "bg_station",
+      "bg_night_street",
+      "bg_room",
+      "bg_station",
+      "bg_office",
+      "bg_station",
+      "bg_night_street",
+      "bg_station",
+      "bg_road",
+      "bg_night_street",
+      "bg_room"
+    ],
+    "lines": 146
+  },
+  {
+    "chapter": "ch19",
+    "title": "交易",
+    "chars": 2141,
+    "scenes": [
+      "bg_station",
+      "bg_station",
+      "bg_office",
+      "bg_night_street",
+      "bg_office",
+      "bg_room",
+      "bg_office",
+      "bg_office",
+      "bg_night_street",
+      "bg_room",
+      "bg_road",
+      "bg_room",
+      "bg_night_street"
+    ],
+    "lines": 173
+  },
+  {
+    "chapter": "ch20",
+    "title": "守夜",
+    "chars": 2605,
+    "scenes": [
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_funeral",
+      "bg_night_street",
+      "cg_ending",
+      "bg_night_street",
+      "bg_night_street"
+    ],
+    "lines": 207
+  }
+]
