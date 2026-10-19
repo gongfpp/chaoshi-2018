@@ -2,6 +2,9 @@
 
 > 2018—2023，杭州，一个外卖骑手的五年。
 
+**在线试玩：<https://gongfpp.github.io/chaoshi-2018/>**
+**下载发行包：[Releases](https://github.com/gongfpp/chaoshi-2018/releases/latest)**
+
 本项目包含：
 
 1. **一部完整小说**《超时》（20 章，50,031 汉字）及两个替代结局。
@@ -12,17 +15,21 @@
 
 ### 网页版（无需安装）
 
+直接打开 <https://gongfpp.github.io/chaoshi-2018/>。首次加载约 20—40 秒（需下载 ≈ 70 MB 的 wasm 与游戏数据），之后由 Service Worker 缓存。
+
+离线运行：
+
 ```bash
-cd build/dist && unzip -o chaoshi-1.0.0-web.zip -d ../web && cd ../web
+unzip -o chaoshi-1.0.0-web.zip -d web && cd web
 python3 -m http.server 8080
 # 浏览器打开 http://localhost:8080/
 ```
 
-> Ren'Py 网页版需要 HTTP 服务，直接双击 `index.html` 无法加载 wasm。首次加载约 20—40 秒（≈57 MB）。
+> Ren'Py 网页版需要 HTTP 服务，直接双击 `index.html` 无法加载 wasm。
 
 ### macOS
 
-解压 `build/dist/chaoshi-1.0.0-mac.zip`，得到 `超时.app`，双击打开。
+从 [Releases](https://github.com/gongfpp/chaoshi-2018/releases/latest) 下载 `chaoshi-1.0.0-mac.zip`，解压得到 `超时.app`，双击打开。
 未签名应用首次打开需在「系统设置 → 隐私与安全性」中允许。
 
 ### 操作
@@ -58,8 +65,10 @@ game/           Ren'Py 工程
   game/images/  背景 17、立绘 11、CG 5
   game/audio/   41 段环境音乐 + 4 个音效（程序化合成）
 tools/          生成与构建脚本
-build/dist/     发行包
+build/dist/     发行包（本地构建产物，不入库）
 ```
+
+`build/`、`assets-src/fonts/` 均被 `.gitignore` 排除：前者是构建产物，后者是第三方字库的重复副本（运行所需副本已随 `game/game/*.otf` 入库）。
 
 ## 生成与构建
 
@@ -74,6 +83,23 @@ python3 tools/gen_gui.py                       # 生成界面图形
 ```
 
 依赖：Ren'Py 8.5.3、Python 3.13（Pillow、NumPy）、ffmpeg（vorbis 编码）。
+
+## 部署
+
+网页版发布在 GitHub Pages，内容来自 `gh-pages` 分支（即 Ren'Py 的 web 构建产物）。
+
+```bash
+# 1) 生成 web 构建（distribute 的 web 包不含 wasm 运行时，必须用 web_build）
+~/Developer/Tools/renpy-8.5.3/renpy.sh launcher web_build "$PWD/game" --destination "$PWD/build/web"
+
+# 2) 推到 gh-pages
+rm -rf /tmp/chaoshi-pages && mkdir -p /tmp/chaoshi-pages
+cp -R build/web/. /tmp/chaoshi-pages/ && touch /tmp/chaoshi-pages/.nojekyll
+cd /tmp/chaoshi-pages && git init -q && git add -A && git commit -qm "deploy: web build"
+git push --force https://github.com/gongfpp/chaoshi-2018.git HEAD:gh-pages
+```
+
+`.nojekyll` 必须存在，否则 Pages 会走 Jekyll 处理。该构建为单线程 wasm，不依赖 `SharedArrayBuffer`，因此无需 COOP/COEP 响应头。
 
 ## 素材与许可
 
