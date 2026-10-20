@@ -49,9 +49,16 @@ python3 tools/gen_game.py
 # 2. 静态检查（语法、图片、音频、跳转）
 ~/Developer/Tools/renpy-8.5.3/renpy.sh game lint
 
-# 3. 构建（mac + web）
+# 3. 构建（mac）
 ~/Developer/Tools/renpy-8.5.3/renpy.sh launcher distribute "$PWD/game" \
-  --destination "$PWD/build/dist" --package mac --package web
+  --destination "$PWD/build/dist" --package mac
+
+# 4. 网页版：web_build 之后**必须**跑 patch_web.py（分片 / 续传 / 停用 SW / 启动图）
+~/Developer/Tools/renpy-8.5.3/renpy.sh launcher web_build "$PWD/game" --destination "$PWD/build/web"
+python3 tools/patch_web.py build/web
+
+# 5. 发布（GitHub Pages + Cloudflare Pages）
+tools/deploy_pages.sh both
 ```
 
 `lint` 必须为 0 错误。构建后必须实际打开，不得只凭 lint 判断可玩性。

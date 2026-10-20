@@ -86,20 +86,32 @@ python3 tools/gen_gui.py                       # 生成界面图形
 
 ## 部署
 
-网页版发布在 GitHub Pages，内容来自 `gh-pages` 分支（即 Ren'Py 的 web 构建产物）。
+一条命令完成构建、补丁与发布（GitHub Pages 与 Cloudflare Pages 共用同一份构建）：
 
 ```bash
-# 1) 生成 web 构建（distribute 的 web 包不含 wasm 运行时，必须用 web_build）
-~/Developer/Tools/renpy-8.5.3/renpy.sh launcher web_build "$PWD/game" --destination "$PWD/build/web"
-
-# 2) 推到 gh-pages
-rm -rf /tmp/chaoshi-pages && mkdir -p /tmp/chaoshi-pages
-cp -R build/web/. /tmp/chaoshi-pages/ && touch /tmp/chaoshi-pages/.nojekyll
-cd /tmp/chaoshi-pages && git init -q && git add -A && git commit -qm "deploy: web build"
-git push --force https://github.com/gongfpp/chaoshi-2018.git HEAD:gh-pages
+tools/deploy_pages.sh both     # 或 cf / gh
 ```
 
-`.nojekyll` 必须存在，否则 Pages 会走 Jekyll 处理。该构建为单线程 wasm，不依赖 `SharedArrayBuffer`，因此无需 COOP/COEP 响应头。
+它做三件事：
+
+1. `renpy.sh launcher web_build`（`distribute --package web` 不含 wasm 运行时，不能用）
+2. `tools/patch_web.py`（见下）
+3. 推 `gh-pages`（带 `.nojekyll`）/ `wrangler pages deploy`
+
+### 为什么构建后必须跑 patch_web.py
+
+Ren'Py 的网页加载器**用单个请求拉整个 game.zip**，没有超时也没有重试；33 MB 在弱网下断一次，页面就永久停在启动图。`patch_web.py` 做的四件事：
+
+| 改动 | 原因 |
+| --- | --- |
+| `game.zip` 切成 5 × 8 MB 分片，逐片下载 | Cloudflare Pages 单文件上限 25 MiB；分片才有做续传的粒度 |
+| 分片失败用 HTTP Range 续传，最多重试 6 次；服务端忽略 Range 时回退整片重下 | 断流后能自己接着下，而不是从头再来 |
+| 停用 Service Worker 并清理旧 Cache Storage | 坏响应会被 SW 缓存住，之后每次打开都卡同一处 |
+| 90 秒未进入游戏则弹出「加载超时 + 重新加载」 | 不再出现无提示的无限等待 |
+
+另外会把启动图替换为作品标题图（`web-presplash.jpg`），并生成 Cloudflare Pages 用的 `_headers` 缓存规则。
+
+该构建为单线程 wasm，不依赖 `SharedArrayBuffer`，因此无需 COOP/COEP 响应头。
 
 ## 素材与许可
 
@@ -110,7 +122,7 @@ git push --force https://github.com/gongfpp/chaoshi-2018.git HEAD:gh-pages
 
 ## 已知限制
 
-- 网页版体积较大（57 MB），首次加载慢；移动端浏览器未做适配。
+- 网页版约 72 MB，首次加载 20—40 秒（wasm 与游戏数据各占一半）；移动端浏览器未做适配。
 - 立绘为半身像羽化叠层，未做逐帧表情动画；同一角色 2—3 种状态。
 - 无配音；音频为环境音与低频铺底，非旋律性配乐。
 - macOS 包未签名/未公证。
