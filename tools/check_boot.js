@@ -8,6 +8,7 @@ const PROXY = process.env.PROXY || '';
   const args = ['--enable-unsafe-swiftshader', '--use-gl=swiftshader',
     '--proxy-bypass-list=127.0.0.1;localhost'];
   if (PROXY) args.push(`--proxy-server=${PROXY}`);
+  if (process.env.DIRECT === '1') args.push('--no-proxy-server');   // 真·直连，绕过系统代理
   const browser = await chromium.launch({ args });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const errors = [];
