@@ -2,7 +2,8 @@
 
 > 2018—2023，杭州，一个外卖骑手的五年。
 
-**在线试玩：<https://gongfpp.github.io/chaoshi-2018/>**
+**在线试玩：<https://chaoshi-2018.pages.dev/>**（Cloudflare Pages）
+备用：<https://gongfpp.github.io/chaoshi-2018/>（GitHub Pages）
 **下载发行包：[Releases](https://github.com/gongfpp/chaoshi-2018/releases/latest)**
 
 本项目包含：
@@ -15,7 +16,7 @@
 
 ### 网页版（无需安装）
 
-直接打开 <https://gongfpp.github.io/chaoshi-2018/>。首次加载约 20—40 秒（需下载 ≈ 70 MB 的 wasm 与游戏数据），之后由 Service Worker 缓存。
+直接打开 <https://chaoshi-2018.pages.dev/>。首次下载约 18 MB（wasm 6 MB + 引擎数据 5.5 MB + 游戏数据 6.7 MB），实测冷启动 8—12 秒。
 
 离线运行：
 
