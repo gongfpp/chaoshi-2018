@@ -53,7 +53,8 @@ python3 tools/gen_game.py
 ~/Developer/Tools/renpy-8.5.3/renpy.sh launcher distribute "$PWD/game" \
   --destination "$PWD/build/dist" --package mac
 
-# 4. 网页版：web_build 之后**必须**跑 patch_web.py（分片 / 续传 / 停用 SW / 启动图）
+# 4. 网页版：先裁字库，再 web_build，最后**必须**跑 patch_web.py
+python3 tools/subset_fonts.py
 ~/Developer/Tools/renpy-8.5.3/renpy.sh launcher web_build "$PWD/game" --destination "$PWD/build/web"
 python3 tools/patch_web.py build/web
 

@@ -16,14 +16,20 @@ import re
 import shutil
 import sys
 
-PART_SIZE = 8_000_000  # 8 MB/片，远低于 Cloudflare Pages 的 25 MiB 上限
+PART_SIZE = 2_000_000  # 2 MB/片：足够并行，单片失败代价小
 
 LOADER_MARK_START = "    async function loadGameZip() {"
 LOADER_MARK_END = "    function runLoadGameZip() {"
 
-NEW_LOADER = r'''    // ---- 分片下载（由 tools/patch_web.py 注入）--------------------------------
-    // 单个 33 MB 的 game.zip 在弱网下极易中途断流，且无法续传；
-    // 这里改为按 game.zip.parts.json 逐片下载，单片失败可带 Range 续传重试。
+NEW_LOADER = r'''    // ---- 并行分片 + 提前预取（由 tools/patch_web.py 注入）------------------
+    // Ren'Py 原本用一次 fetch 拉整个 game.zip，要等 wasm 编译完才开始，弱网下还会断。
+    // 这里做两件事：
+    //   1) 页面一加载就开始分片下载（与 wasm/引擎数据并行），下载结果先存在内存里；
+    //   2) 每片独立重试、支持 Range 续传，写入时按各自偏移量落到 /game.zip。
+    var GAME_FILE = null;
+    var GAME_PARTS = [];
+    var PREFETCH = null;
+
     async function fetchPart(url, from, tries) {
         var lastErr = null;
         for (var i = 0; i < tries; i++) {
@@ -35,10 +41,10 @@ NEW_LOADER = r'''    // ---- 分片下载（由 tools/patch_web.py 注入）----
                     opt.headers = { 'Range': 'bytes=' + from + '-' };
                 }
                 var r = await fetch(url, opt);
+                clearTimeout(timer);
                 if (!r.ok && r.status !== 206) {
                     throw new Error('HTTP ' + r.status + ' ' + r.statusText);
                 }
-                clearTimeout(timer);
                 return r;
             } catch (e) {
                 clearTimeout(timer);
@@ -51,66 +57,106 @@ NEW_LOADER = r'''    // ---- 分片下载（由 tools/patch_web.py 注入）----
         throw lastErr || new Error('fetch failed');
     }
 
+    function partsMeta() {
+        var names = window.gameZipParts || [];
+        var sizes = window.gameZipPartSizes || [];
+        var offsets = [];
+        var acc = 0;
+        for (var i = 0; i < names.length; i++) {
+            offsets.push(acc);
+            acc += sizes[i] || 0;
+        }
+        return { names: names, sizes: sizes, offsets: offsets, total: window.gameZipTotal || acc };
+    }
+
+    async function fetchPartToMemory(st) {
+        var got = 0;
+        var attempt = 0;
+        while (st.size === 0 || got < st.size) {
+            var r = await fetchPart(st.url, got, 6);
+            if (got > 0 && r.status !== 206) {
+                // 服务端忽略 Range（返回 200 全量），从本片起点重来
+                got = 0;
+                st.chunks = [];
+            }
+            var reader = r.body.getReader();
+            var finished = false;
+            try {
+                while (true) {
+                    var chunk = await reader.read();
+                    if (chunk.done) { finished = true; break; }
+                    st.chunks.push(chunk.value);
+                    got += chunk.value.length;
+                    st.got = got;
+                    gameZipDownloaded += chunk.value.length;
+                    updateDownloadProgress();
+                }
+            } catch (e) {
+                attempt += 1;
+                if (attempt >= 6) { throw e; }
+                await new Promise(function (res) { setTimeout(res, 800 * attempt); });
+                continue;
+            }
+            if (finished && (st.size === 0 || got >= st.size)) { st.done = true; return; }
+            attempt += 1;
+            if (attempt >= 8) {
+                throw new Error('分片下载不完整：' + st.url + '（' + got + '/' + st.size + '）');
+            }
+            await new Promise(function (res) { setTimeout(res, 800 * attempt); });
+        }
+        st.done = true;
+    }
+
+    function startPrefetch() {
+        if (PREFETCH) { return PREFETCH; }
+        var m = partsMeta();
+        GAME_PARTS = m.names.map(function (n, i) {
+            return {
+                url: n, size: m.sizes[i] || 0, offset: m.offsets[i],
+                chunks: [], got: 0, written: 0, done: false
+            };
+        });
+        gameZipSize = m.total;
+        PREFETCH = Promise.all(GAME_PARTS.map(function (st) {
+            return fetchPartToMemory(st).catch(function (e) { st.error = e; });
+        }));
+        return PREFETCH;
+    }
+
     async function loadGameZip() {
         try {
-            var parts = window.gameZipParts;
-            var sizes = window.gameZipPartSizes || [];
-            var f = FS.open('/game.zip', 'w');
-            var pos = 0;
+            var m = partsMeta();
+            gameZipSize = m.total;
+            GAME_FILE = FS.open('/game.zip', 'w');
 
-            gameZipSize = window.gameZipTotal || 0;
+            await startPrefetch();
 
-            for (var p = 0; p < parts.length; p++) {
-                var url = parts[p];
-                var need = sizes[p] || 0;
-                var partStart = pos;
-                var got = 0;
-                var attempt = 0;
-
-                while (need === 0 || got < need) {
-                    var r = await fetchPart(url, got, 6);
-                    if (got > 0 && r.status !== 206) {
-                        // 服务端忽略了 Range（返回 200 全量），必须从分片起点重写
-                        pos = partStart;
-                        got = 0;
-                        gameZipDownloaded = pos;
-                    }
-                    var reader = r.body.getReader();
-                    var finished = false;
-                    try {
-                        while (true) {
-                            var chunk = await reader.read();
-                            if (chunk.done) { finished = true; break; }
-                            FS.write(f, chunk.value, 0, chunk.value.length, pos);
-                            pos += chunk.value.length;
-                            got += chunk.value.length;
-                            gameZipDownloaded = pos;
-                            updateDownloadProgress();
-                        }
-                    } catch (e) {
-                        // 分片中途断流：下一轮用 Range 从 got 处续传
-                        attempt += 1;
-                        if (attempt >= 6) { throw e; }
-                        await new Promise(function (res) { setTimeout(res, 800 * attempt); });
-                        continue;
-                    }
-                    // 流正常结束但长度不足（连接被截断）也要继续续传，不能当作完成
-                    if (finished && (need === 0 || got >= need)) { break; }
-                    attempt += 1;
-                    if (attempt >= 8) {
-                        throw new Error('分片下载不完整：' + url + '（' + got + '/' + need + '）');
-                    }
-                    await new Promise(function (res) { setTimeout(res, 800 * attempt); });
+            for (var i = 0; i < GAME_PARTS.length; i++) {
+                var st = GAME_PARTS[i];
+                if (!st.done) {
+                    // 预取失败的分片：清空后重下（带 Range 续传）
+                    st.chunks = [];
+                    st.got = 0;
+                    await fetchPartToMemory(st);
                 }
+                for (var j = 0; j < st.chunks.length; j++) {
+                    var b = st.chunks[j];
+                    FS.write(GAME_FILE, b, 0, b.length, st.offset + st.written);
+                    st.written += b.length;
+                }
+                st.chunks = [];
             }
 
-            FS.close(f);
+            FS.close(GAME_FILE);
+            GAME_FILE = null;
 
         } catch (e) {
             reportError('Could not download game data', e);
         }
     }
 
+    // 立即开始下载游戏数据，与 wasm 的下载/编译并行
+    startPrefetch();
 '''
 
 
