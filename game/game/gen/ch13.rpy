@@ -2,6 +2,7 @@
 
 label ch13:
     call screen chapter_card("第十三章", "卖车")
+    $ track("chapter_enter", chapter="ch13")
     scene bg_shop
     with fade
     play music "audio/bgm/shop_radio.ogg" fadein 1.5

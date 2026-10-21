@@ -2,6 +2,7 @@
 
 label ch02:
     call screen chapter_card("第二章", "单王")
+    $ track("chapter_enter", chapter="ch02")
     $ qian = 14052
     $ debt = 0
     scene bg_road

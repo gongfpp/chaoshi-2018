@@ -2,6 +2,7 @@
 
 label ch17:
     call screen chapter_card("第十七章", "念念")
+    $ track("chapter_enter", chapter="ch17")
     $ qian -= 400
     $ debt -= 2000
     scene bg_room

@@ -2,6 +2,7 @@
 
 label ch01:
     call screen chapter_card("第一章", "三月雨")
+    $ track("chapter_enter", chapter="ch01")
     $ qian = 0
     $ debt = 2000
     scene bg_station_arrival
@@ -15,11 +16,14 @@ label ch01:
     "他给王大勇回了个“到了”。想了想，又加一句“哥，我带了三千”。"
     "发出去就后悔了。这句话像在报账，也像在求助。"
     "手机还剩三格电。通讯录里，姐姐的号码在“最近”下面，最后一条通话是三天前。"
+    $ track("choice_shown", choice="ch01")
     menu:
         "给姐姐打个电话":
+            $ track("choice_pick", choice="ch01", option=0)
             $ c_call = True
             $ xin += 1
         "把手机揣回去，先找住处":
+            $ track("choice_pick", choice="ch01", option=1)
             $ c_call = False
             $ shen += 1
     if c_call:

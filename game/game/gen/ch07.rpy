@@ -2,6 +2,7 @@
 
 label ch07:
     call screen chapter_card("第七章", "新国标")
+    $ track("chapter_enter", chapter="ch07")
     $ qian = 22421
     $ debt = 0
     scene bg_station
@@ -113,13 +114,16 @@ label ch07:
     sg "「剩下的想办法。我给你两个小时。」"
     "他卡里有二万二。那是买车的钱——从二零一八年三月到今天，一单一单堆起来的。动一分，就白攒了。"
     "所以他跟孙哥说四千。那是他手头能立刻转出去的数。"
+    $ track("choice_shown", choice="ch07")
     menu:
         "报警，走程序":
+            $ track("choice_pick", choice="ch07", option=0)
             $ c_siyu = False
             $ qian -= 4000
             $ shen -= 1
             jump ch07_alt
         "私了，花钱买平安":
+            $ track("choice_pick", choice="ch07", option=1)
             $ c_siyu = True
             $ qian -= 12000
             $ debt += 8000

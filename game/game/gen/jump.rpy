@@ -34,6 +34,7 @@ label ch01_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch01")
     jump ch01
 
 label ch02_entry:
@@ -47,6 +48,7 @@ label ch02_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch02")
     jump ch02
 
 label ch03_entry:
@@ -60,6 +62,7 @@ label ch03_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch03")
     jump ch03
 
 label ch04_entry:
@@ -73,6 +76,7 @@ label ch04_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch04")
     jump ch04
 
 label ch05_entry:
@@ -86,6 +90,7 @@ label ch05_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch05")
     jump ch05
 
 label ch06_entry:
@@ -99,6 +104,7 @@ label ch06_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch06")
     jump ch06
 
 label ch07_entry:
@@ -112,6 +118,7 @@ label ch07_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch07")
     jump ch07
 
 label ch08_entry:
@@ -125,6 +132,7 @@ label ch08_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch08")
     jump ch08
 
 label ch09_entry:
@@ -138,6 +146,7 @@ label ch09_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch09")
     jump ch09
 
 label ch10_entry:
@@ -151,6 +160,7 @@ label ch10_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch10")
     jump ch10
 
 label ch11_entry:
@@ -164,6 +174,7 @@ label ch11_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch11")
     jump ch11
 
 label ch12_entry:
@@ -177,6 +188,7 @@ label ch12_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch12")
     jump ch12
 
 label ch13_entry:
@@ -190,6 +202,7 @@ label ch13_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch13")
     jump ch13
 
 label ch14_entry:
@@ -203,6 +216,7 @@ label ch14_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch14")
     jump ch14
 
 label ch15_entry:
@@ -216,6 +230,7 @@ label ch15_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch15")
     jump ch15
 
 label ch16_entry:
@@ -229,6 +244,7 @@ label ch16_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch16")
     jump ch16
 
 label ch17_entry:
@@ -242,6 +258,7 @@ label ch17_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch17")
     jump ch17
 
 label ch18_entry:
@@ -255,6 +272,7 @@ label ch18_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch18")
     jump ch18
 
 label ch19_entry:
@@ -268,6 +286,7 @@ label ch19_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch19")
     jump ch19
 
 label ch20_entry:
@@ -281,5 +300,6 @@ label ch20_entry:
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ track("chapter_jump", chapter="ch20")
     jump ch20
 

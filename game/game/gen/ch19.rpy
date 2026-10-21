@@ -2,6 +2,7 @@
 
 label ch19:
     call screen chapter_card("第十九章", "交易")
+    $ track("chapter_enter", chapter="ch19")
     $ qian -= 340
     $ debt -= 2000
     scene bg_station
@@ -85,12 +86,15 @@ label ch19:
     scene bg_office
     with fade
     play music "audio/bgm/tense_low.ogg" fadein 1.5
+    $ track("choice_shown", choice="ch19")
     menu:
         "交出陈立的住址和聊天记录":
+            $ track("choice_pick", choice="ch19", option=0)
             $ sold_chen = True
             $ qian += 2000
             $ debt -= 2000
         "拒绝":
+            $ track("choice_pick", choice="ch19", option=1)
             $ sold_chen = False
             $ xin += 2
             jump ending_zhundian

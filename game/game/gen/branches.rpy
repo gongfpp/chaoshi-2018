@@ -1,6 +1,7 @@
 # 由 tools/gen_game.py 自动生成，请勿手改。
 
 label ch03_alt:
+    $ track("ending_enter", ending="ch03_alt")
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.0
@@ -38,6 +39,7 @@ label ch03_alt:
     jump ch03_join
 
 label ch07_alt:
+    $ track("ending_enter", ending="ch07_alt")
     scene bg_office
     with fade
     play music "audio/bgm/office_hum.ogg" fadein 1.0
@@ -77,6 +79,7 @@ label ch07_alt:
     jump ch07_join
 
 label ch09_alt:
+    $ track("ending_enter", ending="ch09_alt")
     scene bg_room
     with fade
     play music "audio/bgm/room_night.ogg" fadein 1.0
@@ -119,6 +122,7 @@ label ch09_alt:
     jump ch09_join
 
 label ch12_alt:
+    $ track("ending_enter", ending="ch12_alt")
     scene bg_room
     with fade
     play music "audio/bgm/silence_tense.ogg" fadein 1.0

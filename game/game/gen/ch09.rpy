@@ -2,6 +2,7 @@
 
 label ch09:
     call screen chapter_card("第九章", "喜酒")
+    $ track("chapter_enter", chapter="ch09")
     if c_siyu:
         $ qian = 21205
         $ debt = 0
@@ -146,11 +147,14 @@ label ch09:
     ll "「上。婚礼花了八万，不上班喝西北风？」"
     "她转过身，把一张银行卡放在桌上。"
     ll "「你的工资卡。密码是你生日。以后每个月十五号，我转一千五给你。」"
+    $ track("choice_shown", choice="ch09")
     menu:
         "把工资卡交给她":
+            $ track("choice_pick", choice="ch09", option=0)
             $ c_gongzi = True
             $ xin += 2
         "工资卡自己留着":
+            $ track("choice_pick", choice="ch09", option=1)
             $ c_gongzi = False
             $ xin -= 1
             jump ch09_alt

@@ -2,6 +2,7 @@
 
 label ch14:
     call screen chapter_card("第十四章", "小福")
+    $ track("chapter_enter", chapter="ch14")
     $ qian -= 1300
     $ debt -= 15000
     scene bg_alley
@@ -260,11 +261,14 @@ label ch14:
     xf "「我爸会打死我。」"
     xz "「他敢。」"
     xf "「他敢。他打过我妈。」"
+    $ track("choice_shown", choice="ch14")
     menu:
         "当晚带她走":
+            $ track("choice_pick", choice="ch14", option=0)
             $ xf_saved = True
             jump ending_raolu
         "下个月再来接她":
+            $ track("choice_pick", choice="ch14", option=1)
             $ xf_saved = False
     "祥子看着她。"
     "霓虹灯把她的脸照成两种颜色，一半红，一半黑。"

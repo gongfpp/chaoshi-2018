@@ -216,6 +216,7 @@ label ending_raolu:
     "然后他转身，回到铺子里，拿起一把扳手。"
     "外面有人在喊：“祥子，我这车闸不灵了！”"
     xz "「来了。」"
+    $ track("ending_complete", ending="ending_raolu")
     call screen ending_card
     return
 
@@ -378,5 +379,6 @@ label ending_zhundian:
     "他把手机扣在桌上，继续录单。"
     "屏幕上的表格一行一行往下走，每一行都有时间，有地点，有签收人。"
     "一个都不差。"
+    $ track("ending_complete", ending="ending_zhundian")
     call screen ending_card
     return

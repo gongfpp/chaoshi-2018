@@ -12,6 +12,7 @@
 
 import json
 import os
+import subprocess
 import re
 import shutil
 import sys
@@ -248,6 +249,89 @@ def patch_index(root, meta):
 </body>"""
         s = s.replace("</body>", watchdog, 1)
 
+
+    # 埋点桥：把游戏事件送到 /api/collect，并采集页面访问、加载与错误
+    if "chaoshiTrack" not in s:
+        try:
+            build = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                                   cwd=os.path.dirname(os.path.abspath(__file__)),
+                                   capture_output=True, text=True).stdout.strip() or "nogit"
+        except Exception:
+            build = "nogit"
+        bridge = """  <script>
+  (function () {
+    var BUILD = "%(build)s";
+    function rid(p) { return p + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+    var vid = localStorage.getItem("chaoshi_vid");
+    if (!vid) { vid = rid("v_"); localStorage.setItem("chaoshi_vid", vid); }
+    var sKey = "chaoshi_sid_" + Math.floor(Date.now() / 1800000);
+    var sid = sessionStorage.getItem(sKey);
+    if (!sid) { sid = rid("s_"); sessionStorage.setItem(sKey, sid); }
+    var queue = [], seq = 0, started = Date.now(), readySent = false, t0 = performance.now();
+
+    function flush() {
+      if (!queue.length) return;
+      var body = JSON.stringify({ events: queue.splice(0, 50) });
+      var ok = false;
+      try {
+        if (navigator.sendBeacon) {
+          ok = navigator.sendBeacon("/api/collect", new Blob([body], { type: "application/json" }));
+        }
+      } catch (e) { ok = false; }
+      if (!ok) {
+        try {
+          fetch("/api/collect", { method: "POST", body: body, keepalive: true,
+                                  headers: { "Content-Type": "application/json" } });
+        } catch (e) {}
+      }
+    }
+
+    window.chaoshiTrack = function (raw) {
+      try {
+        var e = JSON.parse(raw);
+        e.vid = vid; e.sid = sid; e.seq = ++seq; e.build = BUILD;
+        e.site = location.host; e.t_client = e.t || Date.now();
+        e.ref = document.referrer ? document.referrer.replace(/[?#].*$/, "") : "";
+        queue.push(e);
+        if (queue.length >= 8) flush();
+      } catch (err) {}
+    };
+    // 若游戏跑在 worker 里，事件会通过 postMessage 转发过来
+    window.addEventListener("message", function (ev) {
+      if (ev.data && typeof ev.data.__chaoshi_event === "string") {
+        window.chaoshiTrack(ev.data.__chaoshi_event);
+      }
+    });
+    setInterval(flush, 8000);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") flush();
+    });
+
+    window.chaoshiTrack(JSON.stringify({ event: "page_view" }));
+
+    // 以 canvas 真正进入游戏尺寸作为「可交互」信号
+    var iv = setInterval(function () {
+      var c = document.querySelector("canvas");
+      if (c && c.width > 640 && !readySent) {
+        readySent = true;
+        clearInterval(iv);
+        window.chaoshiTrack(JSON.stringify({
+          event: "game_ready", ms: Math.round(performance.now() - t0)
+        }));
+      }
+    }, 500);
+
+    window.addEventListener("error", function (ev) {
+      window.chaoshiTrack(JSON.stringify({
+        event: "error", reason: String(ev.message || "script").slice(0, 120)
+      }));
+    });
+  })();
+  </script>
+</body>""" % {"build": build}
+        s = s.replace("</body>", bridge, 1)
+
     open(path, "w", encoding="utf-8").write(s)
 
 
@@ -271,6 +355,15 @@ def patch_catalog(root, meta):
     files += [p["name"] for p in meta["parts"]]
     d["files"] = files
     json.dump(d, open(path, "w", encoding="utf-8"), ensure_ascii=False)
+
+
+def copy_dashboard(root):
+    """把看板页面放进站点根目录（/dash.html）。"""
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dash.html")
+    if os.path.exists(src):
+        shutil.copy2(src, os.path.join(root, "dash.html"))
+        return True
+    return False
 
 
 def write_headers(root):
@@ -344,6 +437,7 @@ def main():
     patch_loader(root)
     patch_catalog(root, meta)
     write_headers(root)
+    copy_dashboard(root)
     made = make_presplash(root)
     biggest = max(p["size"] for p in meta["parts"])
     total = sum(os.path.getsize(os.path.join(root, f))

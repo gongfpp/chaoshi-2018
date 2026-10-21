@@ -227,6 +227,7 @@ def emit_chapter(name, blocks, next_label):
     stage = []
     lines.append("label %s:" % name)
     lines.append('    call screen chapter_card("%s", "%s")' % (num, title))
+    lines.append('    $ track("chapter_enter", chapter="%s")' % name)
     for b in blocks:
         kind = b[0]
         if kind == "scene":
@@ -271,9 +272,12 @@ def emit_chapter(name, blocks, next_label):
             lines.append("")
             lines.append("label %s:" % b[1])
         elif kind == "choice":
+            cid = b[1]
+            lines.append('    $ track("choice_shown", choice="%s")' % cid)
             lines.append("    menu:")
-            for opt in CHOICES[b[1]]:
+            for oi, opt in enumerate(CHOICES[cid]):
                 lines.append('        "%s":' % opt["text"])
+                lines.append('            $ track("choice_pick", choice="%s", option=%d)' % (cid, oi))
                 for act in opt["actions"]:
                     lines.append("            %s" % act)
                 if opt.get("jump"):
@@ -404,6 +408,7 @@ def emit_jump_table(names):
         for f in FLAG_DEFAULTS:
             code.append("    $ %s = %s" % (f, "True" if f == "c_siyu" else "False"))
         code.append("    $ visited = False")
+        code.append('    $ track("chapter_jump", chapter="%s")' % name)
         code.append("    jump %s" % name)
         code.append("")
     with open(os.path.join(OUT, "jump.rpy"), "w", encoding="utf-8") as f:
@@ -495,11 +500,12 @@ def main():
     defs.append("default c_zaodao = False")
     defs.append("default xf_saved = False")
     defs.append("default sold_chen = False")
-    defs.append("default xf_saved = False")
-    defs.append("default sold_chen = True")
+    defs.append("default run_id = \"\"")
     defs.append("")
     defs.append("label start:")
     defs.append("    $ quick_menu = True")
+    defs.append('    $ run_id = "%08x" % renpy.random.getrandbits(32)')
+    defs.append('    $ track("run_start")')
     defs.append("    jump ch01")
     with open(os.path.join(OUT, "defs.rpy"), "w", encoding="utf-8") as f:
         f.write("\n".join(defs) + "\n")
@@ -552,6 +558,7 @@ def main():
                         code.append('    %s "%s"' % (spk, esc(chunk)))
                     else:
                         code.append('    "%s"' % esc(chunk))
+        code.append('    $ track("ending_complete", ending="%s")' % label)
         code.append("    call screen ending_card")
         code.append("    return")
         endings.append("\n".join(code))
@@ -564,7 +571,7 @@ def main():
     for path in sorted(glob.glob(os.path.join(ROOT, "game", "branches", "*.md"))):
         blocks = parse_file(path)
         label = os.path.splitext(os.path.basename(path))[0]
-        code = ["label %s:" % label]
+        code = ["label %s:" % label, '    $ track("ending_enter", ending="%s")' % label]
         for b in blocks:
             kind = b[0]
             if kind == "scene":

@@ -2,6 +2,7 @@
 
 label ch10:
     call screen chapter_card("第十章", "封城")
+    $ track("chapter_enter", chapter="ch10")
     $ qian -= 2649
     scene bg_station
     with fade

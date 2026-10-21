@@ -58,9 +58,10 @@ default c_gongzi = False
 default c_zaodao = False
 default xf_saved = False
 default sold_chen = False
-default xf_saved = False
-default sold_chen = True
+default run_id = ""
 
 label start:
     $ quick_menu = True
+    $ run_id = "%08x" % renpy.random.getrandbits(32)
+    $ track("run_start")
     jump ch01

@@ -2,6 +2,7 @@
 
 label ch12:
     call screen chapter_card("第十二章", "一月十八")
+    $ track("chapter_enter", chapter="ch12")
     $ qian -= 500
     $ debt += 71000
     scene bg_room
@@ -11,11 +12,14 @@ label ch12:
     "那单是烧烤，地址在两公里外。"
     "祥子看着屏幕上的倒计时，又看了看床上的人。"
     "三十二分钟。来回四十分钟。她睡着了，呼吸很重，但没有再喊疼。"
+    $ track("choice_shown", choice="ch12")
     menu:
         "先把手上那单送完":
+            $ track("choice_pick", choice="ch12", option=0)
             $ c_zaodao = False
             $ qian += 6
         "立刻掉头回家":
+            $ track("choice_pick", choice="ch12", option=1)
             $ c_zaodao = True
             jump ch12_alt
     "他点了“接单”。"

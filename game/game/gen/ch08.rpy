@@ -2,6 +2,7 @@
 
 label ch08:
     call screen chapter_card("第八章", "彩礼")
+    $ track("chapter_enter", chapter="ch08")
     if c_siyu:
         $ qian = 10421
         $ debt = 8000

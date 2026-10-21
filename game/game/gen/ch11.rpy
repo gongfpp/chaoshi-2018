@@ -2,6 +2,7 @@
 
 label ch11:
     call screen chapter_card("第十一章", "建档")
+    $ track("chapter_enter", chapter="ch11")
     $ qian -= 1000
     scene bg_room
     with fade
