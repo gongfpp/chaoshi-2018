@@ -2,8 +2,7 @@
 
 label ch10:
     call screen chapter_card("第十章", "封城")
-    $ qian = 5800
-    $ debt = 14000
+    $ qian -= 2649
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.5
@@ -242,3 +241,4 @@ label ch10:
     "可他还是在转。"
 
     jump ch11
+    return

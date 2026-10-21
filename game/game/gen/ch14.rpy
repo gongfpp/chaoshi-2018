@@ -2,8 +2,8 @@
 
 label ch14:
     call screen chapter_card("第十四章", "小福")
-    $ qian = 3000
-    $ debt = 70000
+    $ qian -= 1300
+    $ debt -= 15000
     scene bg_alley
     with fade
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
@@ -357,3 +357,4 @@ label ch14:
     "他没有再提这件事。"
 
     jump ch15
+    return

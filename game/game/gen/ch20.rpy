@@ -2,8 +2,8 @@
 
 label ch20:
     call screen chapter_card("第二十章", "守夜")
-    $ qian = 1500
-    $ debt = 18000
+    $ qian += 640
+    $ debt -= 6000
     scene bg_funeral
     with fade
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
@@ -262,3 +262,4 @@ label ch20:
     "他知道那是什么。"
 
     jump ch20_end
+    return

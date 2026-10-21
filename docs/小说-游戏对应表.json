@@ -108,7 +108,7 @@
   {
     "chapter": "ch07",
     "title": "新国标",
-    "chars": 2136,
+    "chars": 2197,
     "scenes": [
       "bg_station",
       "bg_alley",
@@ -120,12 +120,12 @@
       "bg_alley",
       "bg_shop"
     ],
-    "lines": 147
+    "lines": 149
   },
   {
     "chapter": "ch08",
     "title": "彩礼",
-    "chars": 2150,
+    "chars": 2276,
     "scenes": [
       "bg_station",
       "bg_office",
@@ -136,12 +136,12 @@
       "bg_room",
       "bg_shop"
     ],
-    "lines": 162
+    "lines": 166
   },
   {
     "chapter": "ch09",
     "title": "喜酒",
-    "chars": 2402,
+    "chars": 2522,
     "scenes": [
       "bg_wedding",
       "bg_wedding",
@@ -152,7 +152,7 @@
       "bg_room",
       "bg_shop"
     ],
-    "lines": 163
+    "lines": 174
   },
   {
     "chapter": "ch10",
@@ -196,7 +196,7 @@
   {
     "chapter": "ch12",
     "title": "一月十八",
-    "chars": 1988,
+    "chars": 1977,
     "scenes": [
       "bg_room",
       "bg_road",
@@ -217,7 +217,7 @@
       "bg_room",
       "bg_room"
     ],
-    "lines": 150
+    "lines": 149
   },
   {
     "chapter": "ch13",

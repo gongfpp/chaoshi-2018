@@ -214,3 +214,4 @@ label ch03_join:
     "他不知道这个人情值多少钱。他后来知道了。"
 
     jump ch04
+    return

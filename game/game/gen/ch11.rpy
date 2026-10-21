@@ -2,8 +2,7 @@
 
 label ch11:
     call screen chapter_card("第十一章", "建档")
-    $ qian = 4800
-    $ debt = 14000
+    $ qian -= 1000
     scene bg_room
     with fade
     play music "audio/bgm/room_dawn.ogg" fadein 1.5
@@ -310,3 +309,4 @@ label ch11:
     "他看着那行字，手指停在半空。"
 
     jump ch12
+    return

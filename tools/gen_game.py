@@ -135,7 +135,8 @@ def split_text(text, limit):
 
 
 KNOWN_DIRECTIVES = {"scene", "show", "hide", "bgm", "sfx", "choice",
-                    "anchor", "stat", "ending", "title", "jump", "branch"}
+                    "anchor", "stat", "money", "ending", "title", "jump", "branch",
+                    "when", "end"}
 
 
 def parse_file(path):
@@ -147,6 +148,10 @@ def parse_file(path):
         if not line.strip():
             continue
         if line.startswith("# "):
+            continue
+        # 无条件段落结束标记：<!-- end -->（不带冒号，正则匹配不到）
+        if re.fullmatch(r"<!--\s*end\s*-->", line.strip()):
+            blocks.append(("endwhen",))
             continue
         m = DIRECTIVE.search(line)
         if m and not line.replace(m.group(0), "").strip():
@@ -169,19 +174,33 @@ def parse_file(path):
                 blocks.append(("choice", val))
             elif key == "anchor":
                 blocks.append(("anchor", val))
-            elif key == "stat":
+            elif key in ("stat", "money"):
+                # stat：绝对写入（章节入口状态）；money：增量（本章发生的收支）
+                # 两者都支持 when=<条件>，用于分支路线保留各自的钱数
                 d = {}
-                for kv in val.split():
+                cond = None
+                # when= 之后整段都是条件表达式（可能含空格，如 "not c_siyu"）
+                if "when=" in val:
+                    head, cond = val.split("when=", 1)
+                    cond = cond.strip()
+                    tokens = head.split()
+                else:
+                    tokens = val.split()
+                for kv in tokens:
                     if "=" in kv:
                         k, v = kv.split("=", 1)
                         try:
                             d[k] = int(v)
                         except ValueError:
                             d[k] = v
-                blocks.append(("stat", d))
+                blocks.append((key, d, cond))
             elif key == "jump":
                 # 控制流：分支段落结束后跳回汇合点。缺了这条会顺序落入下一个分支。
                 blocks.append(("jump", val.strip()))
+            elif key == "when":
+                blocks.append(("when", val.strip()))
+            elif key == "end":
+                blocks.append(("endwhen",))
             elif key == "branch":
                 # 分支段落开头的自述标记，仅用于校验，不产生运行时代码
                 blocks.append(("branch", val.strip()))
@@ -230,12 +249,24 @@ def emit_chapter(name, blocks, next_label):
             lines.append('    play music "audio/bgm/%s.ogg" fadein 1.5' % b[1])
         elif kind == "sfx":
             lines.append('    play sound "audio/sfx/%s.ogg"' % b[1])
-        elif kind == "stat":
-            for k, v in b[1].items():
+        elif kind in ("stat", "money"):
+            d = b[1]
+            cond = b[2] if len(b) > 2 else None
+            op = "=" if kind == "stat" else "+="
+            body = []
+            for k, v in d.items():
                 if isinstance(v, int):
-                    lines.append("    $ %s = %d" % (k, v))
+                    if kind == "money" and v < 0:
+                        body.append("    $ %s -= %d" % (k, -v))
+                    else:
+                        body.append("    $ %s %s %d" % (k, op, v))
                 else:
-                    lines.append('    $ %s = "%s"' % (k, v))
+                    body.append('    $ %s = "%s"' % (k, v))
+            if cond:
+                lines.append("    if %s:" % cond)
+                lines.extend("    " + ln for ln in body)
+            else:
+                lines.extend(body)
         elif kind == "anchor":
             lines.append("")
             lines.append("label %s:" % b[1])
@@ -272,9 +303,26 @@ def emit_chapter(name, blocks, next_label):
             lines.append("    $ persistent.ending_%s = True" % b[1])
         elif kind in ("title", "branch"):
             pass
+        elif kind == "when":
+            lines.append("@@WHEN@@%s" % b[1])
+        elif kind == "endwhen":
+            lines.append("@@END@@")
     lines.append("")
     if next_label:
         lines.append("    jump %s" % next_label)
+    # @@WHEN@@ / @@END@@ 转成 Ren'Py 的 if 块并补缩进
+    if any(ln.startswith("@@") for ln in lines):
+        out, depth = [], 0
+        for ln in lines:
+            if ln.startswith("@@WHEN@@"):
+                out.append("    " * (depth + 1) + "if %s:" % ln[8:])
+                depth += 1
+                continue
+            if ln.startswith("@@END@@"):
+                depth = max(0, depth - 1)
+                continue
+            out.append(("    " * depth + ln) if depth and ln.strip() else ln)
+        lines = out
     else:
         lines.append("    return")
     return "\n".join(lines)

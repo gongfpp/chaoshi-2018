@@ -2,8 +2,8 @@
 
 label ch15:
     call screen chapter_card("第十五章", "服务分")
-    $ qian = 2000
-    $ debt = 40000
+    $ qian -= 1000
+    $ debt -= 30000
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.5
@@ -222,3 +222,4 @@ label ch15:
     "从那天起，他不再记账。"
 
     jump ch16
+    return

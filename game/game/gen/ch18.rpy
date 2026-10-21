@@ -2,8 +2,8 @@
 
 label ch18:
     call screen chapter_card("第十八章", "群")
-    $ qian = 1200
-    $ debt = 26000
+    $ qian += 400
+    $ debt -= 2000
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.5
@@ -196,3 +196,4 @@ label ch18:
     "外面有人在放烟花，很远。快过年了。"
 
     jump ch19
+    return

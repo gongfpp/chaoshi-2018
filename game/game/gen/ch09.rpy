@@ -2,8 +2,12 @@
 
 label ch09:
     call screen chapter_card("第九章", "喜酒")
-    $ qian = 8449
-    $ debt = 14000
+    if c_siyu:
+        $ qian = 21205
+        $ debt = 0
+    if not c_siyu:
+        $ qian = 31445
+        $ debt = 0
     scene bg_wedding
     with fade
     play music "audio/bgm/wedding.ogg" fadein 1.5
@@ -149,7 +153,18 @@ label ch09:
             $ xin -= 1
             jump ch09_alt
     "祥子拿起卡，看了看。"
-    "他把卡揣进兜里。"
+    if c_gongzi:
+        "他想了想，把卡推回去。"
+        xz "「你拿着吧。」"
+        ll "「你想好了？」"
+        xz "「想好了。」"
+        "她把卡收进包里，扣上扣子。动作很轻，像收一张收据。"
+    if not c_gongzi:
+        "他把卡揣进兜里。"
+        ll "「你不信我。」"
+        xz "「我信你。」"
+        ll "「你信我，就把卡给我。」"
+        "他没有再说话。她看了他一会儿，转身去洗碗，水开得很大。"
 
 label ch09_join:
     scene bg_room
@@ -158,6 +173,10 @@ label ch09_join:
     "婚后的第一个月，他们吵了一架。"
     "起因是一双鞋。"
     "祥子的鞋底磨穿了，下雨天进水。他去夜市买了一双，八十块。"
+    if c_gongzi:
+        "这八十块是他这个月一千五里的。卡不在他手上，钱在。"
+    if not c_gongzi:
+        "这八十块是他自己卡里的。卡在他手上，钱不在。"
     "刘蕾看见，问他多少钱。"
     show xz normal at sprite_left
     with dissolve

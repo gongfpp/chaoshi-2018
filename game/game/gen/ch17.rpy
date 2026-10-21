@@ -2,8 +2,8 @@
 
 label ch17:
     call screen chapter_card("第十七章", "念念")
-    $ qian = 800
-    $ debt = 28000
+    $ qian -= 400
+    $ debt -= 2000
     scene bg_room
     with fade
     play music "audio/bgm/room_dawn.ogg" fadein 1.5
@@ -211,3 +211,4 @@ label ch17:
     "明天还要跑单。"
 
     jump ch18
+    return

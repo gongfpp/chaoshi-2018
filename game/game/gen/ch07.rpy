@@ -2,8 +2,8 @@
 
 label ch07:
     call screen chapter_card("第七章", "新国标")
-    $ qian = 4021
-    $ debt = 8000
+    $ qian = 22421
+    $ debt = 0
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.5
@@ -111,6 +111,8 @@ label ch07:
     sg "「你有多少？」"
     xz "「四千。」"
     sg "「剩下的想办法。我给你两个小时。」"
+    "他卡里有二万二。那是买车的钱——从二零一八年三月到今天，一单一单堆起来的。动一分，就白攒了。"
+    "所以他跟孙哥说四千。那是他手头能立刻转出去的数。"
     menu:
         "报警，走程序":
             $ c_siyu = False
@@ -222,3 +224,4 @@ label ch07_join:
     "他知道，这句话迟早要还。"
 
     jump ch08
+    return

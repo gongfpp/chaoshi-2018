@@ -205,3 +205,4 @@ label ch02:
     "他睡着了。"
 
     jump ch03
+    return

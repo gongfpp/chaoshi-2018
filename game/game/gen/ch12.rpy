@@ -2,8 +2,8 @@
 
 label ch12:
     call screen chapter_card("第十二章", "一月十八")
-    $ qian = 4300
-    $ debt = 85000
+    $ qian -= 500
+    $ debt += 71000
     scene bg_room
     with fade
     play music "audio/bgm/room_night.ogg" fadein 1.5
@@ -156,7 +156,6 @@ label ch12_join:
     scene bg_hospital
     with fade
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
-    "四点三十五分，医生出来了。"
     "他摘下口罩，脸上有汗。"
     doc "「对不起。产后大出血，DIC，我们输了六千毫升血，没救回来。」"
     show xz tired at sprite_left
@@ -167,6 +166,8 @@ label ch12_join:
     "祥子站在原地。"
     "他听见走廊尽头有推车的声音，听见有人在哭，听见广播在叫一个名字。"
     "他忽然想起昨天晚上，她背对着他，说“我躺一会儿就好”。"
+
+label ch12_after:
     scene bg_hospital
     with fade
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
@@ -242,3 +243,4 @@ label ch12_join:
     "没有人应。"
 
     jump ch13
+    return

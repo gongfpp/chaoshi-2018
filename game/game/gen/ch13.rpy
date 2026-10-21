@@ -2,8 +2,6 @@
 
 label ch13:
     call screen chapter_card("第十三章", "卖车")
-    $ qian = 4300
-    $ debt = 85000
     scene bg_shop
     with fade
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
@@ -282,3 +280,4 @@ label ch13:
     "然后他拎起餐，走了进去。"
 
     jump ch14
+    return

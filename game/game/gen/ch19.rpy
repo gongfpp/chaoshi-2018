@@ -2,8 +2,8 @@
 
 label ch19:
     call screen chapter_card("第十九章", "交易")
-    $ qian = 860
-    $ debt = 24000
+    $ qian -= 340
+    $ debt -= 2000
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.5
@@ -243,3 +243,4 @@ label ch19:
     "窗外的雨还在下。乔司的夜很黑，只有远处高架上的一串车灯，慢慢地流。"
 
     jump ch20
+    return

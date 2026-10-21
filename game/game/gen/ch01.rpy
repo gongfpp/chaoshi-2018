@@ -179,3 +179,4 @@ label ch01:
     "明天还要跑。"
 
     jump ch02
+    return

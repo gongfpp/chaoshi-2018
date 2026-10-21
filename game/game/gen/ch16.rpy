@@ -2,8 +2,8 @@
 
 label ch16:
     call screen chapter_card("第十六章", "三月十二")
-    $ qian = 1200
-    $ debt = 30000
+    $ qian -= 800
+    $ debt -= 10000
     scene bg_night_street
     with fade
     play music "audio/bgm/city_night.ogg" fadein 1.5
@@ -327,3 +327,4 @@ label ch16:
     "天花板上有一块水渍，形状像一只趴着的狗。"
 
     jump ch17
+    return
