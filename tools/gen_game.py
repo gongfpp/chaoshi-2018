@@ -134,11 +134,15 @@ def split_text(text, limit):
     return out
 
 
+KNOWN_DIRECTIVES = {"scene", "show", "hide", "bgm", "sfx", "choice",
+                    "anchor", "stat", "ending", "title", "jump", "branch"}
+
+
 def parse_file(path):
     blocks = []
     with open(path, encoding="utf-8") as f:
         raw = f.read()
-    for line in raw.split("\n"):
+    for lineno, line in enumerate(raw.split("\n"), 1):
         line = line.rstrip()
         if not line.strip():
             continue
@@ -175,8 +179,17 @@ def parse_file(path):
                         except ValueError:
                             d[k] = v
                 blocks.append(("stat", d))
+            elif key == "jump":
+                # 控制流：分支段落结束后跳回汇合点。缺了这条会顺序落入下一个分支。
+                blocks.append(("jump", val.strip()))
+            elif key == "branch":
+                # 分支段落开头的自述标记，仅用于校验，不产生运行时代码
+                blocks.append(("branch", val.strip()))
             elif key in ("ending", "title"):
                 blocks.append((key, val))
+            else:
+                raise ValueError("%s:%d 未知指令：%s（允许：%s）" % (
+                    path, lineno, key, "、".join(sorted(KNOWN_DIRECTIVES))))
             continue
         sm = SPEAKER.match(line)
         if sm:
@@ -253,9 +266,11 @@ def emit_chapter(name, blocks, next_label):
                     lines.append('    %s "%s"' % (spk, esc(chunk)))
                 else:
                     lines.append('    "%s"' % esc(chunk))
+        elif kind == "jump":
+            lines.append("    jump %s" % b[1])
         elif kind == "ending":
             lines.append("    $ persistent.ending_%s = True" % b[1])
-        elif kind == "title":
+        elif kind in ("title", "branch"):
             pass
     lines.append("")
     if next_label:
@@ -292,6 +307,64 @@ CHOICES = {
     ],
 }
 
+
+def validate_output():
+    """生成后的控制流自检：标签唯一、跳转目标存在、无意外顺序落入。"""
+    labels = {}
+    errors = []
+    warnings = []
+    for path in sorted(glob.glob(os.path.join(OUT, "*.rpy"))):
+        cur = None
+        body = []
+        seq = []
+
+        def flush():
+            if cur is not None:
+                seq.append((cur, list(body)))
+
+        for line in open(path, encoding="utf-8"):
+            m = re.match(r"label\s+([A-Za-z0-9_]+)\s*:", line)
+            if m:
+                flush()
+                cur = m.group(1)
+                body = []
+                if cur in labels:
+                    errors.append("标签重复：%s（%s 与 %s）" % (
+                        cur, labels[cur], os.path.basename(path)))
+                labels[cur] = os.path.basename(path)
+                continue
+            if cur is not None:
+                body.append(line.rstrip())
+        flush()
+
+        # 同一文件内，除最后一个 label 外，没有 jump/return 结尾就是顺序落入
+        for i, (name, lines) in enumerate(seq):
+            if i == len(seq) - 1:
+                continue
+            tail = [l for l in lines if l.strip()]
+            last = tail[-1].strip() if tail else ""
+            nxt = seq[i + 1][0]
+            # 同章内的 anchor 汇合点（ch03 → ch03_join）是有意的顺序贯穿，不算问题
+            intentional = nxt == name + "_join"
+            if not intentional and not (last.startswith("jump ") or last.startswith("return")):
+                warnings.append("%s: label %s 结尾没有 jump/return，会顺序落入 %s" % (
+                    os.path.basename(path), name, nxt))
+
+    for path in sorted(glob.glob(os.path.join(OUT, "*.rpy"))):
+        for lineno, line in enumerate(open(path, encoding="utf-8"), 1):
+            for target in re.findall(r"\bjump\s+([A-Za-z0-9_]+)", line):
+                if target not in labels:
+                    errors.append("跳转目标不存在：%s（%s:%d）" % (
+                        target, os.path.basename(path), lineno))
+
+    for w in warnings:
+        print("  警告 " + w)
+    if errors:
+        for e in errors:
+            print("  错误 " + e)
+        raise SystemExit("控制流自检失败：%d 个错误" % len(errors))
+    print("控制流自检通过：%d 个标签，无悬空跳转，无顺序落入" % len(labels))
+    return True
 
 def main():
     os.makedirs(OUT, exist_ok=True)
@@ -435,6 +508,7 @@ def main():
     with open(os.path.join(ROOT, "docs", "小说-游戏对应表.json"), "w", encoding="utf-8") as f:
         json.dump(mapping, f, ensure_ascii=False, indent=2)
 
+    validate_output()
     print("生成完成：%d 章，%d 个结局，%d 个分支" % (len(files), len(endings), len(branches)))
     print("总字数（汉字）：", sum(m["chars"] for m in mapping))
 

@@ -35,6 +35,7 @@ label ch03_alt:
     "祥子没说话。"
     "他知道老马说得对。"
     "但他还是想试试，不听话会怎么样。"
+    jump ch03_join
 
 label ch07_alt:
     scene bg_office
@@ -73,6 +74,7 @@ label ch07_alt:
     xz "「我知道，我就不给。」"
     "老马看着他，摇了摇头。"
     lm "「祥子，你这个人，能活，但是活得累。」"
+    jump ch07_join
 
 label ch09_alt:
     scene bg_room
@@ -114,6 +116,7 @@ label ch09_alt:
     ll "「我知道了。」"
     "她翻了个身，背对着他。"
     "窗外的风把塑料布吹得响。"
+    jump ch09_join
 
 label ch12_alt:
     scene bg_room
@@ -199,3 +202,4 @@ label ch12_alt:
     "她死于一场本来可以避免的病，死于没有建档，死于没有社保，死于舍不得一万块押金，死于她自己说的那句“这个站比我的命重要”。"
     "他救不回她。"
     "他只能记住她最后说的那两个字。"
+    jump ch12_join
