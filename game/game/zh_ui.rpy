@@ -139,6 +139,7 @@ screen main_menu():
             color "#C79A4B"
         null height 46
         textbutton "开始" action Start() style "main_menu_textbutton"
+        textbutton "章节目录" action ShowMenu("chapter_list") style "main_menu_textbutton"
         textbutton "读取" action ShowMenu("load") style "main_menu_textbutton"
         textbutton "设置" action ShowMenu("preferences") style "main_menu_textbutton"
         textbutton "关于" action ShowMenu("about") style "main_menu_textbutton"

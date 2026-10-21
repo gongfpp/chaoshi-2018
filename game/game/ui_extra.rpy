@@ -110,6 +110,6 @@ screen chapter_list():
 
             for cid, num, title, when in CHAPTERS:
                 textbutton (num + "　" + title + "　" + when):
-                    action Jump(cid + "_entry")
+                    action Start(cid + "_entry")
                     text_size 24
                     xsize 720
