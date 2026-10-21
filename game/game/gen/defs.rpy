@@ -51,10 +51,13 @@ default debt = 0
 default shen = 10
 default xin = 5
 default orders = 0
-default c_haodan = True
-default c_siyu = True
-default c_gongzi = True
+default c_call = False
+default c_haodan = False
+default c_siyu = False
+default c_gongzi = False
 default c_zaodao = False
+default xf_saved = False
+default sold_chen = False
 default xf_saved = False
 default sold_chen = True
 

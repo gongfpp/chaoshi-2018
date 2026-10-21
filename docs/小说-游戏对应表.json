@@ -2,7 +2,7 @@
   {
     "chapter": "ch01",
     "title": "三月雨",
-    "chars": 2572,
+    "chars": 2712,
     "scenes": [
       "bg_station_arrival",
       "bg_alley",
@@ -14,7 +14,7 @@
       "bg_room",
       "bg_room"
     ],
-    "lines": 132
+    "lines": 142
   },
   {
     "chapter": "ch02",

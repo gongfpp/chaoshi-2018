@@ -94,3 +94,22 @@ transform sprite_right:
     xpos 700
     yalign 1.0
     zoom 0.82
+
+
+## 章节目录：任意章节直接进入，使用该章的标准入口状态（不依赖前序存档）
+screen chapter_list():
+    tag menu
+
+    use game_menu(_("Chapters"), scroll="viewport"):
+        vbox:
+            spacing 6
+
+            text _("跳转会以该章的标准起始状态进入，不会修改你原来的存档。") size 20 color "#A9A49A"
+
+            null height 8
+
+            for cid, num, title, when in CHAPTERS:
+                textbutton (num + "　" + title + "　" + when):
+                    action Jump(cid + "_entry")
+                    text_size 24
+                    xsize 720

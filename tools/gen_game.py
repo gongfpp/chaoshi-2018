@@ -329,6 +329,10 @@ def emit_chapter(name, blocks, next_label):
 
 
 CHOICES = {
+    "ch01": [
+        {"text": "给姐姐打个电话", "actions": ["$ c_call = True", "$ xin += 1"]},
+        {"text": "把手机揣回去，先找住处", "actions": ["$ c_call = False", "$ shen += 1"]},
+    ],
     "ch03": [
         {"text": "接下这些“刚好”的单子", "actions": ["$ c_haodan = True", "$ xin += 1", "$ qian += 300"]},
         {"text": "把钥匙还回去", "actions": ["$ c_haodan = False", "$ xin -= 1"], "jump": "ch03_alt"},
@@ -355,6 +359,55 @@ CHOICES = {
     ],
 }
 
+
+# 各章入口状态（主线口径，由 tools/audit_ledger.py 校验）。
+# 章节跳转时先写入这张表，再进入章节；章节内的 stat/money 会在其上继续计算。
+CHAPTER_ENTRY = {
+    "ch01": (0, 0), "ch02": (0, 2000), "ch03": (14052, 0), "ch04": (14052, 0),
+    "ch05": (3436, 0), "ch06": (9372, 0), "ch07": (19836, 0), "ch08": (10421, 8000),
+    "ch09": (21205, 0), "ch10": (8449, 14000), "ch11": (5800, 14000),
+    "ch12": (4800, 14000), "ch13": (4306, 85000), "ch14": (4306, 85000),
+    "ch15": (3006, 70000), "ch16": (2006, 40000), "ch17": (1206, 30000),
+    "ch18": (806, 28000), "ch19": (1206, 26000), "ch20": (2866, 22000),
+}
+
+# 章节时间（用于目录显示）
+CHAPTER_TIME = {
+    "ch01": "2018.03", "ch02": "2018.04", "ch03": "2018.07", "ch04": "2018.08",
+    "ch05": "2018.10", "ch06": "2018.12", "ch07": "2019.05", "ch08": "2019.06",
+    "ch09": "2019.10", "ch10": "2020.02", "ch11": "2020.08", "ch12": "2021.01",
+    "ch13": "2021.03", "ch14": "2021.06", "ch15": "2021.09", "ch16": "2021.12",
+    "ch17": "2022.06", "ch18": "2022.11", "ch19": "2023.03", "ch20": "2023.12",
+}
+
+FLAG_DEFAULTS = ("c_call", "c_haodan", "c_siyu", "c_gongzi", "c_zaodao",
+                 "xf_saved", "sold_chen")
+
+
+def emit_jump_table(names):
+    """生成章节入口标签与目录数据，供「章节目录」界面使用。"""
+    code = ["# 由 tools/gen_game.py 自动生成，请勿手改。", ""]
+    rows = []
+    for name in names:
+        num, title = CH_TITLES.get(name, ("", name))
+        rows.append('    ("%s", "%s", "%s", "%s"),' % (
+            name, num, title, CHAPTER_TIME.get(name, "")))
+    code.append("define CHAPTERS = [")
+    code.extend(rows)
+    code.append("]")
+    code.append("")
+    for name in names:
+        q, d = CHAPTER_ENTRY.get(name, (0, 0))
+        code.append("label %s_entry:" % name)
+        code.append("    $ qian = %d" % q)
+        code.append("    $ debt = %d" % d)
+        for f in FLAG_DEFAULTS:
+            code.append("    $ %s = %s" % (f, "True" if f == "c_siyu" else "False"))
+        code.append("    $ visited = False")
+        code.append("    jump %s" % name)
+        code.append("")
+    with open(os.path.join(OUT, "jump.rpy"), "w", encoding="utf-8") as f:
+        f.write("\n".join(code) + "\n")
 
 def validate_output():
     """生成后的控制流自检：标签唯一、跳转目标存在、无意外顺序落入。"""
@@ -393,7 +446,8 @@ def validate_output():
             last = tail[-1].strip() if tail else ""
             nxt = seq[i + 1][0]
             # 同章内的 anchor 汇合点（ch03 → ch03_join）是有意的顺序贯穿，不算问题
-            intentional = nxt == name + "_join"
+            base = name.split("_")[0]
+            intentional = nxt.startswith(base + "_")
             if not intentional and not (last.startswith("jump ") or last.startswith("return")):
                 warnings.append("%s: label %s 结尾没有 jump/return，会顺序落入 %s" % (
                     os.path.basename(path), name, nxt))
@@ -434,10 +488,13 @@ def main():
     defs.append("default shen = 10")
     defs.append("default xin = 5")
     defs.append("default orders = 0")
-    defs.append("default c_haodan = True")
-    defs.append("default c_siyu = True")
-    defs.append("default c_gongzi = True")
+    defs.append("default c_call = False")
+    defs.append("default c_haodan = False")
+    defs.append("default c_siyu = False")
+    defs.append("default c_gongzi = False")
     defs.append("default c_zaodao = False")
+    defs.append("default xf_saved = False")
+    defs.append("default sold_chen = False")
     defs.append("default xf_saved = False")
     defs.append("default sold_chen = True")
     defs.append("")
@@ -556,6 +613,7 @@ def main():
     with open(os.path.join(ROOT, "docs", "小说-游戏对应表.json"), "w", encoding="utf-8") as f:
         json.dump(mapping, f, ensure_ascii=False, indent=2)
 
+    emit_jump_table(names)
     validate_output()
     print("生成完成：%d 章，%d 个结局，%d 个分支" % (len(files), len(endings), len(branches)))
     print("总字数（汉字）：", sum(m["chars"] for m in mapping))

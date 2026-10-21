@@ -18,6 +18,9 @@ translate None strings:
     new "退出"
     old "History"
     new "历史"
+
+    old "Chapters"
+    new "章节目录"
     old "Skip"
     new "快进"
     old "Auto"
