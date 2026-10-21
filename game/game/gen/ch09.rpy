@@ -8,6 +8,8 @@ label ch09:
     if not c_siyu:
         $ qian = 31445
         $ debt = 0
+    $ qian -= 12756
+    $ debt += 14000
     scene bg_wedding
     with fade
     play music "audio/bgm/wedding.ogg" fadein 1.5

@@ -8,6 +8,11 @@ label ch08:
     if not c_siyu:
         $ qian = 18421
         $ debt = 0
+    if c_siyu:
+        $ qian += 10784
+        $ debt -= 8000
+    if not c_siyu:
+        $ qian += 13024
     scene bg_station
     with fade
     play music "audio/bgm/station_room.ogg" fadein 1.5
