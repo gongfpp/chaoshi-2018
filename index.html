@@ -258,6 +258,13 @@
 
     var queue = [], seq = 0, readySent = false, t0 = performance.now();
 
+    // 关键节点立刻发，不等攒够 8 条：否则玩家关页/切走时这些事件会丢在队列里
+    var IMMEDIATE = {
+      page_view: 1, game_ready: 1, run_start: 1, chapter_enter: 1,
+      chapter_complete: 1, choice_pick: 1, ending_enter: 1,
+      ending_complete: 1, error: 1, voice_fail: 1
+    };
+
     function flush() {
       if (!queue.length) { return; }
       var body = JSON.stringify({ events: queue.splice(0, 50) });
@@ -285,7 +292,7 @@
         e.site = location.host; e.t_client = e.t || Date.now();
         e.ref = document.referrer ? document.referrer.replace(/[?#].*$/, "") : "";
         queue.push(e);
-        if (queue.length >= 8) { flush(); }
+        if (queue.length >= 8 || IMMEDIATE[e.event]) { flush(); }
       } catch (err) {}
     };
 
@@ -295,7 +302,7 @@
       }
     });
 
-    setInterval(flush, 8000);
+    setInterval(flush, 4000);
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") { flush(); }
