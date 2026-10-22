@@ -25,3 +25,5 @@ __pycache__/
 worker/.wrangler/
 worker/node_modules/
 build/analytics/token.txt
+# 部署凭据（EdgeOne / Cloudflare 等），只在本地
+.secrets/

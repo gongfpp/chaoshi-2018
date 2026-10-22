@@ -22,6 +22,11 @@ TARGET="${1:-both}"
 
 cd "$ROOT"
 
+# 自动加载本地凭据（EdgeOne token 等），文件已被 .gitignore 排除
+if [[ -f "$ROOT/.secrets/edgeone.env" ]]; then
+  set -a; . "$ROOT/.secrets/edgeone.env"; set +a
+fi
+
 if [[ "${SKIP_BUILD:-0}" == "1" ]]; then
   echo "== 1-2/3 跳过构建与打补丁（SKIP_BUILD=1） =="
 else
@@ -40,8 +45,19 @@ fi
 
 if [[ "$TARGET" == "eo" ]]; then
   echo "== 3/3c 部署 EdgeOne Pages =="
-  : "${EDGEONE_PAGES_API_TOKEN:?需要先设置 EDGEONE_PAGES_API_TOKEN}"
-  "$EDGEONE" makers deploy build/web -n "${EO_PROJECT:-chaoshi}" --json
+  : "${EDGEONE_PAGES_API_TOKEN:?需要 EDGEONE_PAGES_API_TOKEN（可写入 .secrets/edgeone.env）}"
+  # 不设区域会报 Invalid region: undefined 并退化成「未登录」
+  export EDGEONE_PAGES_API_REGION="${EDGEONE_PAGES_API_REGION:-china}"
+  EO_JSON="$("$EDGEONE" makers deploy build/web -n "${EO_PROJECT:-chaoshi}" --json 2>&1)"
+  echo "$EO_JSON" | tail -5
+  EO_URL="$(printf '%s' "$EO_JSON" | grep -o '"url":"[^"]*"' | tail -1 | cut -d'"' -f4)"
+  if [[ -n "$EO_URL" ]]; then
+    mkdir -p "$ROOT/build/analytics"
+    printf '%s\n' "$EO_URL" > "$ROOT/build/analytics/edgeone-url.txt"
+    echo
+    echo "预览地址（token 有效期约 3 小时，过期需重新部署）："
+    echo "  $EO_URL"
+  fi
 fi
 
 if [[ "$TARGET" == "gh" || "$TARGET" == "both" ]]; then
