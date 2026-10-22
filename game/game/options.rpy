@@ -74,14 +74,18 @@ define config.has_voice = False
 ## no transition should be used.
 
 ## Entering or exiting the game menu.
+##
+## 网页版上 dissolve 是整屏两张 surface 逐帧交叉混合，0.5 秒里每帧都要
+## 复制 + 贴一张全尺寸纹理，单线程 wasm 下会明显掉帧（玩家感受为「点菜单卡一下」）。
+## 这里换成短促的 0.15 秒，视觉上仍是淡入淡出，但只有原来的三分之一帧数。
 
-define config.enter_transition = dissolve
-define config.exit_transition = dissolve
+define config.enter_transition = Dissolve(.15)
+define config.exit_transition = Dissolve(.15)
 
 
 ## Between screens of the game menu.
 
-define config.intra_transition = dissolve
+define config.intra_transition = Dissolve(.15)
 
 
 ## A transition that is used after a game has been loaded.
@@ -113,9 +117,11 @@ define config.window = "auto"
 
 
 ## Transitions used to show and hide the dialogue window
+##
+## 每次 scene 前后都会触发一次，对白密集时累积开销很高，同样压短。
 
-define config.window_show_transition = Dissolve(.2)
-define config.window_hide_transition = Dissolve(.2)
+define config.window_show_transition = Dissolve(.12)
+define config.window_hide_transition = Dissolve(.12)
 
 
 ## Preference defaults #########################################################
