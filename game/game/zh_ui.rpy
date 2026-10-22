@@ -127,8 +127,8 @@ screen main_menu():
 
     vbox:
         xpos 96
-        ypos 118
-        spacing 6
+        ypos 104
+        spacing 2
         text "超时":
             font "NotoSerifSC-Regular.otf"
             size 92

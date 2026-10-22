@@ -46,17 +46,35 @@ fi
 
 if [[ "$TARGET" == "gh" || "$TARGET" == "both" ]]; then
   echo "== 3/3b 部署 GitHub Pages =="
-  TMP=$(mktemp -d)
-  cp -R build/web/. "$TMP/"
-  touch "$TMP/.nojekyll"
-  # 本机沙盒对小写 http_proxy 指向的代理不通，必须显式指定；凭据用 gh token
+  # 用一份常驻克隆做增量提交。以前每次都是 git init 一个全新仓库再 force push，
+  # 服务端一个对象都没有，76 MB 全量重传；保留历史后只传改动过的 blob。
+  CLONE="$ROOT/build/gh-pages"
   TOKEN="$(gh auth token)"
-  ( cd "$TMP" && git init -q && git add -A \
-      && git -c user.name=WorkBuddy -c user.email=workbuddy@local commit -qm "deploy: web build" \
-      && git -c http.proxy="$PROXY" -c https.proxy="$PROXY" \
-             -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64)" \
-             push --force https://github.com/gongfpp/chaoshi-2018.git HEAD:gh-pages )
-  rm -rf "$TMP"
+  GITNET=(-c "http.proxy=$PROXY" -c "https.proxy=$PROXY"
+          -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64)")
+  REMOTE="https://github.com/gongfpp/chaoshi-2018.git"
+
+  if [[ -d "$CLONE/.git" ]]; then
+    git -C "$CLONE" "${GITNET[@]}" fetch -q --depth 1 origin gh-pages
+    git -C "$CLONE" reset -q --hard FETCH_HEAD
+  else
+    git "${GITNET[@]}" clone -q --depth 1 -b gh-pages "$REMOTE" "$CLONE" \
+      || { mkdir -p "$CLONE"; git -C "$CLONE" init -q; }
+  fi
+
+  rsync -a --delete --exclude '.git' "$ROOT/build/web/" "$CLONE/"
+  touch "$CLONE/.nojekyll"
+
+  if git -C "$CLONE" diff --quiet HEAD -- 2>/dev/null && \
+     [[ -z "$(git -C "$CLONE" status --porcelain)" ]]; then
+    echo "   内容无变化，跳过推送"
+  else
+    git -C "$CLONE" add -A
+    git -C "$CLONE" -c user.name=WorkBuddy -c user.email=workbuddy@local \
+        commit -qm "deploy: web build $(cat "$ROOT/build/web/build.json" 2>/dev/null || echo)"
+    git -C "$CLONE" "${GITNET[@]}" push -q origin HEAD:gh-pages
+    echo "   已推送 gh-pages"
+  fi
 fi
 
 echo "完成。"

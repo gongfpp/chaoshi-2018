@@ -217,5 +217,6 @@ label ch03_join:
     "{b}欠刘蕾：一次超时，一个人情。{/b}"
     "他不知道这个人情值多少钱。他后来知道了。"
 
+    $ track("chapter_complete", chapter="ch03")
     jump ch04
     return

@@ -202,6 +202,8 @@ label ch11:
     with dissolve
     xz "「去医院看看吧。」"
     ll "「产检刚去过。医生说正常，孕晚期都肿。」"
+    show xz tired
+    with dissolve
     xz "「你血压多少？」"
     ll "「一百四。」"
     xz "「一百四还不高？」"
@@ -309,5 +311,6 @@ label ch11:
     "手机屏幕亮了，上面弹出一条消息：{b}您有一笔新订单，请在 32 分钟内送达。{/b}"
     "他看着那行字，手指停在半空。"
 
+    $ track("chapter_complete", chapter="ch11")
     jump ch12
     return

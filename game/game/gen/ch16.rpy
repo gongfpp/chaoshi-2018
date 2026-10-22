@@ -327,5 +327,6 @@ label ch16:
     "他躺在床上，看着天花板。"
     "天花板上有一块水渍，形状像一只趴着的狗。"
 
+    $ track("chapter_complete", chapter="ch16")
     jump ch17
     return

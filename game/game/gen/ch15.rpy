@@ -222,5 +222,6 @@ label ch15:
     "他把笔放下，把本子扔到床底下。"
     "从那天起，他不再记账。"
 
+    $ track("chapter_complete", chapter="ch15")
     jump ch16
     return

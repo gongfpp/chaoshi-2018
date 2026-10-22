@@ -211,5 +211,6 @@ label ch17:
     "他抽完最后一根烟，把烟头摁灭在栏杆上。"
     "明天还要跑单。"
 
+    $ track("chapter_complete", chapter="ch17")
     jump ch18
     return

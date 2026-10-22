@@ -241,5 +241,6 @@ label ch10:
     "他忽然觉得，这个城市像一个巨大的机器，所有的齿轮都在转，只有他是被夹在中间的那粒沙子。"
     "可他还是在转。"
 
+    $ track("chapter_complete", chapter="ch10")
     jump ch11
     return

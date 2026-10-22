@@ -227,5 +227,6 @@ label ch07_join:
     "他没有答应，也没有拒绝。"
     "他知道，这句话迟早要还。"
 
+    $ track("chapter_complete", chapter="ch07")
     jump ch08
     return

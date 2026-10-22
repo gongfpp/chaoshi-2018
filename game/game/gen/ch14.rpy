@@ -80,6 +80,8 @@ label ch14:
     with dissolve
     xz "「大。」"
     xf "「我坐地铁，坐反了两次。」"
+    show xf sad
+    with dissolve
     xf "「我不敢问人。我怕人家嫌我土。」"
     "后来她在足浴店上班，一个月三千二，包住。她每个月寄两千回家，自己留一千二。"
     "她跟他说过她妈。"
@@ -360,5 +362,6 @@ label ch14:
     "祥子把裁决书折好，放进箱子最底下，压在记账本下面。"
     "他没有再提这件事。"
 
+    $ track("chapter_complete", chapter="ch14")
     jump ch15
     return

@@ -246,5 +246,6 @@ label ch12_after:
     "他叫了一声。"
     "没有人应。"
 
+    $ track("chapter_complete", chapter="ch12")
     jump ch13
     return

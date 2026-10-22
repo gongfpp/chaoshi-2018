@@ -93,6 +93,7 @@ SPRITE_IDS = {"xz", "ll", "xf", "lt", "lm", "cy", "gj", "sg"}
 SPRITE_POS = {}
 
 def expr_for(sid, chapter_no):
+    """章节层面的「底色」表情：越往后的人越憔悴。"""
     if sid == "xz" and chapter_no >= 12:
         return "tired"
     if sid == "ll" and chapter_no >= 11:
@@ -100,6 +101,36 @@ def expr_for(sid, chapter_no):
     if sid == "xf" and chapter_no >= 16:
         return "sad"
     return "normal"
+
+
+# 台词里出现这些词，就把表情切过去。只看「有感」的词，别放太宽
+# （早期版本按章节号硬编码，人物表情和剧情完全脱钩）。
+EXPR_WORDS = {
+    "xz": ("tired", ("累", "喘", "撑不住", "跑不动", "困", "熬", "疼", "血")),
+    "ll": ("sick", ("病", "烧", "咳", "药", "医院", "针", "血", "疼")),
+    "xf": ("sad", ("哭", "对不起", "别走", "舍不得", "委屈", "怕")),
+}
+
+
+def guess_expr(sid, text):
+    hit = EXPR_WORDS.get(sid)
+    if not hit or not text or len(text) < 4:
+        return None
+    expr, words = hit
+    for w in words:
+        if w in text:
+            return expr
+    return None
+
+
+def pick_expr(sid, text, chapter_no, cur):
+    """优先级：台词关键词 > 当前表情（不来回跳）> 章节底色。"""
+    kw = guess_expr(sid, text)
+    if kw:
+        return kw
+    if cur:
+        return cur
+    return expr_for(sid, chapter_no)
 
 DIRECTIVE = re.compile(r"<!--\s*([a-z]+)\s*:\s*(.*?)\s*-->")
 SPEAKER = re.compile(r"<!--\s*s:([a-z]+)\s*-->")
@@ -136,7 +167,7 @@ def split_text(text, limit):
 
 KNOWN_DIRECTIVES = {"scene", "show", "hide", "bgm", "sfx", "choice",
                     "anchor", "stat", "money", "ending", "title", "jump", "branch",
-                    "when", "end"}
+                    "when", "end", "expr"}
 
 
 def parse_file(path):
@@ -166,6 +197,12 @@ def parse_file(path):
                 blocks.append(("show", tag, expr, pos))
             elif key == "hide":
                 blocks.append(("hide", val.strip()))
+            elif key == "expr":
+                parts = val.split()
+                if len(parts) < 2:
+                    raise SystemExit("%s:%d  expr 需要「角色 表情」，例如 "
+                                     "<!-- expr: xz tired -->" % (path, lineno))
+                blocks.append(("expr", parts[0], parts[1]))
             elif key == "bgm":
                 blocks.append(("bgm", val))
             elif key == "sfx":
@@ -225,6 +262,7 @@ def emit_chapter(name, blocks, next_label):
     num, title = CH_TITLES.get(name, ("", blocks[0][1] if blocks else ""))
     chapter_no = int(re.sub(r"\D", "", name) or 0)
     stage = []
+    expr_state = {}
     lines.append("label %s:" % name)
     lines.append('    call screen chapter_card("%s", "%s")' % (num, title))
     lines.append('    $ track("chapter_enter", chapter="%s")' % name)
@@ -234,6 +272,14 @@ def emit_chapter(name, blocks, next_label):
             lines.append('    scene %s' % BG_ALIAS.get(b[1], b[1]))
             lines.append("    with fade")
             stage.clear()
+            expr_state.clear()
+        elif kind == "expr":
+            # 手写指定表情：<!-- expr: xz tired -->
+            tag, ex = b[1], b[2]
+            expr_state[tag] = ex
+            if tag in stage:
+                lines.append("    show %s %s" % (tag, ex))
+                lines.append("    with dissolve")
         elif kind == "show":
             tag, expr, pos = b[1], b[2], b[3]
             cmd = "    show %s %s" % (tag, expr)
@@ -291,10 +337,20 @@ def emit_chapter(name, blocks, next_label):
                     old = stage.pop(0)
                     lines.append("    hide %s" % old)
                     lines.append("    with dissolve")
+                    expr_state.pop(old, None)
                 pos = "sprite_left" if not stage else "sprite_right"
-                lines.append("    show %s %s at %s" % (spk, expr_for(spk, chapter_no), pos))
+                want = pick_expr(spk, text, chapter_no, expr_state.get(spk))
+                expr_state[spk] = want
+                lines.append("    show %s %s at %s" % (spk, want, pos))
                 lines.append("    with dissolve")
                 stage.append(spk)
+            elif spk in SPRITE_IDS:
+                # 已在台上：台词带了情绪就换表情，否则保持原样（不来回闪）
+                want = pick_expr(spk, text, chapter_no, expr_state.get(spk))
+                if want != expr_state.get(spk):
+                    expr_state[spk] = want
+                    lines.append("    show %s %s" % (spk, want))
+                    lines.append("    with dissolve")
             limit = 110 if spk else 92
             for chunk in split_text(text, limit):
                 if spk:
@@ -305,6 +361,7 @@ def emit_chapter(name, blocks, next_label):
             lines.append("    jump %s" % b[1])
         elif kind == "ending":
             lines.append("    $ persistent.ending_%s = True" % b[1])
+            lines.append('    $ track("ending_enter", ending="%s")' % b[1])
         elif kind in ("title", "branch"):
             pass
         elif kind == "when":
@@ -312,6 +369,9 @@ def emit_chapter(name, blocks, next_label):
         elif kind == "endwhen":
             lines.append("@@END@@")
     lines.append("")
+    # 章节读完：埋点用来自算「读到第几章掉队」的漏斗
+    if re.fullmatch(r"ch\d\d", name):
+        lines.append('    $ track("chapter_complete", chapter="%s")' % name)
     if next_label:
         lines.append("    jump %s" % next_label)
     # @@WHEN@@ / @@END@@ 转成 Ren'Py 的 if 块并补缩进

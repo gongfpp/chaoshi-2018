@@ -167,5 +167,6 @@ label ch04:
     "窗外有车过去，灯光扫过天花板，一晃就没了。"
     "祥子把本子合上，压在枕头底下。他闭上眼睛，觉得自己已经站在那个店门口了。"
 
+    $ track("chapter_complete", chapter="ch04")
     jump ch05
     return

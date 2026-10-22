@@ -196,5 +196,6 @@ label ch18:
     "说完，他翻了个身，把被子拉到头上。"
     "外面有人在放烟花，很远。快过年了。"
 
+    $ track("chapter_complete", chapter="ch18")
     jump ch19
     return

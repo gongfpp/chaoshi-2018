@@ -229,4 +229,5 @@ label ch08:
     "她转身走了。粉色的卫衣在巷子里一晃，拐个弯，就没了。"
     "祥子提着那对杯子，站了很久。"
 
+    $ track("chapter_complete", chapter="ch08")
     jump ch09

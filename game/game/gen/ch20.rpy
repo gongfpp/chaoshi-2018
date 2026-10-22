@@ -262,5 +262,6 @@ label ch20:
     "他没有看。"
     "他知道那是什么。"
 
+    $ track("chapter_complete", chapter="ch20")
     jump ch20_end
     return

@@ -10,6 +10,9 @@
 # 主菜单底图：进游戏第一个画面就要它，按需下载会让标题页先糊一下
 - image game/images/cg/title.jpg
 
+# 音效共 120 KB，全部随包 —— 界面点击音和演出音效不能有「第一次点没声」
+- music game/audio/sfx/**
+
 # 其余全部按需（配合 tools/patch_web.py 的后台预取）
 + image game/**
 + music game/audio/**

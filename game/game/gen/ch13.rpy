@@ -280,5 +280,6 @@ label ch13:
     "他站在楼下，站了大概十秒。"
     "然后他拎起餐，走了进去。"
 
+    $ track("chapter_complete", chapter="ch13")
     jump ch14
     return

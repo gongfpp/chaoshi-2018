@@ -203,4 +203,5 @@ label ch01:
     "他把手举到眼前。手掌上有一道红印，是塑料袋勒的。"
     "明天还要跑。"
 
+    $ track("chapter_complete", chapter="ch01")
     jump ch02

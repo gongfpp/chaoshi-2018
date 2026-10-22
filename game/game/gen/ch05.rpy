@@ -197,5 +197,6 @@ label ch05:
     "祥子把手机扣在胸口。他想回“不用”，想了半天，回了一个“好”。"
     "窗外有人在放国庆的烟花，很远，“砰”的一声，光在窗帘上亮了一下，就没了。"
 
+    $ track("chapter_complete", chapter="ch05")
     jump ch06
     return

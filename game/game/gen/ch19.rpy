@@ -246,5 +246,6 @@ label ch19:
     "照片上的孩子不说话。"
     "窗外的雨还在下。乔司的夜很黑，只有远处高架上的一串车灯，慢慢地流。"
 
+    $ track("chapter_complete", chapter="ch19")
     jump ch20
     return

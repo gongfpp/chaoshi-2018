@@ -254,5 +254,6 @@ label ch06:
     "他把本子合上，关灯。"
     "窗外的风把塑料布吹得哗哗响。他闭上眼睛，听见自己的呼吸，很稳。"
 
+    $ track("chapter_complete", chapter="ch06")
     jump ch07
     return
