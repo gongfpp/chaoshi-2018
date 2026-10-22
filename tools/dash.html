@@ -35,6 +35,7 @@
 <header>
   <h1>《超时》数据看板</h1>
   <input id="token" placeholder="访问令牌" />
+  <input id="days" type="number" min="1" max="365" value="30" style="width:78px" title="统计天数" />
   <button id="load">刷新</button>
   <span class="dim" id="stamp"></span>
 </header>
@@ -44,6 +45,8 @@
   <h2>选择分布</h2><table id="choices"></table>
   <h2>结局</h2><table id="endings"></table>
   <h2>站点与版本</h2><table id="sites"></table>
+  <h2>按日 PV</h2><table id="daily"></table>
+  <h2>章节快跳（从目录进入）</h2><table id="jumps"></table>
   <p class="note">
     UV = 匿名浏览器标识数量，不等于真实人数；各部署域名存储独立，分站统计不做去重。<br />
     默认排除标记为测试的流量；跳到后期章节不计入前序章节完成；ending_enter 与 ending_complete 分开统计。
@@ -52,6 +55,10 @@
 <script>
 const $ = id => document.getElementById(id);
 const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '-';
+const Q = new URLSearchParams(location.search);
+// Worker 托管时同源；从 Pages / GitHub Pages 打开时指向 Worker
+const API = Q.get('api') ||
+  (/\.workers\.dev$/.test(location.hostname) ? '' : 'https://chaoshi-analytics.gong7968.workers.dev');
 
 function table(el, rows, cols) {
   if (!rows || !rows.length) { el.innerHTML = '<tr><td class="dim">暂无数据</td></tr>'; return; }
@@ -62,9 +69,10 @@ function table(el, rows, cols) {
 }
 
 async function load() {
-  const token = $('token').value || new URLSearchParams(location.search).get('token') || '';
+  const token = $('token').value || Q.get('token') || '';
   localStorage.setItem('chaoshi_dash_token', token);
-  const r = await fetch('/api/stats?token=' + encodeURIComponent(token));
+  const days = $('days').value || '30';
+  const r = await fetch(API + '/api/stats?token=' + encodeURIComponent(token) + '&days=' + days);
   if (!r.ok) { $('stamp').textContent = r.status === 401 ? '令牌无效' : '读取失败'; return; }
   const d = await r.json();
   const cards = [
@@ -73,6 +81,7 @@ async function load() {
     ['首屏 P50', d.ready_p50_ms ? d.ready_p50_ms + ' ms' : '-'],
     ['首屏 P95', d.ready_p95_ms ? d.ready_p95_ms + ' ms' : '-'],
     ['错误事件', d.errors],
+    ['章节读完次数', d.chapter_done], ['结局完成次数', d.endings_done],
   ];
   $('cards').innerHTML = cards.map(([k, v]) =>
     `<div class="card"><div class="k">${k}</div><div class="v">${v ?? '-'}</div></div>`).join('');
@@ -80,13 +89,16 @@ async function load() {
   table($('choices'), d.choices, ['选择 / 选项', '次数']);
   table($('endings'), d.endings, ['结局', '完成次数']);
   table($('sites'), d.sites, ['站点', 'PV']);
-  $('stamp').textContent = '事件 ' + d.events + ' 条 · 版本 ' +
-    (d.builds.length ? d.builds.map(b => b[0]).join(', ') : '-');
+  table($('daily'), d.daily, ['日期', 'PV']);
+  table($('jumps'), d.jumps, ['跳到章节', '次数']);
+  $('stamp').textContent = '事件 ' + d.events + ' 条 · 近 ' + (d.days || days) + ' 天 · 版本 ' +
+    (d.builds && d.builds.length ? d.builds.map(b => b[0]).join(', ') : '-');
 }
 
-$('token').value = new URLSearchParams(location.search).get('token') ||
-  localStorage.getItem('chaoshi_dash_token') || '';
-$('load').onclick = load;
+$('token').value = Q.get('token') || localStorage.getItem('chaoshi_dash_token') || '';
+$('days').value = Q.get('days') || localStorage.getItem('chaoshi_dash_days') || '30';
+$('days').onchange = () => localStorage.setItem('chaoshi_dash_days', $('days').value);
+$('load').onclick = () => { localStorage.setItem('chaoshi_dash_days', $('days').value); load(); };
 load();
 </script>
 </body>

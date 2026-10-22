@@ -60,6 +60,10 @@ python3 tools/patch_web.py build/web
 
 # 5. 发布（GitHub Pages + Cloudflare Pages）
 tools/deploy_pages.sh both
+
+# 6. 埋点端点（只在 worker/ 有改动、或首次建库时才需要）
+export CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=...
+bash tools/deploy_worker.sh
 ```
 
 `lint` 必须为 0 错误。构建后必须实际打开，不得只凭 lint 判断可玩性。

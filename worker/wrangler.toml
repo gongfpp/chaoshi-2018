@@ -1,0 +1,16 @@
+name = "chaoshi-analytics"
+main = "index.js"
+compatibility_date = "2026-10-01"
+
+# workers.dev 即可，不挂自定义域
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chaoshi_events"
+database_id = "a7c12d4b-31e8-405e-bd31-e5d361d75bd5"
+
+[vars]
+BUILD = ""
+
+# ANALYTICS_TOKEN 用 `wrangler secret put ANALYTICS_TOKEN` 写入，不进仓库

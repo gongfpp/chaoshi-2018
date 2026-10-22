@@ -21,3 +21,7 @@ generated-images/
 .workbuddy/
 .DS_Store
 __pycache__/
+# wrangler 本地状态（含账号信息），以及埋点看板令牌
+worker/.wrangler/
+worker/node_modules/
+build/analytics/token.txt

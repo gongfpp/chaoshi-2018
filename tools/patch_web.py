@@ -47,6 +47,11 @@ MIRRORS = {
     "cf": "https://chaoshi-2018.pages.dev/",
 }
 
+# 生产埋点端点（Cloudflare Worker + D1）。本地调试时 tracker 自动回落到同源
+# /api/collect，由 tools/collector.py 接收，所以这里只填线上地址。
+COLLECT_URL = os.environ.get(
+    "CHAOSHI_COLLECT", "https://chaoshi-analytics.gong7968.workers.dev/api/collect")
+
 
 # ---------------------------------------------------------------------------
 # 注入的分片下载器
@@ -429,7 +434,11 @@ def tracker_script(build):
   (function () {
     if (window.chaoshiTrack) { return; }
     var BUILD = %(build)s;
-    var ENDPOINT = window.CHAOSHI_COLLECT || "/api/collect";
+    // 线上发到 Cloudflare Worker + D1；本地（localhost/127.0.0.1）仍走同源
+    // /api/collect，由 tools/collector.py 接收，避免调试时污染生产数据。
+    var host = location.hostname;
+    var ENDPOINT = window.CHAOSHI_COLLECT ||
+      ((host === "localhost" || host === "127.0.0.1" || !host) ? "/api/collect" : %(collect)s);
     function rid(p) { return p + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 
     var vid = localStorage.getItem("chaoshi_vid");
@@ -439,6 +448,13 @@ def tracker_script(build):
     if (!sid) { sid = rid("s_"); sessionStorage.setItem(sKey, sid); }
 
     var queue = [], seq = 0, readySent = false, t0 = performance.now();
+
+    // 关键节点立刻发，不等攒够 8 条：否则玩家关页/切走时这些事件会丢在队列里
+    var IMMEDIATE = {
+      page_view: 1, game_ready: 1, run_start: 1, chapter_enter: 1,
+      chapter_complete: 1, choice_pick: 1, ending_enter: 1,
+      ending_complete: 1, error: 1, voice_fail: 1
+    };
 
     function flush() {
       if (!queue.length) { return; }
@@ -467,7 +483,7 @@ def tracker_script(build):
         e.site = location.host; e.t_client = e.t || Date.now();
         e.ref = document.referrer ? document.referrer.replace(/[?#].*$/, "") : "";
         queue.push(e);
-        if (queue.length >= 8) { flush(); }
+        if (queue.length >= 8 || IMMEDIATE[e.event]) { flush(); }
       } catch (err) {}
     };
 
@@ -477,7 +493,7 @@ def tracker_script(build):
       }
     });
 
-    setInterval(flush, 8000);
+    setInterval(flush, 4000);
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") { flush(); }
@@ -500,7 +516,7 @@ def tracker_script(build):
       });
     });
   })();
-  </script>""" % {"build": json.dumps(build)}
+  </script>""" % {"build": json.dumps(build), "collect": json.dumps(COLLECT_URL)}
 
 
 def patch_loader(root):
