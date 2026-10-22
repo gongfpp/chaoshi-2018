@@ -15,7 +15,7 @@
 | `novel/超时-全文.md` | 合并版，供连续阅读 | 否（脚本生成） |
 | `game/branches/*.md` | 分支场景（选择后的替代段落） | 是 |
 | `game/game/gen/*.rpy` | Ren'Py 脚本 | **否**（`tools/gen_game.py` 生成） |
-| `game/game/ui_extra.rpy` | 界面扩展（章节卡、结局卡、账本） | 是 |
+| `game/game/ui_extra.rpy` | 界面扩展（章节卡、结局卡、章节目录） | 是 |
 | `game/game/gui.rpy`、`screens.rpy`、`options.rpy` | Ren'Py 界面与工程配置 | 是 |
 | `game/game/images/` | 背景、立绘、CG | 由 `tools/finish_art.py` 产出 |
 | `game/game/audio/` | 程序化合成的音乐与音效 | 由 `tools/gen_audio.py` 产出 |
