@@ -7,7 +7,7 @@
 **下载发行包：[Releases](https://github.com/gongfpp/chaoshi-2018/releases/latest)**
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="760" alt="《超时》在线阅读页：标题、下载与进入视觉小说入口、章节目录" />
+  <img src="docs/screenshots/home.png" width="760" alt="《超时》视觉小说网页版标题页：雨夜里骑车的外卖员，标题为「超时」，副标题「再跑一单，就回去。」" />
 </p>
 
 本项目包含：
