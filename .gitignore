@@ -3,6 +3,7 @@ build/
 gui-*-dists/
 game/dists/
 game/saves/
+game/game/saves/
 game/cache/
 game/game/cache/
 game/log.txt

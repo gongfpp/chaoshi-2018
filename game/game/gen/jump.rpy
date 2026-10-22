@@ -26,280 +26,360 @@ define CHAPTERS = [
 label ch01_entry:
     $ qian = 0
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch01"
     $ track("chapter_jump", chapter="ch01")
     jump ch01
 
 label ch02_entry:
     $ qian = 0
     $ debt = 2000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch02"
     $ track("chapter_jump", chapter="ch02")
     jump ch02
 
 label ch03_entry:
     $ qian = 14052
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch03"
     $ track("chapter_jump", chapter="ch03")
     jump ch03
 
 label ch04_entry:
     $ qian = 14052
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch04"
     $ track("chapter_jump", chapter="ch04")
     jump ch04
 
 label ch05_entry:
     $ qian = 3436
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch05"
     $ track("chapter_jump", chapter="ch05")
     jump ch05
 
 label ch06_entry:
     $ qian = 9372
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch06"
     $ track("chapter_jump", chapter="ch06")
     jump ch06
 
 label ch07_entry:
     $ qian = 19836
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch07"
     $ track("chapter_jump", chapter="ch07")
     jump ch07
 
 label ch08_entry:
     $ qian = 10421
     $ debt = 8000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch08"
     $ track("chapter_jump", chapter="ch08")
     jump ch08
 
 label ch09_entry:
     $ qian = 21205
     $ debt = 0
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch09"
     $ track("chapter_jump", chapter="ch09")
     jump ch09
 
 label ch10_entry:
     $ qian = 8449
     $ debt = 14000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch10"
     $ track("chapter_jump", chapter="ch10")
     jump ch10
 
 label ch11_entry:
     $ qian = 5800
     $ debt = 14000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch11"
     $ track("chapter_jump", chapter="ch11")
     jump ch11
 
 label ch12_entry:
     $ qian = 4800
     $ debt = 14000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch12"
     $ track("chapter_jump", chapter="ch12")
     jump ch12
 
 label ch13_entry:
     $ qian = 4306
     $ debt = 85000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch13"
     $ track("chapter_jump", chapter="ch13")
     jump ch13
 
 label ch14_entry:
     $ qian = 4306
     $ debt = 85000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch14"
     $ track("chapter_jump", chapter="ch14")
     jump ch14
 
 label ch15_entry:
     $ qian = 3006
     $ debt = 70000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch15"
     $ track("chapter_jump", chapter="ch15")
     jump ch15
 
 label ch16_entry:
     $ qian = 2006
     $ debt = 40000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch16"
     $ track("chapter_jump", chapter="ch16")
     jump ch16
 
 label ch17_entry:
     $ qian = 1206
     $ debt = 30000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch17"
     $ track("chapter_jump", chapter="ch17")
     jump ch17
 
 label ch18_entry:
     $ qian = 806
     $ debt = 28000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch18"
     $ track("chapter_jump", chapter="ch18")
     jump ch18
 
 label ch19_entry:
     $ qian = 1206
     $ debt = 26000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch19"
     $ track("chapter_jump", chapter="ch19")
     jump ch19
 
 label ch20_entry:
     $ qian = 2866
     $ debt = 22000
+    $ shen = 10
+    $ xin = 5
+    $ orders = 0
     $ c_call = False
     $ c_haodan = False
-    $ c_siyu = True
+    $ c_siyu = False
     $ c_gongzi = False
     $ c_zaodao = False
     $ xf_saved = False
     $ sold_chen = False
     $ visited = False
+    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_ch20"
     $ track("chapter_jump", chapter="ch20")
     jump ch20
 

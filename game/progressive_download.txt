@@ -3,7 +3,14 @@
 # See https://www.renpy.org/doc/html/build.html#classifying-and-ignoring-files for matching
 #
 # +/- type path
+
+# 界面素材：必须随包，否则一进游戏就是占位图
 - image game/gui/**
+
+# 主菜单底图：进游戏第一个画面就要它，按需下载会让标题页先糊一下
+- image game/images/cg/title.jpg
+
+# 其余全部按需（配合 tools/patch_web.py 的后台预取）
 + image game/**
 + music game/audio/**
 + voice game/voice/**

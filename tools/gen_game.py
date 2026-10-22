@@ -405,9 +405,18 @@ def emit_jump_table(names):
         code.append("label %s_entry:" % name)
         code.append("    $ qian = %d" % q)
         code.append("    $ debt = %d" % d)
+        # 体力 / 人情 / 完单数必须一起归零。之前只重置了 c_* 选项标志，
+        # 从 ch20 跳回 ch01 会带着上一局的体力进来。
+        code.append("    $ shen = 10")
+        code.append("    $ xin = 5")
+        code.append("    $ orders = 0")
         for f in FLAG_DEFAULTS:
-            code.append("    $ %s = %s" % (f, "True" if f == "c_siyu" else "False"))
+            # 一律回到 defs.rpy 的默认值（c_siyu 默认 False = 报警线）。
+            # 早先这里把 c_siyu 写成 True，等于强制玩家走「私了」分支。
+            code.append("    $ %s = False" % f)
         code.append("    $ visited = False")
+        # 每次跳章算一局新的，别和上一局的 run_id 混在同一份漏斗里
+        code.append('    $ run_id = "j" + str(renpy.random.randint(1000, 9999)) + "_%s"' % name)
         code.append('    $ track("chapter_jump", chapter="%s")' % name)
         code.append("    jump %s" % name)
         code.append("")

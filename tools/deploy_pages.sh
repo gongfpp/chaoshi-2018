@@ -5,6 +5,10 @@
 #   eo   EdgeOne Pages（需 EDGEONE_PAGES_API_TOKEN）
 #   gh   GitHub Pages（推 gh-pages 分支）
 #   both = cf + gh
+#
+# 环境变量：
+#   SKIP_BUILD=1   复用现有 build/web（已经构建并打过补丁时用）
+#   PROXY=...      gh-pages 推送用的代理，默认 http://127.0.0.1:7897
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -13,16 +17,21 @@ WRANGLER="${WRANGLER:-$HOME/.workbuddy/binaries/node/workspace/node_modules/.bin
 PROJECT="${CF_PAGES_PROJECT:-chaoshi-2018}"
 EDGEONE="${EDGEONE:-$HOME/.workbuddy/binaries/node/workspace/node_modules/.bin/edgeone}"
 PY="${PY:-$HOME/.workbuddy/binaries/python/envs/default/bin/python}"
+PROXY="${PROXY:-http://127.0.0.1:7897}"
 TARGET="${1:-both}"
 
 cd "$ROOT"
 
-echo "== 1/3 生成 web 构建 =="
-"$RENPY" launcher web_build "$ROOT/game" --destination "$ROOT/build/web" >/tmp/web_build.log 2>&1
-echo "   build/web 生成完成"
+if [[ "${SKIP_BUILD:-0}" == "1" ]]; then
+  echo "== 1-2/3 跳过构建与打补丁（SKIP_BUILD=1） =="
+else
+  echo "== 1/3 生成 web 构建 =="
+  "$RENPY" launcher web_build "$ROOT/game" --destination "$ROOT/build/web" >/tmp/web_build.log 2>&1
+  echo "   build/web 生成完成"
 
-echo "== 2/3 打补丁（分片 / 续传 / 停用 SW / 启动图） =="
-"$PY" tools/patch_web.py build/web
+  echo "== 2/3 打补丁（分片 / 续传 / 停用 SW / 启动图） =="
+  "$PY" tools/patch_web.py build/web
+fi
 
 if [[ "$TARGET" == "cf" || "$TARGET" == "both" ]]; then
   echo "== 3/3a 部署 Cloudflare Pages =="
@@ -40,9 +49,13 @@ if [[ "$TARGET" == "gh" || "$TARGET" == "both" ]]; then
   TMP=$(mktemp -d)
   cp -R build/web/. "$TMP/"
   touch "$TMP/.nojekyll"
+  # 本机沙盒对小写 http_proxy 指向的代理不通，必须显式指定；凭据用 gh token
+  TOKEN="$(gh auth token)"
   ( cd "$TMP" && git init -q && git add -A \
       && git -c user.name=WorkBuddy -c user.email=workbuddy@local commit -qm "deploy: web build" \
-      && git push --force https://github.com/gongfpp/chaoshi-2018.git HEAD:gh-pages )
+      && git -c http.proxy="$PROXY" -c https.proxy="$PROXY" \
+             -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64)" \
+             push --force https://github.com/gongfpp/chaoshi-2018.git HEAD:gh-pages )
   rm -rf "$TMP"
 fi
 
