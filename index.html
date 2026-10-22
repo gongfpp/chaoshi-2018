@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-us">
+<html lang="zh-CN">
 
 <head>
   <meta charset="utf-8">
@@ -219,44 +219,105 @@
       // The URL to game.zip, relative to the URL of this file.
       window.gameZipURL = 'game.zip';
       // 分片信息（tools/patch_web.py 注入）
-      window.gameZipParts = ["game.zip.000", "game.zip.001", "game.zip.002", "game.zip.003"];
-      window.gameZipPartSizes = [2000000, 2000000, 2000000, 654723];
-      window.gameZipTotal = 6654723;
+      window.gameZipParts = ["game.zip.000?b=fea8e3c", "game.zip.001?b=fea8e3c", "game.zip.002?b=fea8e3c", "game.zip.003?b=fea8e3c", "game.zip.004?b=fea8e3c", "game.zip.005?b=fea8e3c", "game.zip.006?b=fea8e3c", "game.zip.007?b=fea8e3c", "game.zip.008?b=fea8e3c"];
+      window.gameZipPartSizes = [1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 626569];
+      window.gameZipTotal = 8626569;
 
 
-      // Register the service worker.
-      // 停用 Service Worker，并清理旧缓存（tools/patch_web.py 注入）
-      if (window.caches) {
-          caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); });
-      }
-      if (navigator.serviceWorker) {
+            // 旧的 service worker 会把上一版 game.zip 分片与 index.html 钉在缓存里，
+      // 表现是「改了代码线上没变」。这里主动注销，并清掉它留下的 caches。
+      (function () {
+          if (!navigator.serviceWorker) { return; }
           navigator.serviceWorker.getRegistrations().then(function (rs) {
               rs.forEach(function (r) { r.unregister(); });
-          });
-      }
-  </script>
-  <script src="renpy-pre.js"></script>
-  <script async type="text/javascript" src="renpy.js"></script>
-  <script id="wb-timeout-watchdog">
+          }).catch(function () {});
+          if (window.caches && caches.keys) {
+              caches.keys().then(function (ks) {
+                  ks.forEach(function (k) { caches.delete(k); });
+              }).catch(function () {});
+          }
+      })();
+    </script>
+  <script>window.CHAOSHI_BUILD="fea8e3c";window.CHAOSHI_MIRRORS={"gh": "https://gongfpp.github.io/chaoshi-2018/", "cf": "https://chaoshi-2018.pages.dev/"};window.CHAOSHI_SIZES={"zip": 8626569, "wasm": 21586559, "data": 15057379};</script>
+  <script>
   (function () {
-    var t0 = Date.now();
-    var iv = setInterval(function () {
-      var c = document.querySelector('canvas');
-      if (c && c.width > 640) { clearInterval(iv); return; }
-      if (Date.now() - t0 > 90000 && !document.getElementById('wbTimeout')) {
-        clearInterval(iv);
-        var d = document.createElement('div');
-        d.id = 'wbTimeout';
-        d.style.cssText = 'position:fixed;left:50%;top:64%;transform:translateX(-50%);z-index:99;'
-          + 'color:#E8E4DC;font:16px/1.7 sans-serif;text-align:center;background:rgba(0,0,0,.8);'
-          + 'padding:18px 26px;border-radius:10px;max-width:80%';
-        d.innerHTML = '加载超时：网络似乎在传输中途断了。'
-          + '<br><a href="javascript:location.reload()" style="color:#C79A4B">点此重新加载</a>（已下载的部分会重新请求，通常第二次会更快）';
-        document.body.appendChild(d);
+    if (window.chaoshiTrack) { return; }
+    var BUILD = "fea8e3c";
+    var ENDPOINT = window.CHAOSHI_COLLECT || "/api/collect";
+    function rid(p) { return p + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+
+    var vid = localStorage.getItem("chaoshi_vid");
+    if (!vid) { vid = rid("v_"); localStorage.setItem("chaoshi_vid", vid); }
+    var sKey = "chaoshi_sid_" + Math.floor(Date.now() / 1800000);
+    var sid = sessionStorage.getItem(sKey);
+    if (!sid) { sid = rid("s_"); sessionStorage.setItem(sKey, sid); }
+
+    var queue = [], seq = 0, readySent = false, t0 = performance.now();
+
+    function flush() {
+      if (!queue.length) { return; }
+      var body = JSON.stringify({ events: queue.splice(0, 50) });
+      var ok = false;
+      try {
+        if (navigator.sendBeacon) {
+          // text/plain 不触发 CORS 预检，sendBeacon 才能可靠送达
+          ok = navigator.sendBeacon(ENDPOINT, new Blob([body], { type: "text/plain;charset=UTF-8" }));
+        }
+      } catch (e) { ok = false; }
+      if (!ok) {
+        try {
+          fetch(ENDPOINT, {
+            method: "POST", body: body, keepalive: true,
+            headers: { "Content-Type": "text/plain;charset=UTF-8" }
+          });
+        } catch (e) {}
       }
-    }, 2000);
+    }
+
+    window.chaoshiTrack = function (raw) {
+      try {
+        var e = (typeof raw === "string") ? JSON.parse(raw) : raw;
+        e.vid = vid; e.sid = sid; e.seq = ++seq; e.build = BUILD;
+        e.site = location.host; e.t_client = e.t || Date.now();
+        e.ref = document.referrer ? document.referrer.replace(/[?#].*$/, "") : "";
+        queue.push(e);
+        if (queue.length >= 8) { flush(); }
+      } catch (err) {}
+    };
+
+    window.addEventListener("message", function (ev) {
+      if (ev.data && typeof ev.data.__chaoshi_event === "string") {
+        window.chaoshiTrack(ev.data.__chaoshi_event);
+      }
+    });
+
+    setInterval(flush, 8000);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") { flush(); }
+    });
+
+    window.chaoshiTrack({ event: "page_view" });
+
+    var iv = setInterval(function () {
+      var c = document.querySelector("canvas");
+      if (c && c.width > 640 && !readySent) {
+        readySent = true;
+        clearInterval(iv);
+        window.chaoshiTrack({ event: "game_ready", ms: Math.round(performance.now() - t0) });
+      }
+    }, 500);
+
+    window.addEventListener("error", function (ev) {
+      window.chaoshiTrack({
+        event: "error", reason: String(ev.message || "script").slice(0, 120)
+      });
+    });
   })();
   </script>
+  <script src="chaoshi-loader.js"></script>
+  <script src="renpy-pre.js"></script>
+  <script async type="text/javascript" src="renpy.js"></script>
 </body>
 
 </html>

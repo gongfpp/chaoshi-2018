@@ -2,6 +2,18 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
 
+/chaoshi-loader.js
+  Cache-Control: no-cache
+
+/build.json
+  Cache-Control: no-cache
+
+/chaoshi_prefetch.json
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: public, max-age=300
+
 /renpy.wasm
   Cache-Control: public, max-age=604800
   Content-Type: application/wasm
@@ -10,10 +22,10 @@
   Cache-Control: public, max-age=604800
 
 /game.zip.*
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=86400
 
-/index.html
-  Cache-Control: public, max-age=300
+/game/*
+  Cache-Control: public, max-age=86400
 
 /*.js
   Cache-Control: public, max-age=300

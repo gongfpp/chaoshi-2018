@@ -358,90 +358,155 @@ Module.preRun = Module.preRun || [ ];
         console.log(s);
     }
 
-    // ---- 并行分片 + 提前预取（由 tools/patch_web.py 注入）------------------
-    // Ren'Py 原本用一次 fetch 拉整个 game.zip，要等 wasm 编译完才开始，弱网下还会断。
-    // 这里做两件事：
-    //   1) 页面一加载就开始分片下载（与 wasm/引擎数据并行），下载结果先存在内存里；
-    //   2) 每片独立重试、支持 Range 续传，写入时按各自偏移量落到 /game.zip。
+    /* CHAOSHI_LOADER_V2 */
+    // ---- 并行分片 + 空闲超时 + 后台预取（由 tools/patch_web.py 注入）------
+    // 与 Windows 无关的三条约束：
+    //   1) 不能用墙钟超时判失败 —— 弱网是「慢」不是「死」，只有连续 IDLE_MS
+    //      收不到字节才算断流（Cloudflare 不支持 Range，断了就得从头再来）。
+    //   2) 进度只认 Σ st.got 一个账本，重下不能让进度条倒退或溢出。
+    //   3) 落盘后必须核对字节数，截断的 zip 会让 Ren'Py 报 BadZipFile，
+    //      不如在这里就说清楚。
+    var CS = window.ChaoshiLoader || null;
     var GAME_FILE = null;
     var GAME_PARTS = [];
     var PREFETCH = null;
 
-    async function fetchPart(url, from, tries) {
-        var lastErr = null;
-        for (var i = 0; i < tries; i++) {
-            var ctrl = new AbortController();
-            var timer = setTimeout(function () { ctrl.abort(); }, 60000);
-            try {
-                var opt = { cache: 'default', signal: ctrl.signal };
-                if (from > 0) {
-                    opt.headers = { 'Range': 'bytes=' + from + '-' };
-                }
-                var r = await fetch(url, opt);
-                clearTimeout(timer);
-                if (!r.ok && r.status !== 206) {
-                    throw new Error('HTTP ' + r.status + ' ' + r.statusText);
-                }
-                return r;
-            } catch (e) {
-                clearTimeout(timer);
-                lastErr = e;
-                if (i < tries - 1) {
-                    await new Promise(function (res) { setTimeout(res, 800 * (i + 1)); });
-                }
-            }
+    var PART_CONC = 3;          // 弱网下 3 条流比 4 条更容易各自跑满
+    var IDLE_MS = 15000;        // 连续 15 秒零字节才判定断流
+    var ATTEMPT_MS = 180000;    // 单次尝试的墙钟兜底（不是主判据）
+    var MAX_TRIES = 6;
+
+    function csLog(s) { if (CS && CS.log) { CS.log(s); } }
+
+    function csSleep(ms) {
+        return new Promise(function (r) { setTimeout(r, ms); });
+    }
+
+    function zipBytes() {
+        var n = 0;
+        for (var i = 0; i < GAME_PARTS.length; i++) { n += GAME_PARTS[i].got; }
+        return gameZipSize ? Math.min(n, gameZipSize) : n;
+    }
+
+    function reportZip() {
+        if (CS && CS.zipProgress) { CS.zipProgress(zipBytes(), gameZipSize); }
+    }
+
+    function bootFail(kind, detail) {
+        // 有自绘 UI 就走自绘；没有（理论上不会）退回原生报错，至少别白屏
+        if (CS && CS.fatal) {
+            CS.fatal(kind, detail);
+        } else {
+            reportError('Could not download game data', { message: String(detail || '') });
         }
-        throw lastErr || new Error('fetch failed');
     }
 
     function partsMeta() {
         var names = window.gameZipParts || [];
         var sizes = window.gameZipPartSizes || [];
-        var offsets = [];
-        var acc = 0;
-        for (var i = 0; i < names.length; i++) {
-            offsets.push(acc);
-            acc += sizes[i] || 0;
-        }
-        return { names: names, sizes: sizes, offsets: offsets, total: window.gameZipTotal || acc };
+        var total = 0;
+        for (var i = 0; i < sizes.length; i++) { total += sizes[i] || 0; }
+        return { names: names, sizes: sizes, total: window.gameZipTotal || total };
     }
 
-    async function fetchPartToMemory(st) {
-        var got = 0;
-        var attempt = 0;
-        while (st.size === 0 || got < st.size) {
-            var r = await fetchPart(st.url, got, 6);
-            if (got > 0 && r.status !== 206) {
-                // 服务端忽略 Range（返回 200 全量），从本片起点重来
-                got = 0;
-                st.chunks = [];
-            }
-            var reader = r.body.getReader();
-            var finished = false;
-            try {
-                while (true) {
-                    var chunk = await reader.read();
-                    if (chunk.done) { finished = true; break; }
-                    st.chunks.push(chunk.value);
-                    got += chunk.value.length;
-                    st.got = got;
-                    gameZipDownloaded += chunk.value.length;
-                    updateDownloadProgress();
+    // 单次尝试：一次 fetch + 读完整个 body。返回的 Promise 只有在
+    // 「本片已经收满」或「确定失败」时才会落定。
+    function pullPart(st) {
+        return new Promise(function (resolve, reject) {
+            var ctrl = new AbortController();
+            var lastByte = Date.now();
+            var done = false;
+
+            var idle = setInterval(function () {
+                if (Date.now() - lastByte > IDLE_MS) {
+                    try { ctrl.abort(); } catch (e) {}
                 }
+            }, 2000);
+            var wall = setTimeout(function () {
+                try { ctrl.abort(); } catch (e) {}
+            }, ATTEMPT_MS);
+
+            function finish(err) {
+                if (done) { return; }
+                done = true;
+                clearInterval(idle);
+                clearTimeout(wall);
+                if (err) { reject(err); } else { resolve(); }
+            }
+
+            var wantFrom = st.got;
+            var opt = { cache: 'default', signal: ctrl.signal };
+            if (wantFrom > 0) { opt.headers = { 'Range': 'bytes=' + wantFrom + '-' }; }
+
+            // 服务端忽略 Range（Cloudflare 返回 200 全量）时，body 是从 0 开始的，
+            // 要把前面已经收到过的字节读掉再接着算，否则 zip 会整体错位。
+            var skip = 0;
+
+            fetch(st.url, opt).then(function (r) {
+                if (!r.ok && r.status !== 206) {
+                    throw new Error('HTTP ' + r.status + ' ' + r.statusText);
+                }
+                st.status = r.status;
+                skip = (r.status === 206) ? 0 : wantFrom;
+                if (!r.body || !r.body.getReader) {
+                    return r.arrayBuffer().then(function (buf) {
+                        var u8 = new Uint8Array(buf);
+                        if (skip > 0) { u8 = u8.subarray(skip); skip = 0; }
+                        lastByte = Date.now();
+                        st.chunks.push(u8);
+                        st.got += u8.length;
+                        reportZip();
+                    });
+                }
+                var reader = r.body.getReader();
+                function pump() {
+                    return reader.read().then(function (c) {
+                        if (c.done) { return; }
+                        lastByte = Date.now();
+                        var v = c.value;
+                        if (skip > 0) {
+                            if (v.length <= skip) { skip -= v.length; return pump(); }
+                            v = v.subarray(skip);
+                            skip = 0;
+                        }
+                        st.chunks.push(v);
+                        st.got += v.length;
+                        reportZip();
+                        return pump();
+                    });
+                }
+                return pump();
+            }).then(function () {
+                if (st.size && st.got < st.size) {
+                    throw new Error('分片不完整 ' + st.got + '/' + st.size);
+                }
+                finish(null);
+            }).catch(function (e) {
+                finish(e);
+            });
+        });
+    }
+
+    async function pullWithRetry(st) {
+        var tries = 0;
+        while (!st.size || st.got < st.size) {
+            tries += 1;
+            try {
+                await pullPart(st);
             } catch (e) {
-                attempt += 1;
-                if (attempt >= 6) { throw e; }
-                await new Promise(function (res) { setTimeout(res, 800 * attempt); });
+                st.lastErr = e;
+                if (tries >= MAX_TRIES) {
+                    throw new Error('分片 ' + st.url + ' 连续 ' + tries + ' 次失败：'
+                                    + (e && e.message ? e.message : e));
+                }
+                csLog('retry ' + st.url + ' #' + tries + '：' + (e && e.message));
+                await csSleep(700 * tries);
                 continue;
             }
-            if (finished && (st.size === 0 || got >= st.size)) { st.done = true; return; }
-            attempt += 1;
-            if (attempt >= 8) {
-                throw new Error('分片下载不完整：' + st.url + '（' + got + '/' + st.size + '）');
-            }
-            await new Promise(function (res) { setTimeout(res, 800 * attempt); });
+            if (!st.size || st.got >= st.size) { break; }
         }
         st.done = true;
+        reportZip();
     }
 
     function startPrefetch() {
@@ -449,14 +514,32 @@ Module.preRun = Module.preRun || [ ];
         var m = partsMeta();
         GAME_PARTS = m.names.map(function (n, i) {
             return {
-                url: n, size: m.sizes[i] || 0, offset: m.offsets[i],
-                chunks: [], got: 0, written: 0, done: false
+                url: n, size: m.sizes[i] || 0,
+                chunks: [], got: 0, done: false, status: 0
             };
         });
         gameZipSize = m.total;
-        PREFETCH = Promise.all(GAME_PARTS.map(function (st) {
-            return fetchPartToMemory(st).catch(function (e) { st.error = e; });
-        }));
+        if (CS && CS.zipProgress) { CS.zipProgress(0, gameZipSize); }
+
+        PREFETCH = (async function () {
+            var cursor = 0;
+            var workers = [];
+            for (var w = 0; w < PART_CONC; w++) {
+                workers.push((async function () {
+                    while (cursor < GAME_PARTS.length) {
+                        var st = GAME_PARTS[cursor];
+                        cursor += 1;
+                        try {
+                            await pullWithRetry(st);
+                        } catch (e) {
+                            st.error = e;
+                            csLog('part gave up: ' + st.url);
+                        }
+                    }
+                })());
+            }
+            await Promise.all(workers);
+        })();
         return PREFETCH;
     }
 
@@ -464,35 +547,50 @@ Module.preRun = Module.preRun || [ ];
         try {
             var m = partsMeta();
             gameZipSize = m.total;
-            GAME_FILE = FS.open('/game.zip', 'w');
 
             await startPrefetch();
 
+            // 预取阶段放弃的分片：这里串行再兜一次（单独跑，不抢带宽）
             for (var i = 0; i < GAME_PARTS.length; i++) {
-                var st = GAME_PARTS[i];
-                if (!st.done) {
-                    // 预取失败的分片：清空后重下（带 Range 续传）
-                    st.chunks = [];
-                    st.got = 0;
-                    await fetchPartToMemory(st);
+                var bad = GAME_PARTS[i];
+                if (!bad.done) {
+                    bad.chunks = bad.chunks || [];
+                    await pullWithRetry(bad);
                 }
-                for (var j = 0; j < st.chunks.length; j++) {
-                    var b = st.chunks[j];
-                    FS.write(GAME_FILE, b, 0, b.length, st.offset + st.written);
-                    st.written += b.length;
-                }
-                st.chunks = [];
             }
 
+            GAME_FILE = FS.open('/game.zip', 'w');
+            var offset = 0;
+            for (var k = 0; k < GAME_PARTS.length; k++) {
+                var p = GAME_PARTS[k];
+                for (var j = 0; j < p.chunks.length; j++) {
+                    var b = p.chunks[j];
+                    FS.write(GAME_FILE, b, 0, b.length, offset);
+                    offset += b.length;
+                }
+                p.chunks = [];
+            }
             FS.close(GAME_FILE);
             GAME_FILE = null;
 
+            var size = FS.stat('/game.zip').size;
+            if (size !== gameZipSize) {
+                throw new Error('落盘 ' + size + ' 字节，应为 ' + gameZipSize + ' 字节');
+            }
+            if (CS && CS.zipProgress) { CS.zipProgress(gameZipSize, gameZipSize); }
+
         } catch (e) {
-            reportError('Could not download game data', e);
+            if (GAME_FILE) { try { FS.close(GAME_FILE); } catch (x) {} GAME_FILE = null; }
+            var msg = (e && e.message) ? e.message : String(e);
+            var kind = 'idle';
+            if (/HTTP 4\d\d|HTTP 5\d\d/.test(msg)) { kind = 'http'; }
+            else if (/不完整|落盘|offset/.test(msg)) { kind = 'incomplete'; }
+            csLog('loadGameZip failed: ' + msg);
+            bootFail(kind, msg);
         }
     }
 
-    // 立即开始下载游戏数据，与 wasm 的下载/编译并行
+    // 立即开始下载，与 wasm 的下载/编译并行
     startPrefetch();
     function runLoadGameZip() {
         Module.addRunDependency('loadGameZip');
