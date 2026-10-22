@@ -358,7 +358,7 @@ Module.preRun = Module.preRun || [ ];
         console.log(s);
     }
 
-        /* CHAOSHI_LOADER_V2 */
+                /* CHAOSHI_LOADER_V2 */
     // ---- 并行分片 + 空闲超时 + 后台预取（由 tools/patch_web.py 注入）------
     // 与 Windows 无关的三条约束：
     //   1) 不能用墙钟超时判失败 —— 弱网是「慢」不是「死」，只有连续 IDLE_MS

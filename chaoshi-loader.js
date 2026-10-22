@@ -1071,12 +1071,69 @@
     return true;
   };
 
+  /* ------------------------------------------------------------ 现场诊断 */
+
+  /**
+   * ?stats=1 打开左上角的帧率面板。只在手动开启时运行，正常玩家没有任何开销。
+   * 用途：玩家反馈「卡」时，让他在卡的那一下截图 —— 面板会显示实测帧间隔，
+   * 能直接区分「主线程被占满」和「主线程空闲但画面跟不上」两种情况。
+   */
+  function statsOverlay() {
+    var box = document.createElement('div');
+    box.id = 'chaoshi-stats';
+    box.style.cssText = [
+      'position:fixed;left:8px;top:8px;z-index:2147483647',
+      'font:12px/1.45 ui-monospace,Menlo,Consolas,monospace',
+      'color:#E8E4DC;background:rgba(8,10,12,.82)',
+      'border:1px solid rgba(199,154,75,.45);border-radius:6px',
+      'padding:8px 10px;pointer-events:none;white-space:pre',
+    ].join(';');
+    document.body.appendChild(box);
+
+    var frames = [];
+    var last = performance.now();
+    var worst = 0;
+
+    function tick(t) {
+      var dt = t - last;
+      last = t;
+      frames.push(dt);
+      if (frames.length > 120) frames.shift();
+
+      if (dt > worst) { worst = dt; }
+      // 1 秒刷新一次，避免面板自身影响测量
+      if (frames.length % 60 === 0) {
+        var sorted = frames.slice().sort(function (a, b) { return a - b; });
+        var p95 = sorted[Math.floor(sorted.length * 0.95)] || 0;
+        var avg = frames.reduce(function (a, b) { return a + b; }, 0) / frames.length;
+        var c = document.querySelector('canvas');
+        var mem = (performance.memory && performance.memory.usedJSHeapSize)
+          ? Math.round(performance.memory.usedJSHeapSize / 1048576) + ' MB' : 'n/a';
+        box.textContent =
+          'fps   ' + (1000 / avg).toFixed(1) + '\n' +
+          'frame ' + avg.toFixed(1) + ' ms  p95 ' + p95.toFixed(1) + '\n' +
+          'worst ' + worst.toFixed(1) + ' ms\n' +
+          'canvas ' + (c ? c.width + '×' + c.height : 'n/a') +
+          '  dpr ' + (window.devicePixelRatio || 1) + '\n' +
+          'heap  ' + mem + '   ' + (window.CHAOSHI_BUILD || '');
+        worst = 0;
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
   /* ---------------------------------------------------------------- 启动 */
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', build);
   } else {
     build();
+  }
+
+  if (qs.has('stats')) {
+    if (document.body) { statsOverlay(); }
+    else { document.addEventListener('DOMContentLoaded', statsOverlay); }
   }
 
   // 首屏就给一个「正在连接」的确定反馈，而不是黑屏
