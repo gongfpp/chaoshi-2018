@@ -1,19 +1,22 @@
 // 性能探针：量线上网页版的渲染开销与交互延迟。
 // 用法：SITE_URL=https://chaoshi-2018.pages.dev/ node tools/perf_probe.js
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 
 const URL = process.env.SITE_URL || 'https://chaoshi-2018.pages.dev/';
 const PROXY = process.env.PROXY || 'http://127.0.0.1:7897';
+const ENGINE = process.env.BROWSER || 'chromium';
 
 (async () => {
-  const browser = await chromium.launch({
-    args: [
-      `--proxy-server=${PROXY}`,
-      '--enable-unsafe-swiftshader',
-      '--use-gl=angle',
-      '--ignore-gpu-blocklist',
-    ],
-  });
+  const browser = ENGINE === 'webkit'
+    ? await webkit.launch({ proxy: { server: PROXY } })
+    : await chromium.launch({
+        args: [
+          `--proxy-server=${PROXY}`,
+          '--enable-unsafe-swiftshader',
+          '--use-gl=angle',
+          '--ignore-gpu-blocklist',
+        ],
+      });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
 
   const errors = [];
