@@ -874,6 +874,17 @@
 
   var PREFETCH = { index: {}, started: false, done: 0, total: 0, t0: 0, bytes: 0 };
 
+  // 玩家只要在动鼠标/敲键盘，预取就让路。之前它只避让 Ren'Py 正在拉资源的时刻，
+  // 玩家读对白时没有活跃 XHR，预取就全速跑 12 MB，和操作抢带宽与主线程。
+  function watchInteraction() {
+    if (window.__csInteractHooked) { return; }
+    window.__csInteractHooked = true;
+    var mark = function () { window.__csLastInteract = Date.now(); };
+    ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (ev) {
+      window.addEventListener(ev, mark, { passive: true, capture: true });
+    });
+  }
+
   function netInfo() {
     var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (!c) { return { type: 'unknown', saveData: false }; }
@@ -883,6 +894,7 @@
   function startPrefetch() {
     if (NOPREFETCH || PREFETCH.started) { return; }
     PREFETCH.started = true;
+    watchInteraction();
 
     var net = netInfo();
     if (net.saveData || net.type === 'slow-2g' || net.type === '2g') {
@@ -919,7 +931,7 @@
       for (var i = 0; i < files.length; i++) { PREFETCH.index[files[i].p] = 1; }
       PREFETCH.t0 = now();
 
-      var conc = (net.type === '3g') ? 1 : 2;
+      var conc = 1;
       var cursor = 0;
       var stopped = false;
       var budget = 12 * 1048576;     // 最多 12 MB
@@ -935,6 +947,10 @@
         return false;
       }
 
+      function quietFor() {
+        return Date.now() - (window.__csLastInteract || 0);
+      }
+
       function next() {
         if (stopped || cursor >= files.length) { return Promise.resolve(); }
         var f = files[cursor++];
@@ -943,6 +959,11 @@
           stopped = true;
           logLine('prefetch stopped (budget/time)');
           return Promise.resolve();
+        }
+        // 玩家刚动过（2.5 秒内）：让出手，等安静下来再继续
+        if (quietFor() < 2500) {
+          if (now() > deadline) { stopped = true; return Promise.resolve(); }
+          return new Promise(function (r) { setTimeout(r, 700); }).then(next);
         }
         if (busyWithGame()) {
           return new Promise(function (r) { setTimeout(r, 800); }).then(next);
