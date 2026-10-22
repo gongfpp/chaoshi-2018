@@ -6,6 +6,10 @@
 镜像：<https://chaoshi-2018.pages.dev/>（Cloudflare Pages，境外访问更快）
 **下载发行包：[Releases](https://github.com/gongfpp/chaoshi-2018/releases/latest)**
 
+<p align="center">
+  <img src="docs/screenshots/home.png" width="760" alt="《超时》在线阅读页：标题、下载与进入视觉小说入口、章节目录" />
+</p>
+
 本项目包含：
 
 1. **一部完整小说**《超时》（20 章，50,031 汉字）及两个替代结局。
