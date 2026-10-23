@@ -2,8 +2,9 @@
 
 > 2018—2023，杭州，一个外卖骑手的五年。
 
-**在线试玩：<https://gongfpp.github.io/chaoshi-2018/>**（GitHub Pages，大陆直连较快）
-镜像：<https://chaoshi-2018.pages.dev/>（Cloudflare Pages，境外访问更快）
+**在线试玩：<https://chaoshi.gongfpp.icu/>**（腾讯 EdgeOne，国内节点，支持断点续传）
+镜像：<https://gongfpp.github.io/chaoshi-2018/>（GitHub Pages）·
+<https://chaoshi-2018.pages.dev/>（Cloudflare Pages）
 **下载发行包：[Releases](https://github.com/gongfpp/chaoshi-2018/releases/latest)**
 
 <p align="center">
@@ -13,7 +14,7 @@
 本项目包含：
 
 1. **一部完整小说**《超时》（20 章，50,031 汉字）及两个替代结局。
-2. **一部可通关的视觉小说**，由小说源文件自动生成 Ren'Py 脚本，含 6 个选择点、3 个结局。
+2. **一部可通关的视觉小说**，由小说源文件自动生成 Ren'Py 脚本，含 7 个选择点、3 个结局。
 3. **研究、设定、账本、改编对应表、验收记录**，可追溯每一个影响剧情因果的判断。
 
 ## 快速开始
