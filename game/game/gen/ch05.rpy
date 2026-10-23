@@ -3,10 +3,12 @@
 label ch05:
     call screen chapter_card("第五章", "四十五天")
     $ track("chapter_enter", chapter="ch05")
+    $ amb_layer_pause(0.0)
     $ qian = 9372
     $ debt = 0
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "十月一号，国庆。"
     "那天单多，从早上七点开始，手机就没停过。祥子跑到下午两点，实在憋不住，回五堡上个厕所，顺便给车充电。"
@@ -15,6 +17,7 @@ label ch05:
     "下来的时候，车没了。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/silence_tense.ogg" fadein 1.5
     "巷子很静。下午两点半，太阳很好，晾衣绳上的被单在风里鼓起来。"
     "祥子站在原地，看着那块空地。地上有一道刹车印，是他的车早上进来时留下的。"
@@ -35,6 +38,7 @@ label ch05:
     gj "「两道也没用。上个月老周的车，锁了三道，一样没了。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "派出所离五堡三公里。祥子跑着去的，跑到的时候，衬衫全湿了。"
     "接待他的是个年轻警察，二十七八岁，正在吃盒饭。"
@@ -60,9 +64,11 @@ label ch05:
     police "「五堡那边的监控，归街道管。你去问问。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "街道办的人说，巷子里的监控是去年装的，坏了半年，一直没修。"
     "物业说，五堡是农民房，没有物业。"
@@ -100,6 +106,7 @@ label ch05:
     "他没有哭出声。肩膀抖了几下，就停了。"
     scene bg_market
     with fade
+    $ implicit_amb("bg_market")
     play music "audio/bgm/market_noise.ogg" fadein 1.5
     "有人告诉他，九堡有个收车的地方。"
     "在一片拆了一半的厂房后面，铁皮围挡，门口停着几辆面包车。里面停着几十辆电动车，新的旧的都有，车架上用白漆写着编号。"
@@ -134,6 +141,7 @@ label ch05:
     "他没有再回头。"
     scene bg_market
     with fade
+    $ implicit_amb("bg_market")
     play music "audio/bgm/market_noise.ogg" fadein 1.5
     "第二天下午，他去了彭埠的二手电动车市场。"
     "一条街，两边都是修车铺，门口摆着旧车、旧电池、旧轮胎。有人蹲在地上拆电机，有人在给车架喷漆。空气里全是橡胶和机油的味道。"
@@ -155,6 +163,7 @@ label ch05:
     "祥子没有再说。他掏出手机，扫了八百。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "他把电池拎回五堡，放在那块空地上。"
     "同乡王大勇来看他，蹲下来看那组电池。"
@@ -171,6 +180,7 @@ label ch05:
     "他看着那四个字，看了很久。然后他回了一个“好”。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他在本子上写："
     "{b}10 月 1 日。车丢了。45 天。{/b}"

@@ -3,12 +3,15 @@
 label ch01:
     call screen chapter_card("第一章", "三月雨")
     $ track("chapter_enter", chapter="ch01")
+    $ amb_layer_pause(0.0)
     $ qian = 0
     $ debt = 2000
     scene bg_station_arrival
     with fade
+    $ implicit_amb("bg_station_arrival")
     play music "audio/bgm/city_cold.ogg" fadein 1.5
     "K 字头的车到杭州东站是早上六点四十。祥子把编织袋从行李架上拽下来，肩膀被带子勒出一道红印。袋子里是被子、两身换洗衣服、一个搪瓷缸子，还有姐姐塞进来的一包煮鸡蛋，已经凉了。"
+    $ pa("station_notice")
     "出站口的风是湿的。三月的杭州下雨，雨不大，落在脸上像一层薄薄的油。"
     "「住宿吗？小伙子，八十。」"
     "「打车走不走？」"
@@ -41,6 +44,7 @@ label ch01:
         "等挣到钱再说。他这么想，也知道这话是骗自己的。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     "杭州的雨下得没有声音。祥子跟着导航走，走过一条高架，走过一片拆了一半的民房，砖堆上长着草。巷子里晾着衣服，衣服底下停着电动车，一辆挨一辆，车把上挂着雨披，像一排蹲着的人。"
     "电线从这根杆子拉到那根杆子，中间垂下来，低得能碰到头。"
     "五堡十二号是一栋四层农民房，外墙贴着白瓷砖，瓷砖缝里长着青苔。门口有个铁皮棚，棚下摆着三张塑料凳，一个中年女人坐在那儿剥毛豆。"
@@ -57,11 +61,15 @@ label ch01:
     show gj normal at sprite_right
     with dissolve
     gj "「跑的人都这么说。」"
+    play sound "audio/sfx/pay_cash.ogg"
     "她笑了一下，不是嘲笑，是那种见多了的笑。祥子从内裤口袋里掏出用塑料袋包着的钱，数了十七张。"
     "一千七。剩下的一千三，他捏在手里，手心出汗。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
+    $ amb("street")
+    play sound "audio/sfx/shutter.ogg"
     "广田车行在杭海路边上，卷帘门拉开一半，里面挂着七八辆电动车，车头一律朝外。地上有油，有碎布，有一只翻倒的塑料盆。"
     "老刘正在给一辆车换胎，看见他，先笑。"
     "「小王介绍的吧？跑单的？」"
@@ -81,12 +89,14 @@ label ch01:
     "可他现在只有一千三。"
     xz "「租。」"
     lt "「身份证押我这儿。签个字。」"
+    play sound "audio/sfx/pen_sign.ogg"
     "老刘从抽屉里拿出一张纸，上面印着“车辆租赁协议”，底下已经签了七八个名字。祥子一笔一画写下“杨保祥”，写完发现“祥”字少了一横，想改，老刘已经把纸收走了。"
     "「车给你挑辆好的。」老刘拍了拍最里面那辆蓝色的，「这辆跑过两年，电机没动过。电池一块是新的，一块是旧的电，跑个三十公里没问题。」"
     xz "「新电池能跑多少？」"
     lt "「六十。旧的嘛……你自己看着表。」"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     "新塘站在一条断头路的尽头，门面是租的，两间打通，墙上刷了黄漆。门口停着二十多辆电动车，车尾都装着一个方形的保温箱。"
     "屋里有一块白板，写着当天的单量和准时率。白板下面是一排充电架，十几个充电器同时亮着红灯，屋里有一股塑料烧热的味道。"
     "王站长三十来岁，穿一件黑色冲锋衣，手里夹着烟，一边看手机一边说话。"
@@ -117,21 +127,35 @@ label ch01:
     "「行。工服、箱子，去后面领。手机下载这个 app，我拉你进群。」"
     scene bg_rain
     with fade
+    $ implicit_amb("bg_rain")
     play music "audio/bgm/rain_street.ogg" fadein 1.5
     play sound "audio/sfx/phone_notify.ogg"
+    $ amb("foodcourt")
+    play sound "audio/sfx/nav_turn.ogg"
     "第一单是麻辣烫，商家在四季青后门的小巷里。"
     "祥子到的时候，出餐口排着六个人，都是骑手，黄衣服蓝衣服挤在一起，谁都不说话，只盯着出餐口。他把手机举到眼前，屏幕上那个倒计时是红色的：{b}剩余 08:32{/b}。"
+    $ pa("merchant_37")
     "八分钟。商家还没做。"
+    $ pa("merchant_52")
+    play sound "audio/sfx/wok_toss.ogg"
+    play sound "audio/sfx/bag_rustle.ogg"
     "他等了六分钟，拿到餐，塑料袋烫手。顾客地址是“XX 公寓 3 幢 2 单元 602”，备注写着“不要按门铃，孩子睡觉，到了打电话”。"
+    $ amb("street")
+    play sound "audio/sfx/footsteps_wet.ogg"
     "小区没有电梯。六楼。"
+    play sound "audio/sfx/phone_ring.ogg"
     "祥子两只手拎着餐，爬到四楼的时候腿开始抖。他到六楼，打电话，没人接。再打，占线。"
+    play sound "audio/sfx/order_timeout.ogg"
     "倒计时剩 00:47。"
+    $ pa("order_late")
     "他把餐放在门口，拍照，点“已送达”，转身往下跑。跑到三楼，听见上面门开了，一个女人的声音：“放门口干嘛？汤都洒了！”"
     "他没敢回头。"
+    play sound "audio/sfx/elevator_ding.ogg"
     "第二单在写字楼，午高峰，货梯口排了十几个人。保安拦他：“外卖走货梯，客梯不能上。”货梯一趟只能进六个人，他等了九分钟。"
     "第三单超时。第四单也超时。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     "晚上九点半，他回到站点。雨衣上的水顺着裤腿流到地上，鞋里灌满了水，走一步响一下。"
     "王站长在白板上写数字。"
     "「杨保祥，二十三单。超时三单，六十。」"
@@ -145,6 +169,7 @@ label ch01:
     "他什么都没说。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "领装备的时候，管库房的老头从一堆衣服里翻出两件。"
     "一件是工服外套，黄色的，尺码偏大，袖口有一圈洗不掉的油。一件是马甲，也是黄的，胸前印着一个标志。"
@@ -180,6 +205,7 @@ label ch01:
     lm "「我叫马长顺。河南信阳的。以后有事问我，别问站长，他只会扣你钱。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "屋里只有一张床、一张折叠桌、一个塑料衣柜。灯泡是暖黄的，瓦数很小，墙上有一块水渍，形状像一只趴着的狗。"
     "祥子把湿衣服脱下来，搭在椅背上。他从编织袋最底下摸出一个蓝色塑料皮的本子，一支圆珠笔。"
@@ -190,6 +216,7 @@ label ch01:
     "他看着这三个数字，看了一会儿，把本子合上，塞到枕头底下。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他关了灯，躺下。"
     "黑暗里有很多声音。隔壁的炒菜声，楼上的脚步声，远处高架的车流声，还有一只猫在巷子里叫。"

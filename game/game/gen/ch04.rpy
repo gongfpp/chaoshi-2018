@@ -3,10 +3,12 @@
 label ch04:
     call screen chapter_card("第四章", "自己的车")
     $ track("chapter_enter", chapter="ch04")
+    $ amb_layer_pause(0.0)
     $ qian = 3436
     $ debt = 0
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_morning.ogg" fadein 1.5
     "八月十七，七夕。"
     "祥子不知道七夕是什么日子，是刘蕾在微信上说的：{b}今天七夕，你买车，吉利。{/b}"
@@ -34,6 +36,7 @@ label ch04:
     "祥子把收据折好，放进内兜，贴着胸口。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
     "交钱之前，老刘拉着他算了半天账。"
     "老刘从抽屉里拿出一个本子，翻到一页，上面画着表格。"
@@ -56,6 +59,7 @@ label ch04:
     "这个城市里，每个人都在算别人。平台算骑手，站长算骑手，车行算骑手。骑手算什么呢？骑手算时间。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_morning.ogg" fadein 1.5
     "他把钱递过去的时候，手有点抖。"
     "不是舍不得。是这钱太沉了。五个月，一千零五十单，四万八千公里。每一块钱都是他在马路上换来的。"
@@ -66,6 +70,7 @@ label ch04:
     lt "「收据收好。车丢了，发票是唯一的凭据。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     play sound "audio/sfx/scooter_start.ogg"
     "骑出车行的那一百米，他不敢加速。"
@@ -74,9 +79,11 @@ label ch04:
     "风从耳边过去，路灯一盏一盏往后退。他忽然想笑，就笑了，笑得很大声，被风灌回去。"
     scene bg_river
     with fade
+    $ implicit_amb("bg_river")
     play music "audio/bgm/river_night.ogg" fadein 1.5
     scene cg_bike
     with fade
+    $ implicit_amb("cg_bike")
     "他一直骑到钱塘江边。"
     "江对岸是滨江，楼很高，灯很密，有几栋楼在变换颜色，一会儿蓝一会儿紫。江面上有一艘船，船上的灯像一串珠子。"
     "祥子把车停在栏杆边，锁好，退后两步看它。"
@@ -90,6 +97,7 @@ label ch04:
     "写完，他在下面画了一个圈，圈里写“自己的”。"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "第二天送曹先生家的单，他把车停在楼下，特意锁了两道。"
     "曹先生下来拿餐，看见楼下的车。"
@@ -119,6 +127,7 @@ label ch04:
     "然后他拿出圆珠笔，在地图上点了一个点。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "九月二十号，美团上市。"
     "站点门口挂了一条红横幅，上面印着“热烈庆祝”。王站长在早会上说，这个月冲单奖翻倍，跑满一千二百单奖一千。"
@@ -129,6 +138,7 @@ label ch04:
     "那半个月，他每天跑十四个小时。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "早上六点出门，晚上十点回来。中间在站点充一次电，吃两个包子。"
     "他的车跑了一个月，里程表上是一千二百公里。"
@@ -145,6 +155,7 @@ label ch04:
     "雨小了，大家各自上路。祥子骑出去十几米，回头看了一眼那片高架，七八个骑手从帘子底下钻出来，散进雨里。"
     scene bg_river
     with fade
+    $ implicit_amb("bg_river")
     play music "audio/bgm/river_night.ogg" fadein 1.5
     "九月底，他接了一个跨江单。"
     "从庆春路到滨江，过西兴大桥，单程十一公里，配送费二十六，比平时多六块。"
@@ -157,6 +168,7 @@ label ch04:
     "这是他的车。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他开始想更远的事。"
     "再跑一年，攒五万。回周口，在县城盘个门面，修电动车。县城修车的一天能挣两百，不用淋雨，不用爬楼。"

@@ -3,9 +3,11 @@
 label ch11:
     call screen chapter_card("第十一章", "建档")
     $ track("chapter_enter", chapter="ch11")
+    $ amb_layer_pause(0.0)
     $ qian -= 1000
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_dawn.ogg" fadein 1.5
     "五月二十六号，早上。"
     "刘蕾从卫生间出来，手里捏着一根验孕棒，手在抖。"
@@ -25,6 +27,7 @@ label ch11:
     "那一刻他是高兴的。他真的高兴。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_day.ogg" fadein 1.5
     "高兴只持续了三天。"
     "建档。刘蕾是杭州本地户口，户口在彭埠，挂在老刘的房下。她可以去彭埠社区卫生服务中心建档。"
@@ -53,6 +56,7 @@ label ch11:
     "那张纸后来一直没拿出来。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "六月，王站长还在安徽老家，回不来。站点的事全压在刘蕾身上。"
     "她要排班、要盯准时率、要应付公司的检查、要安抚闹情绪的骑手。她每天早上七点到站点，晚上九点回家，中间只在椅子上眯一会儿。"
@@ -68,6 +72,7 @@ label ch11:
     ll "「你放心，我心里有数。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "她心里有没有数，祥子不知道。他只知道，那段时间她每天回家越来越晚。"
     "七月的站点出了两件事。"
@@ -95,12 +100,14 @@ label ch11:
     xz "「你躺一会儿。我去做饭。」"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_day.ogg" fadein 1.5
     "八月，她终于去了一次医院。"
     "不是市一，是彭埠路口那家私立妇产医院，叫“玛莉亚”，门口立着罗马柱，大厅里放着钢琴曲。"
     "一次产检六百。不用排队，护士全程陪着，医生说话很温柔。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_day.ogg" fadein 1.5
     "第一次去，接待他们的是一个穿套装的顾问。"
     "顾问姓陈，说话很甜，一口一个“姐姐”。"
@@ -124,6 +131,7 @@ label ch11:
     "他说不出“这个钱应该花在别处”，因为他不知道别处在哪儿。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_day.ogg" fadein 1.5
     "那天做完检查，医生把他们叫到办公室。"
     "医生姓吴，四十多岁，说话很稳。"
@@ -165,6 +173,7 @@ label ch11:
     "沙发很软。他坐了一会儿，睡着了。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "九月八号，那篇写骑手的文章出来了。"
     "祥子是在群里看到的，标题很长：《外卖骑手，困在系统里》。"
@@ -187,6 +196,7 @@ label ch11:
     wz "「这八分钟是给你喘气的，不是给你迟到的。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "单量在涨，骑手也在涨。"
     "站点从四十多人涨到七十多人。新来的大多是厂里出来的，有的连电动车都不会骑，第一天就摔。"
@@ -210,6 +220,7 @@ label ch11:
     ll "「怀孕都高。」"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_night.ogg" fadein 1.5
     "十二月二十号，产检。"
     "私立医院的医生量了三次血压，脸色变了。"
@@ -227,6 +238,7 @@ label ch11:
     doc "「刘女士，我不是吓你。你今天不住，明天可能就来不了了。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "回家的路上，刘蕾一句话没说。"
     "到了家，她坐在床上，把包里的检查单一张一张摊开。"
@@ -253,6 +265,7 @@ label ch11:
     "他不懂。他当时真的不懂。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "夜里两点，她醒了。"
     "她推了推他。"
@@ -272,6 +285,7 @@ label ch11:
     ll "「我躺一会儿就好。明天早上，你送我去。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "她没有马上睡。"
     "她侧躺着，看着窗帘。"

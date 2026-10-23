@@ -3,10 +3,12 @@
 label ch17:
     call screen chapter_card("第十七章", "念念")
     $ track("chapter_enter", chapter="ch17")
+    $ amb_layer_pause(0.0)
     $ qian -= 400
     $ debt -= 2000
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_dawn.ogg" fadein 1.5
     "四月，姐姐发来一段视频。"
     "念念在院子里，穿着一件红棉袄，扶着一个小板凳，摇摇晃晃地走。姐姐在旁边拍手：“念念，来，到姑姑这儿来。”"
@@ -27,6 +29,7 @@ label ch17:
     xz "「叫舅舅也行。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他每个月寄两千。"
     "房租一千三，吃饭一千二，烟三百，话费六十，剩下的全寄回去。"
@@ -36,9 +39,11 @@ label ch17:
     "有时候不够，就从饭钱里省。中午吃两个包子，晚上煮挂面。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "六月，姐姐打电话来，说念念肺炎，住院五天，花了四千。"
     bj "「我垫了两千，你那边……」"
@@ -54,6 +59,7 @@ label ch17:
     xz "「谢了。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "九月，幼儿园开学。"
     "姐姐说，念念该上幼儿园了，镇上的幼儿园一学期三千八。"
@@ -67,6 +73,7 @@ label ch17:
     "那个月他跑了十一个小时一天，跑了二十八天。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "乔司的房间只有十平米。"
     "一张床，一张折叠桌，一个塑料衣柜，一个电磁炉。"
@@ -81,6 +88,7 @@ label ch17:
     "照片上的孩子不说话，眼睛睁得很大。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "隔壁住着一对小夫妻，都在厂里上班。"
     "他们经常吵架。男的说女的乱花钱，女的说男的没本事。吵到激烈的时候，会摔东西，“哐”的一声。"
@@ -97,6 +105,7 @@ label ch17:
     "女人看了他一眼，不再问了。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "腊月二十八，姐姐打电话来，问他回不回来过年。"
     show xz tired at sprite_left
@@ -113,6 +122,7 @@ label ch17:
     "挂了电话，他坐在床边，抽了一根烟。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "除夕。"
     "楼下有人在放鞭炮，噼里啪啦。远处有人在唱歌，跑调的。"
@@ -140,6 +150,7 @@ label ch17:
     xz "「爸爸在。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "视频挂了以后，他坐在床边，抽了一根烟。"
     "姐姐又发来一条语音，六十秒。"
@@ -160,6 +171,7 @@ label ch17:
     "他关掉软件。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "三月，隔壁的小夫妻搬走了。"
     "男的先走，一个人提着箱子下楼，女的站在门口，没送。"
@@ -183,6 +195,7 @@ label ch17:
     "祥子站在门口，手里捏着那把钥匙，捏了很久。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "四月，他的胃开始疼。"
     "不是那种饿的疼，是烧的疼，半夜疼醒，嘴里发苦。"
@@ -202,6 +215,7 @@ label ch17:
     "五年。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "他走到阳台上。"
     "乔司的夜很黑，远处有一条高架，车灯一串一串地流。"

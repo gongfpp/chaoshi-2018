@@ -5,6 +5,7 @@ label ending_raolu:
     $ persistent.ending_raolu = True
     scene bg_ktv
     with fade
+    $ implicit_amb("bg_ktv")
     play music "audio/bgm/ktv_night.ogg" fadein 1.5
     "那天晚上，他没有走。"
     "他在 KTV 对面的马路边站了半个小时，然后走进那扇门，穿过走廊，一直走到后台。"
@@ -19,6 +20,7 @@ label ending_raolu:
     xz "「赖上就赖上。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "罗二强第二天就来了。"
     "他喝得半醉，站在乔司的巷子里骂，骂女儿不要脸，骂祥子拐他闺女。"
@@ -35,6 +37,7 @@ label ending_raolu:
     "罗二强骂骂咧咧地走了。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "他们在乔司租了两间房，一个月一千五。"
     "小福在附近的超市找了份工作，理货，一个月三千八。"
@@ -43,6 +46,7 @@ label ending_raolu:
     "一个月能剩三千。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "晚上，他们一起吃饭。"
     "她做饭，他洗碗。她做得不好吃，盐放多了，他不说，全吃了。"
@@ -64,6 +68,7 @@ label ending_raolu:
     xz "「因为那两千，存不住。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "2022 年 3 月，罗二强又来了一次。"
     "这次他没有闹。他站在巷口，瘦了很多，头发白了一片。"
@@ -85,6 +90,7 @@ label ending_raolu:
     rq "「你比我强。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "那天晚上，小福哭了很久。"
     "她坐在床边，抱着膝盖，一句话不说，眼泪一直流。"
@@ -98,6 +104,7 @@ label ending_raolu:
     xf "「这个城市，我一天都不想待了。」"
     scene bg_station_arrival
     with fade
+    $ implicit_amb("bg_station_arrival")
     play music "audio/bgm/train.ogg" fadein 1.5
     "2022 年 7 月，他们回了周口。"
     "火车是下午的，坐了十三个小时。小福靠着窗户睡着了，头一点一点的。"
@@ -106,6 +113,7 @@ label ending_raolu:
     "那时候他二十二岁，带着三千块钱，想买一辆自己的车。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "县城的生活很慢。"
     "祥子在郸城老街盘了一个修车铺，转让费两万，是姐姐借的。房租一个月八百。"
@@ -116,6 +124,7 @@ label ending_raolu:
     "念念从姐姐家接回来，上幼儿园，一学期两千。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "县城的冬天比杭州冷。"
     "屋里烧着蜂窝煤炉，烟囱从窗户伸出去，外面结了一层白霜。"
@@ -138,6 +147,7 @@ label ending_raolu:
     "那些东西离他很远了。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "小福的母亲做了手术。"
     "三万块，他们出了一万二，罗二强出了八千，剩下的借的。"
@@ -162,6 +172,7 @@ label ending_raolu:
     "车开走了，他站在站台上，站了很久。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "2023 年春天，他们领了证。"
     "没有办酒，就在家里吃了顿饭。姐姐做了一桌菜，念念在旁边跑来跑去。"
@@ -172,6 +183,7 @@ label ending_raolu:
     "大家都笑。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "欠的钱还在还。"
     "八万五，还了四万，还剩四万五。他每个月还两千，要还到 2025 年。"
@@ -181,6 +193,7 @@ label ending_raolu:
     "他把那些号码拉黑，换了一张卡。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "有一天下午，一个年轻人推着一辆电动车来补胎。"
     "车是新的，蓝色的，后座上装着一个保温箱。"
@@ -225,6 +238,7 @@ label ending_zhundian:
     $ persistent.ending_zhundian = True
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "三月十五号，他没有去站点。"
     "他把那张“情况说明”撕了，撕成四片，扔进垃圾桶。"
@@ -236,6 +250,7 @@ label ending_zhundian:
     wz "「那是你的事。」"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "他给曹先生打了个电话。"
     "曹先生在南京，接得很快。"
@@ -254,6 +269,7 @@ label ending_zhundian:
     cy "「考 B2。跑货运。我给你问个人。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "考 B2 要八千块，两个月。"
     "曹先生借了他一万。老赵借了他三千。姐姐把家里的两万块转给他，说“这是念念的学费，你先用”。"
@@ -273,6 +289,7 @@ label ending_zhundian:
     "他忽然发现，自己刚才说的话，跟老马当年跟他说的话一模一样。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "六月，他进了萧山一家物流公司。"
     "四米二的厢式货车，跑杭州到宁波，一天一趟，来回八个小时。"
@@ -284,6 +301,7 @@ label ending_zhundian:
     "他不知道怎么解释这张卡的意义。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他把欠款算了一遍。"
     "八万五，还了四万，还剩四万五。"
@@ -294,6 +312,7 @@ label ending_zhundian:
     "{b}2024 年 12 月：接念念来杭州。{/b}"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "2024 年，他跑了一整年。"
     "每天早上五点起，五点四十到公司，六点发车。中午在服务区吃一碗面，晚上八点回杭州。"
@@ -304,6 +323,7 @@ label ending_zhundian:
     "他真的可以接念念来了。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "2024 年春节，他回了周口。"
     "念念三岁，穿着一件红棉袄，站在院子里看他。"
@@ -339,6 +359,7 @@ label ending_zhundian:
     xz "「我撑得住。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "2024 年 12 月，他没有把念念接来。"
     "不是因为钱。"
@@ -349,6 +370,7 @@ label ending_zhundian:
     "后来又改成 2025 年 12 月。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "2025 年 3 月，公司让他带新人。"
     "一个新来的司机，二十五岁，河南人，跑第一趟就迟到了两个小时。"
@@ -365,6 +387,7 @@ label ending_zhundian:
     "他当时什么也没说。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "晚上，他坐在办公室里，把当天的单子录进系统。"
     "窗外的物流园很亮，一辆一辆货车进进出出。"

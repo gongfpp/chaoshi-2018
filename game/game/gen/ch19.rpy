@@ -3,10 +3,12 @@
 label ch19:
     call screen chapter_card("第十九章", "交易")
     $ track("chapter_enter", chapter="ch19")
+    $ amb_layer_pause(0.0)
     $ qian -= 340
     $ debt -= 2000
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "三月八号，早上，他的账号被封了。"
     "打开 App，一行红字：{b}您的账号因“恶意刷单、扰乱配送秩序”被暂停使用，如有异议请联系站点。{/b}"
@@ -14,6 +16,7 @@ label ch19:
     "红字还在。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "王站长在办公室，正在泡茶。"
     "祥子站在门口。"
@@ -38,6 +41,7 @@ label ch19:
     wz "「问是可以问。」王站长往椅背上一靠，「但是你要帮我一个忙。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense_low.ogg" fadein 1.5
     "王站长从抽屉里拿出一张纸。"
     "上面是一份“情况说明”，写着：本人杨保祥，系新塘站骑手，自愿就 2022 年 10 月 14 日停送事件作出说明，并配合公司调查。"
@@ -64,6 +68,7 @@ label ch19:
     "他不知道陈立是什么样的人。他只知道，在他认识的人里，只有陈立问过他“你老婆的账单是多少”。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "他想起去年冬天，陈立请他在路边摊吃过一次饭。"
     "两碗牛肉面，一盘花生米。陈立不喝酒，喝可乐。"
@@ -85,6 +90,7 @@ label ch19:
     "有用。但是没用。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense_low.ogg" fadein 1.5
     $ track("choice_shown", choice="ch19")
     menu:
@@ -100,6 +106,7 @@ label ch19:
             jump ending_zhundian
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他在乔司的房间里坐了三天。"
     "第一天，他把那两张纸摊在桌上，看了一天。"
@@ -114,6 +121,7 @@ label ch19:
     "挂了电话，他坐在床边，抽了半包烟。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense_low.ogg" fadein 1.5
     "三月十五号，他去了站点。"
     "王站长在办公室等他，桌上放着一个信封。"
@@ -137,6 +145,7 @@ label ch19:
     xz "「不用数。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense_low.ogg" fadein 1.5
     "他数了。"
     "在楼梯间里，一张一张地数。"
@@ -163,6 +172,7 @@ label ch19:
     wz "「你别往心里去。这行就是这样。今天你卖他，明天他卖你。大家都活着。」"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "他拿着信封，走出站点。"
     "外面在下雨。他站在屋檐下，把信封塞进内兜。"
@@ -170,6 +180,7 @@ label ch19:
     "那时候他什么都没卖。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "三月二十号，群里有人发消息。"
     "{b}「陈立走了。房东让他搬的，说有人举报他群租。」{/b}"
@@ -186,6 +197,7 @@ label ch19:
     "过了十分钟，群解散了。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "三月二十一号，账号恢复。"
     "他重新上路。"
@@ -203,6 +215,7 @@ label ch19:
     "走到电梯口，他回头看了一眼。前台的那个女孩正在低头看手机，餐盒放在一边，没人动。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "那天晚上，他给姐姐转了两千。"
     "剩下的一千，他买了一箱牛奶，两罐奶粉，寄回老家。"
@@ -210,6 +223,7 @@ label ch19:
     "寄件人一栏，他写了“爸爸”。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "三月二十二号，他在路上遇见陈立。"
     "陈立骑着一辆共享单车，后座上绑着一个蛇皮袋，里面是他的行李。"

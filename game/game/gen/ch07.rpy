@@ -3,10 +3,12 @@
 label ch07:
     call screen chapter_card("第七章", "新国标")
     $ track("chapter_enter", chapter="ch07")
+    $ amb_layer_pause(0.0)
     $ qian = 22421
     $ debt = 0
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "四月十五号，新国标正式实行。"
     "王站长在早会上念了一张纸：从今天起，超标电动车不准上路，查到就扣。车速超过二十五码的、整车超过五十五公斤的、没有脚踏的，都算超标。"
@@ -29,6 +31,7 @@ label ch07:
     "他把车骑回五堡，一路上不敢超过二十五码。后面有人按喇叭，他往边上让。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "新车骑了十六天。"
     "五月六号，下午，他在庆春东路被拦下。"
@@ -46,6 +49,7 @@ label ch07:
     "十六天。五千七。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "扣车场在九堡，一片用铁丝网围起来的空地，里面停着几百辆车，一眼望不到头。"
     "看场子的人姓孙，四十来岁，胖，穿一件皮夹克，口袋里露出半包中华。"
@@ -66,6 +70,7 @@ label ch07:
     sg "「谢什么。都是打工的。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "五月八号，下午五点二十。"
     "祥子借了老马的车，去交警队交罚款。"
@@ -76,6 +81,7 @@ label ch07:
     "祥子整个人僵在车上。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/tense.ogg" fadein 1.5
     "车上下来三个人。"
     "走在前面的是个三十多岁的男人，穿白衬衫，手腕上一块金表。他走到车门边，看了一眼那道划痕，又看了一眼祥子。"
@@ -94,6 +100,7 @@ label ch07:
     car "「报警吧。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense.ogg" fadein 1.5
     "交警来了，拍照，登记。宝马车主不依不饶，说要去 4S 店定损，说要做漆，说这几天没法用车，要误工费。"
     "到了停车场，孙哥不知从哪儿冒出来，把祥子拉到一边。"
@@ -152,6 +159,7 @@ label ch07:
     lt "「你别急着答。先把眼前的事了了。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/dark_low.ogg" fadein 1.5
     "九点，天全黑了。"
     "孙哥把宝马车主叫到停车场门口，三个人站着说话。祥子站在十米之外，看见车主点了根烟，说了句什么，孙哥笑了，拍了拍他的肩。"
@@ -178,6 +186,7 @@ label ch07:
 label ch07_join:
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "回到五堡，已经十一点。"
     "祥子坐在台阶上，把手机里的转账记录看了一遍。四千，八千。余额：四千零二十一。"
@@ -208,6 +217,7 @@ label ch07_join:
     "他欠了。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
     "第二天，他去取车。"
     "车还在，后座被拆了，雨棚被剪了，扔在地上。车身上落了一层灰。"

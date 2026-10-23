@@ -3,10 +3,12 @@
 label ch15:
     call screen chapter_card("第十五章", "服务分")
     $ track("chapter_enter", chapter="ch15")
+    $ amb_layer_pause(0.0)
     $ qian -= 1000
     $ debt -= 30000
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "四月九号，杭州区划调整。"
     "江干区没了，并入上城区。祥子的居住登记在乔司，属于临平区，跟这事没关系。但他的罚单、社保、劳务协议上，写的都是“江干区新塘路”。"
@@ -20,6 +22,7 @@ label ch15:
     wz "「罚单照扣。」"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "七月二十六号，七部门发了文件。"
     "王站长在早会上念了几条：算法取中，放宽配送时限，不得以最严算法考核，职业伤害保障试点。"
@@ -33,6 +36,7 @@ label ch15:
     wz "「意思是，好单不给你，远的、偏的、没电梯的，都给你。」"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "八月，祥子成了“老骑手”。"
     "站点招了一批新人，最大的四十五，最小的十九。王站长让他带三个。"
@@ -62,6 +66,7 @@ label ch15:
     xz "「你自己想。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "带了一个月，三个人跑了两个。"
     "小李回安徽了，说这行太累。阿强去了饿了么，说那边单价高五毛。"
@@ -87,6 +92,7 @@ label ch15:
     "祥子把工服收起来，塞进柜子里。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "八月，服务分正式开始扣。"
     "第一周，祥子被扣了八分。"
@@ -105,6 +111,7 @@ label ch15:
     xz "「我笑我以前以为，只要跑得快就行。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "只剩下老赵。老赵四十五，跑得慢，但从不超时，从不差评。他有一个儿子在读大学，一年学费两万。"
     zhao "「祥子，我这年纪，还能跑几年？」"
@@ -129,8 +136,11 @@ label ch15:
     "这个道理，他在厂里学不到，在马路上学会了。"
     scene bg_rain
     with fade
+    $ implicit_amb("bg_rain")
     play music "audio/bgm/rain_light.ogg" fadein 1.5
     "十一月二十二号，老马摔了。"
+    play sound "audio/sfx/impact.ogg"
+    play sound "audio/sfx/brake.ogg"
     "这次摔得重。雨天，路滑，他被一辆右转的货车带倒，锁骨骨折，肋骨裂了两根。"
     "祥子去医院看他。"
     "老马躺在病床上，半边身子不能动，脸上青一块紫一块。"
@@ -158,6 +168,7 @@ label ch15:
     lm "「住我儿子那儿。」"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
     "临走的时候，老马叫住他。"
     show lm normal at sprite_left
@@ -177,6 +188,7 @@ label ch15:
     lm "「命是钱的。钱是别人的。」"
     scene bg_station_arrival
     with fade
+    $ implicit_amb("bg_station_arrival")
     play music "audio/bgm/train.ogg" fadein 1.5
     "老马走的那天，他去送。"
     "信阳的火车，下午三点。老马只有一个编织袋，比祥子当年来的时候还小。"
@@ -188,6 +200,7 @@ label ch15:
     with dissolve
     xz "「送到站台。」"
     lm "「你这人。」"
+    play sound "audio/sfx/lighter.ogg"
     "两个人在候车厅坐下。老马从口袋里摸出一包烟，抽了一根，点上。"
     lm "「祥子，我跑了七年，你是第二个送我的。」"
     xz "「第一个是谁？」"
@@ -195,6 +208,7 @@ label ch15:
     lm "「他走的时候跟我说，马叔，我以后再也不跑单了。」"
     xz "「他做到了吗？」"
     lm "「不知道。没联系了。」"
+    $ pa("station_check")
     "广播开始检票。"
     "老马站起来，把烟头摁灭在椅子扶手上。"
     lm "「祥子。」"
@@ -207,6 +221,7 @@ label ch15:
     "然后他就被人群吞了。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "那天晚上，祥子在便利店买了一包烟。"
     "他戒烟三年了。"
@@ -215,6 +230,7 @@ label ch15:
     "烟在黑暗里一明一暗。他看着那一点红，看了很久。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他翻出记账本。"
     "2021 年的账，他只记到一月份。后面全是空白。"

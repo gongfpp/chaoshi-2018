@@ -3,10 +3,12 @@
 label ch16:
     call screen chapter_card("第十六章", "三月十二")
     $ track("chapter_enter", chapter="ch16")
+    $ amb_layer_pause(0.0)
     $ qian -= 800
     $ debt -= 10000
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "三月十号，祥子给小福发微信。"
     "{b}「小福，最近怎么样？」{/b}"
@@ -18,6 +20,7 @@ label ch16:
     "他心里开始发慌。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "小福去年冬天从 KTV 出来了。"
     "罗二强在乔司给她租了一间房，一个月六百，让她在附近的超市上班。她给他发过一次定位，说“祥子哥，我搬这儿了，你有空来坐”。"
@@ -25,6 +28,7 @@ label ch16:
     "改天。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/silence_tense.ogg" fadein 1.5
     "乔司，朝阳村，十七号。"
     "房东是个五十多岁的女人，正在院子里晒被子。"
@@ -40,11 +44,14 @@ label ch16:
     xz "「什么？」"
     land "「我昨天敲门，没人应。我以为她上班去了。」"
     xz "「开门。」"
+    play sound "audio/sfx/keys.ogg"
     land "「我没有钥匙，她从里面反锁了。」"
     xz "「砸开。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence_tense.ogg" fadein 1.5
+    play sound "audio/sfx/door_break.ogg"
     "门是撞开的。"
     "屋里很暗，窗帘拉着。一股味道冲出来，甜的，呛的，像烧过的煤。"
     "小福躺在床上，盖着被子，脸朝着墙。"
@@ -58,6 +65,7 @@ label ch16:
     "身体已经硬了。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence.ogg" fadein 1.5
     "警察来了，拉了警戒线。"
     "法医进去，出来，问了祥子几个问题，做了记录。"
@@ -74,6 +82,7 @@ label ch16:
     "警察抬头看了他一眼，没说话。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence.ogg" fadein 1.5
     "桌上有一张纸。"
     "不是遗书。是一张超市的收银小票，背面用圆珠笔写着几行字："
@@ -86,6 +95,7 @@ label ch16:
     "祥子把那张纸捏在手里，捏得皱成一团。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence.ogg" fadein 1.5
     "她的手机在枕头旁边。"
     "警察解锁后给他看。微信里，最后一个对话是他。"
@@ -98,6 +108,7 @@ label ch16:
     "没有文字。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence.ogg" fadein 1.5
     "他把她的手机翻了一遍。"
     "相册里有三百多张照片。大部分是自拍，滤镜开得很重，脸白得发亮。有几张是吃的：麻辣烫、煎饼、一杯奶茶。"
@@ -122,6 +133,7 @@ label ch16:
     "「我现在有空。」"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_low.ogg" fadein 1.5
     "三月二十号，火化。"
     "殡仪馆在留下，一片山坡上，种着松树。"
@@ -143,6 +155,7 @@ label ch16:
     "三千块，祥子出的。他当时卡里有四千二。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_low.ogg" fadein 1.5
     "罗二强在殡仪馆门口拦住他。"
     "他喝了酒，眼睛通红，身上一股酸味。"
@@ -173,6 +186,7 @@ label ch16:
     "祥子没有过去。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_empty.ogg" fadein 1.5
     "小福的遗物，房东收拾出来，装了两个纸箱。"
     "一箱是衣服。粉色的卫衣，黑色的工作服，几件打折买的T恤。都洗得很干净，叠得很整齐。"
@@ -190,6 +204,7 @@ label ch16:
     "「你攒得真慢。」"
     scene bg_station_arrival
     with fade
+    $ implicit_amb("bg_station_arrival")
     play music "audio/bgm/train.ogg" fadein 1.5
     "三月二十六号，他请了三天假，带着骨灰盒去郸城。"
     "罗二强不肯去。他说他去了没法见人。"
@@ -205,6 +220,7 @@ label ch16:
     old "「她家在最里头，红砖房，门口有一堆柴。」"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "罗家的院子很小，三间砖房，一间厨房。院子里堆着玉米秸，一只鸡在啄食。"
     "她妈坐在门槛上，看见他，愣了一下。"
@@ -245,6 +261,7 @@ label ch16:
     "哭声很小，像漏气。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "祥子在罗楼住了一晚。"
     "她家给他腾了一间屋，床上铺着新洗的床单，有一股太阳的味道。"
@@ -255,9 +272,11 @@ label ch16:
     "他退回屋里，躺下，睁着眼睛到天亮。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_low.ogg" fadein 1.5
     scene cg_funeral
     with fade
+    $ implicit_amb("cg_funeral")
     "火化的时候，他站在炉子外面。"
     "这是他一年里第二次站在这里。"
     "铁门关上，火“轰”的一声。"
@@ -271,6 +290,7 @@ label ch16:
     "他对着铁门说。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_low.ogg" fadein 1.5
     "出来的时候，他看见殡仪馆门口贴着一张招工纸。"
     "{b}招临时工。守夜、抬棺、代客排队。日结，一百八。联系电话：……{/b}"
@@ -286,6 +306,7 @@ label ch16:
     "存的名字是：{b}殡仪馆{/b}。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "回乔司的路上，他接到姐姐的电话。"
     bj "「祥子，念念发烧了，三十九度。」"
@@ -309,6 +330,7 @@ label ch16:
     "「我也欠着。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "那天夜里，他做了个梦。"
     "梦见小福站在五堡的巷口，穿着那件粉色的卫衣，手里拎着塑料袋。"

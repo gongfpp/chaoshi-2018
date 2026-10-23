@@ -3,10 +3,12 @@
 label ch02:
     call screen chapter_card("第二章", "单王")
     $ track("chapter_enter", chapter="ch02")
+    $ amb_layer_pause(0.0)
     $ qian = 14052
     $ debt = 0
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "跑熟了以后，杭州就变小了。"
     "新塘路往西是庆春广场，往东是九堡，往南过江是滨江，往北是临平。祥子用了一个月，把这些路装进脑子里：哪条街早上堵，哪个路口红灯长，哪栋写字楼的货梯在背面，哪个小区的保安十点换班。"
@@ -34,6 +36,7 @@ label ch02:
     "祥子没接话。他站在路边，看着一辆洒水车开过去，水雾在太阳底下亮了一下。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     "五堡的傍晚是有味道的。有人在炒辣椒，有人在洗头，有人把电视机搬到门口看新闻。高姐的厨房在一楼楼梯口，一口铁锅，一个煤气灶，谁都能用。"
     "祥子第一次用那口锅，是把中午剩的米饭炒了，打了个鸡蛋。高姐从楼上下来，看了一眼。"
     show gj normal at sprite_left
@@ -52,6 +55,7 @@ label ch02:
     "「你们这些人，来的时候都跟你一样，眼睛亮亮的。」她把蒜皮吹到地上，「住三年，眼睛就不亮了。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "七月最热的那几天，他认识了小福。"
     "那天下午三点，地面温度四十度，他送一份奶茶到四季青后巷。巷子窄，两边是服装档口的后门，地上堆着打包好的黑色塑料袋，一股新布料的味道。"
@@ -87,6 +91,7 @@ label ch02:
     "他不知道记这个干什么。他只是觉得，在这个城市里，能听见一句家乡话，比什么都强。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "站点里有一套不成文的规矩。"
     "抢单要抢\"肥单\"：写字楼、小区门口、一楼商铺。没人愿意接的是\"骨头\"：七楼没电梯、医院住院部、老小区不让进。"
@@ -100,6 +105,7 @@ label ch02:
     "这个道理，他也是被罚了三个月才想明白的。"
     scene bg_rain
     with fade
+    $ implicit_amb("bg_rain")
     play music "audio/bgm/rain_light.ogg" fadein 1.5
     play sound "audio/sfx/scooter.ogg"
     "差评是六月里来的。"
@@ -118,6 +124,7 @@ label ch02:
     xz "「十二单。」他对自己说，「跑到十二点就回来了。」"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "曹先生是他固定单的顾客。"
     "文三路求智巷，六楼，没电梯。第一次送，祥子爬上去，敲门，一个戴眼镜的男人开门，接过餐，说了声“谢谢”，又补一句：“小伙子，你等一下。”"
@@ -139,6 +146,7 @@ label ch02:
     "祥子没听懂，但他记住了这句话。就像记住“看单先看楼”一样，先记着，以后再懂。"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "第三次去，曹先生让他进屋坐。"
     "客厅很小，一面墙是书，一张藤椅，一张饭桌。周红给他倒了一杯茶，茶叶在杯子里立着。"
@@ -172,6 +180,7 @@ label ch02:
     "四百六十块，他要跑九十六单。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "七月发工资，一万四千零五十二。"
     "他给舅舅转了四千。舅舅在电话里沉默了半天，说：“你爸的账，不急。”祥子说：“急。欠着难受。”"
@@ -182,7 +191,10 @@ label ch02:
     "他在本子上又写一行小字：{b}8 月 17 日，买车。{/b}"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
+    play sound "audio/sfx/order_new.ogg"
     "站点里有一个叫小杨的骑手，比他大两岁，跑单的时候手机架两个，一个接单，一个看小说。他有一套“抢单外挂”，据说是花三百块买的。"
+    play sound "audio/sfx/app_fail.ogg"
     qun "「祥子，你也弄一个。好单都被别人抢了。」"
     show xz normal at sprite_left
     with dissolve
@@ -196,6 +208,7 @@ label ch02:
     "这两种人，最后都跑不出这个站点。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "七月的最后一天，他躺在床上算账。"
     "车四千八，电池一千五，头盔一百八，雨衣八十，锁一百二，上牌五十五。"

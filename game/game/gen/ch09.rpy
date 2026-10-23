@@ -3,6 +3,7 @@
 label ch09:
     call screen chapter_card("第九章", "喜酒")
     $ track("chapter_enter", chapter="ch09")
+    $ amb_layer_pause(0.0)
     if c_siyu:
         $ qian = 21205
         $ debt = 0
@@ -13,6 +14,7 @@ label ch09:
     $ debt += 14000
     scene bg_wedding
     with fade
+    $ implicit_amb("bg_wedding")
     play music "audio/bgm/wedding.ogg" fadein 1.5
     play sound "audio/sfx/crowd.ogg"
     "十月六号，金满楼。"
@@ -27,6 +29,7 @@ label ch09:
     "祥子跟着喊人。三姨、四舅、表叔、表哥。他记不住，只能笑。"
     scene bg_wedding
     with fade
+    $ implicit_amb("bg_wedding")
     play music "audio/bgm/wedding_soft.ogg" fadein 1.5
     "仪式开始，司仪是个年轻小伙，拿着话筒喊：“新郎新娘，一拜天地——”"
     "祥子弯腰。他听见台下有人笑。"
@@ -54,6 +57,7 @@ label ch09:
     "那一刻他忽然觉得，也许可以。"
     scene bg_wedding
     with fade
+    $ implicit_amb("bg_wedding")
     play music "audio/bgm/wedding.ogg" fadein 1.5
     "敬酒的时候，老刘拉着他到亲戚那桌。"
     show lt normal at sprite_left
@@ -76,8 +80,10 @@ label ch09:
     "祥子愣了一下。他看向老刘，老刘正在跟别人碰杯，没看他。"
     scene bg_wedding
     with fade
+    $ implicit_amb("bg_wedding")
     play music "audio/bgm/wedding_soft.ogg" fadein 1.5
     "散场已经下午三点。"
+    play sound "audio/sfx/lighter.ogg"
     "祥子在酒店后门抽烟，老马走过来，递给他一个红包。"
     show lm normal at sprite_left
     with dissolve
@@ -95,6 +101,7 @@ label ch09:
     lm "「还有，你的车，别再丢了。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "新房是五堡十二号二楼的大间，一个月一千。刘蕾把墙重新刷了白，买了一台二手空调，一个布衣柜，一张一米八的床。"
     "床上铺着大红的四件套，是刘蕾的母亲留下的。"
@@ -134,6 +141,7 @@ label ch09:
     "记账本还在那儿。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_dawn.ogg" fadein 1.5
     "第二天早上，他被手机吵醒。"
     "是站点的群消息：{b}明天开始，早班六点半到岗，晚班到十一点。迟到一次扣一百。{/b}"
@@ -175,9 +183,12 @@ label ch09:
 label ch09_join:
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "婚后的第一个月，他们吵了一架。"
     "起因是一双鞋。"
+    $ amb("wetmarket")
+    play sound "audio/sfx/scan_ok.ogg"
     "祥子的鞋底磨穿了，下雨天进水。他去夜市买了一双，八十块。"
     if c_gongzi:
         "这八十块是他这个月一千五里的。卡不在他手上，钱在。"
@@ -234,6 +245,7 @@ label ch09_join:
     "那天晚上，他第一次觉得，钱不是挣来的，是算出来的。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
     "十月十号，他去车行找老刘。"
     "老刘正在算彩礼的账。"

@@ -3,9 +3,11 @@
 label ch10:
     call screen chapter_card("第十章", "封城")
     $ track("chapter_enter", chapter="ch10")
+    $ amb_layer_pause(0.0)
     $ qian -= 2649
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "腊月二十九，站点开会。"
     "王站长站在白板前，戴着一个蓝色的医用口罩，说话的声音闷闷的。"
@@ -18,6 +20,7 @@ label ch10:
     "祥子领了十个口罩，两瓶消毒水。他把口罩塞进保温箱的夹层，把消毒水放在车筐里。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "正月初二，五堡封了。"
     "巷口拉了一道铁马，两个穿红马甲的人守着，桌上放着一个测温枪、一本登记簿。"
@@ -43,6 +46,7 @@ label ch10:
     "祥子站在社区门口，风很大。他把口罩往上拉了拉，呼出的气在眼镜上结了一层雾——他没有眼镜，是睫毛上结了水汽。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "证明是刘蕾想办法弄的。"
     "她找了个做广告的朋友，刻了一个“杭州速达配送服务有限公司”的章，在打印纸上盖了一下。"
@@ -57,6 +61,7 @@ label ch10:
     "他把纸折好，放进内兜。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_empty.ogg" fadein 1.5
     play sound "audio/sfx/scooter.ogg"
     "二月的杭州是空的。"
@@ -70,6 +75,7 @@ label ch10:
     qun "「挂门把手上，敲门，跑。」"
     "祥子那天送了一单药。"
     "地址是采荷小区，六楼。备注写着：{b}独居老人，不会用手机，请敲门，谢谢。{/b}"
+    play sound "audio/sfx/door_knock.ogg"
     "他爬上去，敲门。门开了一条缝，一个老太太露出半张脸，戴着棉布口罩。"
     old "「谁？」"
     show xz normal at sprite_left
@@ -89,6 +95,7 @@ label ch10:
     "他把口罩放进内兜，贴着那张盖了歪章的证明。"
     scene bg_rain
     with fade
+    $ implicit_amb("bg_rain")
     play music "audio/bgm/rain_light.ogg" fadein 1.5
     "也有难堪的时候。"
     "有一天下午下雨，他送一份菜到一个小区。小区封了，只开一个门，门口摆着两张桌子，物业在登记。"
@@ -112,10 +119,12 @@ label ch10:
     "他又说了一遍，对着空气。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_empty.ogg" fadein 1.5
     "二月中旬，他送过一单特别的。"
     "下单的是个大学生，地址在城西一个老小区，六楼。订单是火锅食材：肥牛、虾滑、宽粉、金针菇、两瓶可乐。"
     "备注写着：{b}隔离第七天，一个人，想吃点热的。放门口就行，谢谢。{/b}"
+    $ pa("shop_sale")
     "祥子到超市取货，装了满满一箱。"
     "他骑到小区门口，登记，量体温，进去。小区里很静，只有几只鸟在叫。"
     "爬到六楼，他把东西放在门口，拍照，点“已送达”。"
@@ -137,6 +146,7 @@ label ch10:
     "下楼的时候，他听见六楼传来音乐声，很小，是有人在放歌。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "那天晚上，他把橘子剥了，分成两半，一半给刘蕾。"
     "她正在算账，头也没抬。"
@@ -158,6 +168,7 @@ label ch10:
     ll "「甜。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "三月十号，站点复工，单量恢复到六成。"
     "二月他跑了不到五百单，收入三千八。这是他来杭州以后最低的一个月。"
@@ -189,6 +200,7 @@ label ch10:
     "他点了点头。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "三月，五堡的房客走了一半。"
     "做装修的老陈回安徽了，走的时候把电饭锅和被子都留下，说“等疫情过了再来”。做保洁的两个大姐也走了，她们的活停了，房租交不上。"
@@ -223,6 +235,7 @@ label ch10:
     "她的手上有一道很深的疤，从虎口一直到手腕。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "那天晚上，他下楼倒垃圾，看见巷口的铁马还没撤。"
     "两个穿红马甲的人坐在棚子里，一个人打瞌睡，一个人在刷手机。"

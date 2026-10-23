@@ -3,10 +3,12 @@
 label ch18:
     call screen chapter_card("第十八章", "群")
     $ track("chapter_enter", chapter="ch18")
+    $ amb_layer_pause(0.0)
     $ qian += 400
     $ debt -= 2000
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "九月，单价降到四块二。"
     "通知是系统推的，没有开会，没有解释。骑手们在群里骂了一晚上，第二天照样上路。"
@@ -17,6 +19,7 @@ label ch18:
     "九百，是念念的幼儿园一个月的生活费。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "陈立是在这时候出现的。"
     "他在站点门口发传单，一张 A4 纸，印着“骑手权益咨询”。他三十二岁，戴眼镜，穿一件灰色的冲锋衣，看着不像骑手。"
@@ -40,6 +43,7 @@ label ch18:
     "他递过来一张名片，上面印着“骑手观察”四个字，一个公众号二维码。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "祥子扫了二维码。"
     "公众号里有三十多篇文章，都是写骑手的：罚款、超时、工伤、社保、算法。阅读量大多几百，有几篇过万。"
@@ -49,6 +53,7 @@ label ch18:
     "他想起刘蕾。想起那张九万七的账单。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "十月十四号，群里发了一条消息。"
     "{b}「明天上午十点，新塘站门口，停送两小时。不为什么，就为让他们知道，我们不是机器。」{/b}"
@@ -75,6 +80,7 @@ label ch18:
     "他们进了办公室，门关着。里面传出争吵声，听不清说什么。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense_low.ogg" fadein 1.5
     "祥子站在门外，听见了几句。"
     wz "「你以为我不知道单价低？我一个月拿一万二，我管七十个人，我天天被人骂。」"
@@ -109,6 +115,7 @@ label ch18:
     "祥子站在最后面，看着那些人骑车走开，一辆一辆，散进城市里。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "那天下午，群里多了三十几个人。"
     "有人在群里骂平台，有人在群里发红包，有人发了一张自己罚单的照片，罚款八百。"
@@ -123,10 +130,12 @@ label ch18:
     "祥子看着那三个字，看了很久。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "停送的事，第二天就没人提了。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "报复来得很快。"
     "第二天，祥子的排班表变了。早班六点，晚班十一点，中间休息两小时。跑的区域从新塘路变成九堡、乔司、临平，都是远单。"
@@ -150,6 +159,7 @@ label ch18:
     wz "「祥子，你别怪我。我也要吃饭。」"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "远单不好跑。"
     "九堡、乔司、临平，一趟十几公里，红灯多，路况差，回来的路上常常空车。"
@@ -166,6 +176,7 @@ label ch18:
     "他签了。五十块，十二单。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "群里开始内讧。"
     "有人说陈立收了商家的钱，替他说话。有人说陈立自己不开车，站着说话不腰疼。有人晒出一张截图，说某平台给参与停送的骑手发了二百块“慰问金”，条件是退群。"
@@ -180,6 +191,7 @@ label ch18:
     "他没有回。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "腊月，陈立在群里发了一条长消息。"
     "说单价的事，说服务分的事，说下一步要联合几个站点，搞一次大的。说需要有人站出来作证，说他手里有证据。"

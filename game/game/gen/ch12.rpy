@@ -3,10 +3,12 @@
 label ch12:
     call screen chapter_card("第十二章", "一月十八")
     $ track("chapter_enter", chapter="ch12")
+    $ amb_layer_pause(0.0)
     $ qian -= 500
     $ debt += 71000
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     play sound "audio/sfx/phone_notify.ogg"
     "那单是烧烤，地址在两公里外。"
@@ -26,6 +28,7 @@ label ch12:
     "出门的时候，他把门轻轻带上。楼道里的声控灯亮了，照着他往下走的脚。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "凌晨的杭州很冷。路上没有车，只有他一个。"
     "他骑得很快，二十五码，不能再快。风从领口灌进去，他把脖子缩起来。"
@@ -43,12 +46,14 @@ label ch12:
     "他犹豫了一下，把手机塞回兜里，骑上车。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/tense.ogg" fadein 1.5
     "送完那单，是凌晨一点二十。"
     "他往回骑。骑到五堡巷口，看见十二号二楼的灯亮着。"
     "他心里“咯噔”一下。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence_tense.ogg" fadein 1.5
     "门是虚掩的。"
     "他推开门。刘蕾躺在床上，身体弓着，嘴张着，嘴角有白沫。床单湿了一片。"
@@ -67,6 +72,7 @@ label ch12:
     op "「让她侧躺，别按住她，把周围的东西挪开。我们马上派车。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/siren_far.ogg" fadein 1.5
     "救护车二十分钟才到。"
     "不是路远，是卡口。"
@@ -82,6 +88,7 @@ label ch12:
 label ch12_join:
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_night.ogg" fadein 1.5
     "区一医院没有床位。"
     "急诊的护士看了一眼，说：“产科满了，我们这儿收不了重度子痫，转市一。”"
@@ -92,6 +99,7 @@ label ch12_join:
     nurse "「救护车送。你再签个字。」"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_night.ogg" fadein 1.5
     "市一医院，凌晨五点五十。"
     "急诊室的灯很亮，白得刺眼。医生量了血压，看了瞳孔，语速很快。"
@@ -104,6 +112,7 @@ label ch12_join:
     "他签了。手抖得写不成字，“杨”字的三点水连成一团。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_tense.ogg" fadein 1.5
     "护士又递过来一张单子。"
     nurse "「押金一万。去一楼交。」"
@@ -119,13 +128,18 @@ label ch12_join:
     xz "「哥，我媳妇在医院，要手术，押金一万，我差六千。」"
     wd "「……」"
     wd "「你等十分钟。」"
+    $ pa("alipay_6000")
     "八分钟后，六千到账。"
+    play sound "audio/sfx/paper.ogg"
+    play sound "audio/sfx/stamp.ogg"
     "祥子把一万交进去，拿到一张粉色的收据。他捏着那张纸，站在大厅里，浑身发抖。"
     "不是冷的。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_tense.ogg" fadein 1.5
     "手术室的灯亮起来，是六点十分。"
+    $ pa("hospital_call")
     "祥子坐在门口的塑料椅上。"
     "走廊很长，灯管有一根在闪，一闪一闪。对面墙上挂着一个钟，秒针走得很慢。"
     "六点四十，护士出来，让他签一份同意书，说可能要切除子宫。他签了。"
@@ -137,6 +151,7 @@ label ch12_join:
     "十四点二十，手术室的灯灭了。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
     "护士抱着一个裹在蓝布里的东西，飞快地从手术室门口走过去。祥子只看见一团紫红色的皮肤，一只手腕，细得像筷子。"
     nurse "「女孩，一千六百克。送新生儿科。」"
@@ -146,6 +161,7 @@ label ch12_join:
     nurse "「还在抢救。」"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_tense.ogg" fadein 1.5
     "十五点，ICU 的门开了，一张床推进去。他看见她的脸，白的，插着管子。"
     "十六点，护士让他在外面等。"
@@ -159,6 +175,7 @@ label ch12_join:
     "四点三十五分，医生出来了。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
     "他摘下口罩，脸上有汗。"
     doc "「对不起。产后大出血，DIC，我们输了六千毫升血，没救回来。」"
@@ -167,16 +184,20 @@ label ch12_join:
     xz "「……」"
     xz "「你说什么？」"
     doc "「你太太……走了。」"
+    $ amb("none")
     "祥子站在原地。"
+    $ amb("hospital")
     "他听见走廊尽头有推车的声音，听见有人在哭，听见广播在叫一个名字。"
     "他忽然想起昨天晚上，她背对着他，说“我躺一会儿就好”。"
 
 label ch12_after:
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
     scene cg_hospital
     with fade
+    $ implicit_amb("cg_hospital")
     "老刘是六点到的。"
     "他穿着一件旧棉袄，头发乱着，脸上没有血色。他走到祥子面前，站住。"
     "祥子以为他会打他。"
@@ -196,8 +217,10 @@ label ch12_after:
     "他没有哭出声。肩膀一抖一抖的，抖了很久。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
     "第二天，祥子去新生儿科看孩子。"
     "隔着玻璃，一排暖箱，每个箱子里有一个小小的身体，身上插着管子，头上贴着电极。"
@@ -215,6 +238,7 @@ label ch12_after:
     "玻璃是凉的。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_empty.ogg" fadein 1.5
     "回到家，是下午。"
     "屋里还是他走的时候那个样子。床单上有一片干了的印子，她的拖鞋在床边，一只正一只反。"
@@ -229,6 +253,7 @@ label ch12_after:
     "他坐在黑里，一动不动。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_empty.ogg" fadein 1.5
     "三月中旬，他把所有的单子摊在床上，算了一遍。"
     "住院押金一万。剖宫产加七天 ICU，七万六。女儿在新生儿科住了二十一天，三万二。"

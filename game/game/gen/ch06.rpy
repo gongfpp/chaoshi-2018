@@ -3,10 +3,12 @@
 label ch06:
     call screen chapter_card("第六章", "老马的车")
     $ track("chapter_enter", chapter="ch06")
+    $ amb_layer_pause(0.0)
     $ qian = 19836
     $ debt = 0
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "十一月，天冷了。"
     "站点门口挂了一块塑料布挡风，骑手们进门先跺脚，地上全是泥。充电架旁边多了一个电暖器，谁都不敢开，怕跳闸。"
@@ -23,8 +25,10 @@ label ch06:
     "他每天跑到晚上十一点。手冻得握不住车把，就把手放在电池上焐一会儿。电池是热的。"
     scene bg_rain
     with fade
+    $ implicit_amb("bg_rain")
     play music "audio/bgm/rain_night.ogg" fadein 1.5
     "十二月中旬，他自己摔了一次。"
+    play sound "audio/sfx/brake.ogg"
     "那天夜里下小雪，路面结了一层薄冰。他在一个路口拐弯，车轮打滑，整个人飞出去两米，脸先着地。"
     "他趴在地上，第一件事是摸箱子。"
     "箱子没开，餐没洒。"
@@ -46,7 +50,9 @@ label ch06:
     "那道疤后来长在左颧骨上，很浅，不仔细看看不出来。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_warm.ogg" fadein 1.5
+    $ amb("banquet")
     "腊月，站点搞了个年会。"
     "在一家小饭馆，包了两桌，王站长自掏腰包，点了八个菜。"
     "他喝了点酒，脸红红的，站起来讲话。"
@@ -58,6 +64,7 @@ label ch06:
     qun "「又降？」"
     wz "「我也没办法。我只是传达。」"
     "桌上安静了一会儿。"
+    play sound "audio/sfx/cup_clink.ogg"
     "然后有人举起杯子。"
     qun "「算了，喝酒。」"
     qun "「喝酒。」"
@@ -79,8 +86,10 @@ label ch06:
     lm "「就记得每天在路上。」"
     scene bg_rain
     with fade
+    $ implicit_amb("bg_rain")
     play music "audio/bgm/rain_night.ogg" fadein 1.5
     "十一月二十五号，老马摔了。"
+    play sound "audio/sfx/brake.ogg"
     "那天夜里下冻雨，路面结了一层薄冰。老马在秋涛北路的一个弯道滑倒，车滑出去七八米，人压在车底下。"
     "祥子赶到的时候，老马已经坐在路牙上了，右腿裤脚撕开，膝盖肿得像个馒头。两个骑手在帮他扶车。"
     show xz normal at sprite_left
@@ -112,6 +121,7 @@ label ch06:
     lm "「八万。我攒了三万二。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "那天晚上，老马给他看了孙子的照片。"
     "照片是在县医院的走廊拍的。孩子五六岁，瘦，嘴唇发紫，手指头是鼓的，像小棒槌。"
@@ -140,11 +150,15 @@ label ch06:
     xz "「我知道。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "冬天的五堡，早上五点半就有人出门。"
+    play sound "audio/sfx/gate_iron.ogg"
+    play sound "audio/sfx/horn.ogg"
     "祥子住在二楼靠里，能听见楼下的动静：铁门响，电动车推出来，电池扣进车架，“咔”一声；然后是钥匙、喇叭、轮胎压过水泥地的声音。"
     "他每天六点起。洗脸，刷牙，把昨晚泡好的米煮上，煎两个鸡蛋，装进饭盒。"
     "六点二十下楼，车已经在楼下等他了。车座上有一层霜，他用袖子擦掉，坐上去，凉得钻心。"
+    $ amb("breakfast")
     "巷口有一家早餐铺，卖包子、豆浆、糯米饭。老板是个河南人，姓张，认识每一个骑手。"
     boss "「祥子，两个肉包？」"
     show xz normal at sprite_left
@@ -155,12 +169,14 @@ label ch06:
     boss "「三块。」"
     xz "「三块五。」"
     boss "「三块。」"
+    play sound "audio/sfx/coin.ogg"
     "祥子把钱放在案板上，走了。"
     "他知道老板少收他五毛，也知道老板对每个人都这样。"
     "这条巷子里，卖早点的、修车的、开小卖部的、收废品的，都是外地人。他们互相少收几毛钱，互相借个扳手，互相看一眼孩子。"
     "这不是善良。这是活法。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "六点四十到站点，充电、领单、检查箱子。"
     "站点里有一台饮水机，永远只有温水。有一个微波炉，热饭要排队。有一个厕所，门上贴着“骑手专用”。"
@@ -184,6 +200,7 @@ label ch06:
     "他笑了一下，骑上车，走了。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.5
     "十二月，站点开始冲“年度单王”。"
     "王站长在白板上写：{b}十二月满 1200 单，奖 800；满 1300 单，奖 1200。{/b}"
@@ -201,6 +218,7 @@ label ch06:
     "祥子没解释。他解释不清。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "元旦前夜，站点搞了个“跨年冲单”。"
     "零点，城市放烟花，订单像雪片一样下来。祥子跑到凌晨两点，最后一单是一份烧烤，送到一个网吧，顾客是个打游戏的男孩，接过餐，头都没抬。"
@@ -220,7 +238,10 @@ label ch06:
     "风很冷，眼泪被吹出来，他用手背擦了一下。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_warm.ogg" fadein 1.5
+    play sound "audio/sfx/kettle.ogg"
+    play sound "audio/sfx/bowl_set.ogg"
     "除夕那天，站点煮了饺子。"
     "王站长买了两箱速冻饺子，一口电锅，大家轮着吃。屋里挤了二十多个人，有的站着，有的蹲着，都穿着工服。"
     "老马也来了，腿还没好利索，走路一瘸一拐。"
@@ -242,6 +263,7 @@ label ch06:
     "外面的天已经黑了，远处有零星的烟花。他站在门口，看见自己的影子被站点的灯拉得很长。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "一月三十一号，发工资。他跑了一千三百单，工资九千五百四。"
     "余额：一万九千八百三十六。"

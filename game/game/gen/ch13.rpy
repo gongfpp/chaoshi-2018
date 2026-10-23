@@ -3,8 +3,10 @@
 label ch13:
     call screen chapter_card("第十三章", "卖车")
     $ track("chapter_enter", chapter="ch13")
+    $ amb_layer_pause(0.0)
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
     "二月六号，他去卖车。"
     "车是罗二强那辆，骑了一年零四个月。他擦了三遍，把后视镜上的胶带撕了，把箱子里的外卖单清空。"
@@ -27,6 +29,7 @@ label ch13:
     "圈里写着“自己的”。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral.ogg" fadein 1.5
     "二月十号，丧事。"
     "彭埠殡仪馆，一个小厅，二十几个人。刘蕾的亲戚来了十几个，站点的骑手来了七八个，老马拄着一根伞当拐杖。"
@@ -40,8 +43,10 @@ label ch13:
     "祥子听见了。他没有回头。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_low.ogg" fadein 1.5
     "火化的时候，他站在炉子外面。"
+    play sound "audio/sfx/gate_iron.ogg"
     "铁门关上，里面的火“轰”的一声。"
     "他想起她的身体。热的，软的，怀孕的时候肚子鼓起来，晚上睡觉要垫三个枕头。"
     "现在她在一个铁盒子里。"
@@ -55,6 +60,7 @@ label ch13:
     "他用夹子把骨头一块一块夹进骨灰盒。夹到最后，手抖得夹不住。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral.ogg" fadein 1.5
     "丧事一共花了一万八。"
     "寿衣两千八，骨灰盒三千六，厅租两千，火化八百，酒席六千，纸钱花圈两千。"
@@ -64,6 +70,7 @@ label ch13:
     "一共八万五。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_empty.ogg" fadein 1.5
     "二月十四号，老刘来了。"
     "他站在门口，没有进来。"
@@ -98,6 +105,7 @@ label ch13:
     "老刘没说话，走了。"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "第二天，他去了求智巷。"
     "曹先生给他开的门，看见他的脸，什么都没问，先让他进来坐下。"
@@ -131,6 +139,7 @@ label ch13:
     "他走出求智巷的时候，天已经黑了。路灯亮起来，一只猫从墙头跳下来，跑了。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.5
     "三月一号，孩子出院。"
     "两千三百克。她在暖箱里长了二十一天，从一千五百八长到两千三百。"
@@ -145,6 +154,7 @@ label ch13:
     "他忽然不敢动。他怕自己的手太重。"
     scene bg_station_arrival
     with fade
+    $ implicit_amb("bg_station_arrival")
     play music "audio/bgm/train.ogg" fadein 1.5
     "三月二号，他抱着孩子，坐上了回周口的火车。"
     "K 字头，十三个小时，硬座。票价一百二十八块五。"
@@ -167,6 +177,7 @@ label ch13:
     "他叫自己“爸爸”，叫得很生。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "到周口是第二天早上。"
     "姐姐在车站门口等他，穿着一件旧棉袄，脸被风吹得通红。"
@@ -182,6 +193,7 @@ label ch13:
     "孩子不哭了。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "家里的院子还是老样子。砖墙，水泥地，一棵枣树，树底下放着一个破了的水缸。"
     "奶奶躺在堂屋的床上，听见动静，问：“谁呀？”"
@@ -198,6 +210,7 @@ label ch13:
     "奶奶“哦”了一声，不再问了。"
     scene bg_home
     with fade
+    $ implicit_amb("bg_home")
     play music "audio/bgm/rural_winter.ogg" fadein 1.5
     "晚上，他和姐姐坐在灶房里。"
     "灶膛里的火很亮，照在姐姐的脸上。"
@@ -222,6 +235,7 @@ label ch13:
     bj "「行了。我带着。你放心吧。」"
     scene bg_station_arrival
     with fade
+    $ implicit_amb("bg_station_arrival")
     play music "audio/bgm/train_night.ogg" fadein 1.5
     "回杭州的火车是夜里。"
     "祥子坐在靠窗的位置，怀里空着。"
@@ -229,6 +243,7 @@ label ch13:
     "祥子看着她，想起自己抱念念的姿势。他抱得很僵，像抱一个易碎的东西。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "到杭州是第二天早上六点。"
     "他坐地铁回乔司，在车上睡着了，坐过了两站。"
@@ -239,6 +254,7 @@ label ch13:
     "没有第二个人。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_empty.ogg" fadein 1.5
     "他打开记账本，翻到新的一页，写："
     "{b}3 月 2 日。念念回老家。每月 2000。{/b}"
@@ -253,6 +269,7 @@ label ch13:
     "他把本子合上，放在膝盖上，坐了很久。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "第二天，他去站点报到。"
     "王站长看见他，愣了一下。"
@@ -273,6 +290,7 @@ label ch13:
     "他戴上头盔，骑出去。"
     scene bg_road
     with fade
+    $ implicit_amb("bg_road")
     play music "audio/bgm/city_day.ogg" fadein 1.5
     "第一单是送到一个写字楼。"
     "他骑到楼下，抬头看了看。楼很高，玻璃幕墙反着天光。"

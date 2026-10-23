@@ -3,10 +3,12 @@
 label ch20:
     call screen chapter_card("第二十章", "守夜")
     $ track("chapter_enter", chapter="ch20")
+    $ amb_layer_pause(0.0)
     $ qian += 640
     $ debt -= 6000
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "十二月二十四号，祥子去殡仪馆上工。"
     "招他的是个老头，姓吴，六十多岁，穿一件蓝大褂，手上戴着一串木头珠子。"
@@ -23,6 +25,7 @@ label ch20:
     wu "「就这些。死人不会为难你，活人才会。」"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "老吴给他讲规矩，是在第三个晚上。"
     "那天没有活儿，两个人坐在值班室里，中间放着一个电暖器。"
@@ -48,6 +51,7 @@ label ch20:
     wu "「跑和站，都是受着。」"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "抬棺是四个人。"
     "棺材不重，一百多斤，但是要走得稳。从灵堂到车上，一共三十七步，不能晃，不能停。"
@@ -88,6 +92,7 @@ label ch20:
     "他想起小福。她没有遗像。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "这活儿他干下来了。"
     "一周三天，守夜、抬棺、代客排队。"
@@ -99,6 +104,7 @@ label ch20:
     "应该有。这个城市里，这样的人很多。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "这活儿他干到第三个月，算了一笔账。"
@@ -122,6 +128,7 @@ label ch20:
     "字还是那么大，歪歪扭扭。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "十二月三十一号，跨年。"
     "殡仪馆没有什么跨年的气氛，只是多了一批花圈。"
@@ -142,6 +149,7 @@ label ch20:
     "他想起 2020 年，新闻里第一次这么叫他们。那时候他还在五堡，刘蕾还在，肚子里的念念还没出生。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "他把这五年算了一遍。"
     "不是用手机算，是在心里算。"
@@ -184,6 +192,7 @@ label ch20:
     "他退出了分享页面。"
     scene bg_funeral
     with fade
+    $ implicit_amb("bg_funeral")
     play music "audio/bgm/funeral_winter.ogg" fadein 1.5
     "十一点五十九分。"
     "灵堂里的香快烧完了。他起身，拿了一根新的，点上，插进香炉。"
@@ -207,9 +216,11 @@ label ch20:
     "他站起来，把灵前的灯调亮了一点，把门带上。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     scene cg_ending
     with fade
+    $ implicit_amb("cg_ending")
     "外面在下小雨。"
     "他骑上一辆共享单车，扫码，开锁。"
     "车很沉，链条有点响。他骑出殡仪馆的大门，上了路。"
@@ -219,6 +230,7 @@ label ch20:
     "他笑了一下。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "回乔司的路上，他经过新塘站。"
     "站点关门了，卷帘门上贴着一张招租的纸。白板还在里面，看不清写的什么。"
@@ -247,6 +259,7 @@ label ch20:
     "他骑走了。黄色的背影在雨里越来越小，拐个弯，没了。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "祥子站在路口。"
     "雨落在他的脸上，凉的。"

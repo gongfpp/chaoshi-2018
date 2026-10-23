@@ -3,10 +3,12 @@
 label ch14:
     call screen chapter_card("第十四章", "小福")
     $ track("chapter_enter", chapter="ch14")
+    $ amb_layer_pause(0.0)
     $ qian -= 1300
     $ debt -= 15000
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "五月十六号，小福发来一条微信。"
     "{b}「祥子哥，你有空吗？」{/b}"
@@ -29,11 +31,13 @@ label ch14:
     "他掏出手机，又打了一次。关机。"
     scene bg_ktv
     with fade
+    $ implicit_amb("bg_ktv")
     play music "audio/bgm/ktv_night.ogg" fadein 1.5
     "找到小福，是三天以后。"
     "一个老乡告诉他，罗二强把女儿送进了金座 KTV，在秋涛北路，做“前台”。"
     "祥子晚上十点过去的。"
     "KTV 门口停着一排车，霓虹灯把地面照成紫红色。他站在马路对面，等了半个小时。"
+    play sound "audio/sfx/lighter.ogg"
     "十点四十，一群女孩从侧门出来，穿着一样的黑色短裙，站在门口抽烟。"
     "小福在最后面。"
     "她瘦了。脸上化了妆，嘴唇很红，头发烫了，搭在肩上。她穿着一双很高的高跟鞋，站得不太稳。"
@@ -68,6 +72,7 @@ label ch14:
     xf "「我不是怪你。」她的声音软下来，「我是说，你顾好你自己。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "那天晚上，他想起小福刚来杭州的时候。"
     "二〇一八年六月，她提着一个编织袋，站在五堡巷口，问他哪里有卖馒头的。"
@@ -100,6 +105,7 @@ label ch14:
     xf "「可是我不会骑车。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/tense.ogg" fadein 1.5
     "祥子去找罗二强，是第二天。"
     "罗二强住在五堡后面的一片民房里，一间十平米的屋子，地上全是酒瓶。"
@@ -120,6 +126,7 @@ label ch14:
     "最后是派出所的人来的。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "调解室里，警察坐在中间。"
     police "「谁先动的手？」"
@@ -141,6 +148,7 @@ label ch14:
     police "「那就是她自己的选择。」"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "六月，他去找曹先生。"
     "不是送单，是有事。他站在求智巷的楼下，等了两个小时。"
@@ -156,6 +164,7 @@ label ch14:
     cy "「上楼说吧。」"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "曹家的客厅很小，一面墙是书，一张旧藤椅，一张饭桌。周红给他倒了一杯茶。"
     show cy normal at sprite_left
@@ -177,6 +186,7 @@ label ch14:
     cy "「那就写。」"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_warm.ogg" fadein 1.5
     "曹先生帮他写了三页纸。"
     "仲裁申请书，请求确认劳动关系，补缴社保，支付未签合同的双倍工资差额。"
@@ -203,6 +213,7 @@ label ch14:
     cy "「没用。」曹先生笑了一下，「但是好人晚上睡得着。」"
     scene bg_cao
     with fade
+    $ implicit_amb("bg_cao")
     play music "audio/bgm/room_sad.ogg" fadein 1.5
     "那是他最后一次见曹先生。"
     "七月底，他听说曹先生被学校约谈了，因为一篇访谈，里面说了些不该说的话。他的课停了，和朋友的书店也关了。"
@@ -222,6 +233,7 @@ label ch14:
     "祥子站在巷口，看着车拐弯，消失。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "七月二十八号，五堡贴了拆迁通知。"
     "红纸黑字，盖着三个章。限八月底搬离。"
@@ -238,6 +250,7 @@ label ch14:
     "他在这里住了三年零五个月。"
     scene bg_night_street
     with fade
+    $ implicit_amb("bg_night_street")
     play music "audio/bgm/city_night.ogg" fadein 1.5
     "八月十五号，他搬到乔司。"
     "一间十平米的房子，月租一千三，比五堡贵三百。到新塘站十一公里，骑车四十分钟。"
@@ -245,6 +258,7 @@ label ch14:
     "一个装被子衣服，一个装锅碗。记账本、地图册、那对印着“百年”的杯子，放在最上面。"
     scene bg_ktv
     with fade
+    $ implicit_amb("bg_ktv")
     play music "audio/bgm/ktv_night.ogg" fadein 1.5
     "搬完家，他去看小福。"
     "KTV 门口，她穿着那件黑裙子，站在台阶上。"
@@ -299,6 +313,7 @@ label ch14:
     "门里没有人听见。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "那天夜里，他在乔司的房间里写："
     "{b}8 月 15 日。搬乔司。房租 1300。{/b}"
@@ -307,6 +322,7 @@ label ch14:
     "他不知道这一次要还多久。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "仲裁开庭是九月。"
     "地点在区劳动人事争议仲裁委员会，一间小屋子，一张长桌，三个仲裁员。"
@@ -333,6 +349,7 @@ label ch14:
     arb "「双方还有补充吗？」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "裁决书是两个月后下来的。"
     "薄薄三页纸，最后一行写着：{b}驳回申请人的仲裁请求。{/b}"

@@ -3,10 +3,12 @@
 label ch03:
     call screen chapter_card("第三章", "调度室")
     $ track("chapter_enter", chapter="ch03")
+    $ amb_layer_pause(0.0)
     $ qian = 14052
     $ debt = 0
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "调度室在站点最里面，用玻璃隔出来的一个小间，门上贴着一张 A4 纸：{b}非工作人员禁止入内{/b}。"
     "里面有两台电脑、一台打印机、一面墙的监控屏。屏幕上是新塘站的配送地图，密密麻麻的黄点在动，每个点是一个骑手。"
@@ -18,6 +20,7 @@ label ch03:
     "「进来。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "监控屏的光照在她脸上。她坐下来，鼠标点了几下。"
     show ll normal at sprite_left
@@ -58,9 +61,11 @@ label ch03:
     ll "「你能跑。但你别觉得自己能跑就了不起。这行不看你能跑多久，看你能跑几年。」"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "抄白板的日子，他们说话不多。"
     "早上七点半，他把前一天的数抄到本子上：总单量、准时率、投诉、新增、离职。她坐在电脑前核对，一边核对一边骂人。"
@@ -110,6 +115,7 @@ label ch03:
     "祥子没接话。他知道他们什么意思，他也知道自己没做什么。他只是接了那些“刚好”的单，而“刚好”是别人安排的。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "抄白板抄了一个月，祥子才知道调度能做什么。"
     "她能在系统里改派单。一单从 A 骑手转到 B 骑手，只要点几下，理由填“骑手异常”。"
@@ -140,6 +146,7 @@ label ch03:
 label ch03_join:
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/wedding_soft.ogg" fadein 1.5
     "七月十六，老刘生日。"
     "阿二饭店在彭埠老街，门口挂着红灯笼，包厢里两桌。老刘坐主位，刘蕾坐他旁边，王站长坐对面，还有几个车行的伙计、站点的老骑手。"
@@ -185,6 +192,7 @@ label ch03_join:
     "王站长赔着笑，眼睛却看了祥子一眼。那一眼很短，祥子记住了。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     "散场的时候，刘蕾送他到门口。夜里有风，她的头发被吹起来，露出一截白白的脖子。"
     show ll normal at sprite_left
     with dissolve
@@ -210,6 +218,7 @@ label ch03_join:
     "走回五堡的路上，他把钥匙举到路灯下看。他知道这把钥匙不只是开一扇门。他也知道，自己已经收下了。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "那天夜里，他在记账本上写："
     "{b}7 月 16 日。刘老板生日。烟 260。{/b}"

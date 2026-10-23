@@ -4,6 +4,7 @@ label ch03_alt:
     $ track("ending_enter", ending="ch03_alt")
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.0
     "祥子把钥匙放在桌上。"
     "铜的，磨得发亮，还带着他的体温。"
@@ -23,6 +24,7 @@ label ch03_alt:
     "他把门带上，出去了。"
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_busy.ogg" fadein 1.0
     "从那天起，他的单子还是那些单子。"
     "商家出餐慢，小区不让进，六楼没电梯。他的准时率停在九十四，罚单一张接一张。"
@@ -42,6 +44,7 @@ label ch07_alt:
     $ track("ending_enter", ending="ch07_alt")
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.0
     "祥子没有给老刘打电话。"
     "他走到交警面前。"
@@ -52,6 +55,7 @@ label ch07_alt:
     car "「行啊。走程序。我那车，4S 店定损，两个面，三万二。误工费一天八百，修七天。」"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/tense_low.ogg" fadein 1.0
     "定责用了三天。"
     "监控调出来，祥子从非机动车道借道，全责。"
@@ -62,6 +66,7 @@ label ch07_alt:
     car "「算你走运。要不是我赶时间，我让你赔到底。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.0
     "祥子从交警队出来，天已经黑了。"
     "两万二。他手里有一万四。"
@@ -82,6 +87,7 @@ label ch09_alt:
     $ track("ending_enter", ending="ch09_alt")
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.0
     "祥子把卡放回口袋。"
     xz "「这张卡我自己拿着。」"
@@ -102,6 +108,7 @@ label ch09_alt:
     ll "「那你自己过吧。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_dawn.ogg" fadein 1.0
     "从那天起，家里的开销一人一半。"
     "房租五百，水电按表，买菜轮流。她买肉，他买菜。"
@@ -125,6 +132,7 @@ label ch12_alt:
     $ track("ending_enter", ending="ch12_alt")
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/silence_tense.ogg" fadein 1.0
     "祥子把手机扔在床上。"
     "他扑到刘蕾身边，拍她的脸。"
@@ -136,6 +144,7 @@ label ch12_alt:
     xz "「五堡十二号二楼！怀孕三十三周，抽搐！快！」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/siren_far.ogg" fadein 1.0
     "他抱着她下楼。"
     "她比他重，他一个人抱不动，几乎是拖着走的。她的头靠在他肩上，嘴里吐着白沫，把她的领口弄湿了。"
@@ -150,12 +159,14 @@ label ch12_alt:
     "另一个把栏杆拉开。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/siren_far.ogg" fadein 1.0
     "救护车到的时候，是零点五十八。"
     "比他上一次的经历早了二十二分钟。"
     "后来他才知道，这二十二分钟，什么也改变不了。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_night.ogg" fadein 1.0
     "区一医院还是没有床位。"
     "急诊护士看了一眼，说产科满了，收不了重度子痫。"
@@ -166,6 +177,7 @@ label ch12_alt:
     "没有人来。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_night.ogg" fadein 1.0
     "市一医院，凌晨三点四十。"
     "比她上一次到的时间早了两个小时。"
@@ -175,6 +187,7 @@ label ch12_alt:
     "这一次他签得很清楚，“杨”字的三点水，一笔一画。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_tense.ogg" fadein 1.0
     "进手术室之前，她醒了一下。"
     "只有几十秒。"
@@ -191,12 +204,14 @@ label ch12_alt:
     "然后她又昏过去了。"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.0
     "下午两点二十，孩子出来了。一千六百克。"
     "四点三十五分，医生出来，摘了口罩。"
     doc "「对不起。产后大出血，DIC。我们尽力了。」"
     scene bg_hospital
     with fade
+    $ implicit_amb("bg_hospital")
     play music "audio/bgm/hospital_low.ogg" fadein 1.0
     "祥子站在走廊里。"
     "他想起她最后那一下笑。"

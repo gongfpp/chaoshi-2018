@@ -3,6 +3,7 @@
 label ch08:
     call screen chapter_card("第八章", "彩礼")
     $ track("chapter_enter", chapter="ch08")
+    $ amb_layer_pause(0.0)
     if c_siyu:
         $ qian = 10421
         $ debt = 8000
@@ -16,6 +17,7 @@ label ch08:
         $ qian += 13024
     scene bg_station
     with fade
+    $ implicit_amb("bg_station")
     play music "audio/bgm/station_room.ogg" fadein 1.5
     "六月到九月，祥子只做一件事：把窟窿补上。"
     if c_siyu:
@@ -31,6 +33,7 @@ label ch08:
         "他在本子上写：{b}9 月 30 日。案结。欠款 0。{/b} 写完看了很久，没有画横线。"
     scene bg_office
     with fade
+    $ implicit_amb("bg_office")
     play music "audio/bgm/office_hum.ogg" fadein 1.5
     "刘蕾是在这时候提结婚的。"
     "那天下午，调度室没别人。她把门关上，给他倒了一杯水。"
@@ -70,6 +73,7 @@ label ch08:
     ll "「你回去想想。想好了告诉我。」"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "他想了三天。"
     "第三天，他给姐姐打电话。"
@@ -97,6 +101,7 @@ label ch08:
     "猫当然不说话。"
     scene bg_alley
     with fade
+    $ implicit_amb("bg_alley")
     play music "audio/bgm/alley_dusk.ogg" fadein 1.5
     "他在巷子里走了一圈。"
     "五堡的夜很热闹。有人在门口支起桌子吃饭，有人在洗衣服，有人把电视搬到外面看新闻。一个小孩在追另一只猫，被大人骂了一句。"
@@ -125,6 +130,7 @@ label ch08:
     "他明天要去跟老刘说，他答应了。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
     "第二天，他去找老刘。"
     "老刘正在算账，算盘打得噼啪响。"
@@ -148,6 +154,7 @@ label ch08:
     lt "「行了行了，不逼你。你去准备吧。十月六号，金满楼。」"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "他借了钱。"
     "老乡那儿借了八千，网贷借了六千。加上自己的一万九，一共三万三。"
@@ -163,6 +170,7 @@ label ch08:
     "他收了。"
     scene bg_room
     with fade
+    $ implicit_amb("bg_room")
     play music "audio/bgm/room_night.ogg" fadein 1.5
     "三天后，姐姐寄来一个包裹。"
     "一个鞋盒子，用胶带缠了三圈。里面是一床新棉被，两双千层底布鞋，还有一个红布包。"
@@ -190,6 +198,7 @@ label ch08:
     "墙上的水渍还在，那只趴着的狗。"
     scene bg_shop
     with fade
+    $ implicit_amb("bg_shop")
     play music "audio/bgm/shop_radio.ogg" fadein 1.5
     "十月二号，他去罗二强那儿过户一辆车。"
     "罗二强是小福的父亲，祥子见过两次，都是在小福的宿舍楼下。他四十来岁，脸肿，眼睛红，身上一股酒味。"
