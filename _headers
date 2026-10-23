@@ -14,6 +14,9 @@
 /index.html
   Cache-Control: public, max-age=300
 
+/og-cover.jpg
+  Cache-Control: public, max-age=604800
+
 /renpy.wasm
   Cache-Control: public, max-age=604800
   Content-Type: application/wasm
