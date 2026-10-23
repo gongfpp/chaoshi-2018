@@ -34,11 +34,18 @@ CF_ENV=(HTTPS_PROXY="$PROXY" HTTP_PROXY="$PROXY" https_proxy="$PROXY" http_proxy
 if [[ "${SKIP_BUILD:-0}" == "1" ]]; then
   echo "== 1-2/3 跳过构建与打补丁（SKIP_BUILD=1） =="
 else
+  echo "== 0/3 静态检查：GUI 贴图引用 =="
+  # 引用不到的图只在玩家点开对应界面时才炸（DynamicImage），构建和 lint 都不报。
+  # 宁可卡在这里，也别把「手机一开存档就崩」发上线。
+  "$PY" tools/check_gui_assets.py
+
   echo "== 1/3 生成 web 构建 =="
-  "$RENPY" launcher web_build "$ROOT/game" --destination "$ROOT/build/web" >/tmp/web_build.log 2>&1
+  # 注意：项目名必须给 launcher 的绝对路径。写成字面量 launcher 时，Ren'Py 会去
+  # <repo>/launcher 找项目，报 "Base directory .../launcher does not exist"。
+  "$RENPY" "$(dirname "$RENPY")/launcher" web_build "$ROOT/game" --destination "$ROOT/build/web" >/tmp/web_build.log 2>&1
   echo "   build/web 生成完成"
 
-  echo "== 2/3 打补丁（分片 / 续传 / 停用 SW / 启动图） =="
+  echo "== 2/3 打补丁（分片 / 续传 / 停用 SW / 启动图 / 去掉 ≡ 菜单） =="
   "$PY" tools/patch_web.py build/web
 fi
 

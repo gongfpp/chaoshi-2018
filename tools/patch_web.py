@@ -584,6 +584,74 @@ def patch_loader(root):
     open(path, "w", encoding="utf-8").write(s)
 
 
+WEB_MENU_HTML_OPEN = '<div id="ContextContainer">'
+WEB_MENU_HTML_END = '<div id="statusDiv"'
+WEB_MENU_JS_OPEN = "    const menu = document.getElementById('ContextMenu');"
+WEB_MENU_JS_END = "    window.onSavegamesExport = onSavegamesExport;"
+WEB_MENU_SENTINEL = "/* CHAOSHI_NO_WEB_MENU */"
+
+
+def strip_web_menu(root):
+    """删掉 Ren'Py 网页模板自带的左上角 ≡ 菜单。
+
+    模板在 index.html 里放了一个 `<a id="ContextButton">≡</a>`，点开是
+    `#ContextMenu`：Import Saves / Export Saves / Download Log / Powered by
+    Ren'Py。它在 canvas 之上、所有游戏界面之下，手机上正好压在游戏标题或
+    存档界面的左上角，还会被误当成游戏内的按钮。
+
+    我们不需要这四项能力（网页版存档在浏览器的 IndexedDB 里，导入导出一
+    半会失败；日志走 F12），所以连按钮带菜单一起删：
+      · index.html —— 整块 <div id="ContextContainer">…</div> 剪掉；
+      · renpy-pre.js —— 绑定 ContextButton 的监听器与 onSavegamesImport /
+        onSavegamesExport 两个函数一起剪掉（保留后面的 FSDownload，别处还在用）。
+
+    两处都必须改：只删 DOM 会在 `document.getElementById('ContextButton')
+    .addEventListener` 处抛 TypeError，整个 renpy-pre.js 后面的初始化全部不执行。
+    """
+    html_path = os.path.join(root, "index.html")
+    s = open(html_path, encoding="utf-8").read()
+
+    i = s.find(WEB_MENU_HTML_OPEN)
+    if i != -1:
+        j = s.find(WEB_MENU_HTML_END, i)
+        if j == -1:
+            raise SystemExit("index.html 里 ContextContainer 之后找不到 statusDiv")
+        s = s[:i] + s[j:]
+
+    # 模板自带的这几条 CSS 也一并清掉（元素都删了，留着只会让人以为还有入口）
+    for sel in ("#ContextContainer", "#ContextContainer.shown",
+                "#ContextButton", "#ContextButton:focus"):
+        s = re.sub(r"\n\s*%s\s*\{[^}]*\}" % re.escape(sel), "", s)
+
+    # 兜底：万一哪天 SDK 又塞回来同 ID 的元素（DOM 已删，这里只防手滑），CSS 也不显示
+    if "chaoshi-no-web-menu" not in s:
+        if "</head>" not in s:
+            raise SystemExit("index.html 里找不到 </head>")
+        s = s.replace("</head>", (
+            '  <style id="chaoshi-no-web-menu">'
+            '#ContextContainer,#ContextButton,#ContextMenu{display:none!important}'
+            '</style>\n</head>'), 1)
+
+    open(html_path, "w", encoding="utf-8").write(s)
+
+    js_path = os.path.join(root, "renpy-pre.js")
+    t = open(js_path, encoding="utf-8").read()
+    if WEB_MENU_SENTINEL not in t:
+        i = t.find(WEB_MENU_JS_OPEN)
+        j = t.find(WEB_MENU_JS_END, i) if i != -1 else -1
+        if i == -1 or j == -1:
+            head = "\n".join(t.splitlines()[:40])
+            raise SystemExit(
+                "renpy-pre.js 结构变了（SDK 升级？），找不到 ContextMenu 锚点。\n"
+                "期望：%r / %r\n文件头：\n%s" % (WEB_MENU_JS_OPEN, WEB_MENU_JS_END, head))
+        t = (t[:i] + WEB_MENU_SENTINEL + "\n"
+             + "    // 网页版不提供 ≡ 菜单（导入/导出存档），已在构建期移除。\n"
+             + t[j + len(WEB_MENU_JS_END):])
+        open(js_path, "w", encoding="utf-8").write(t)
+
+    return WEB_MENU_SENTINEL in open(js_path, encoding="utf-8").read()
+
+
 PRIORITY = [
     ("images/cg/title", 0),   # 主菜单底图
     ("images/bg/", 1),        # 每章立刻要用
@@ -817,6 +885,8 @@ def main():
     copy_loader(root)
     patch_index(root, meta, build)
     patch_loader(root)
+    if not strip_web_menu(root):
+        raise SystemExit("≡ 菜单没有移干净")
     manifest = make_prefetch_manifest(root, build)
     write_build_json(root, build)
     patch_catalog(root, meta)

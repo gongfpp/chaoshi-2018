@@ -610,10 +610,19 @@ screen file_slots(title):
 
     use game_menu(title):
 
-        fixed:
+        ## 版式：自上而下的流式排布，不用 fixed 的绝对对齐。
+        ##
+        ## 原来的写法是 fixed 里「存档格垂直居中 + 翻页行底部对齐」，两者各算各的：
+        ## 可用高度一旦不够（手机变体把左侧导航加宽、页名换成更大字号、下面还多
+        ## 一行「下载同步」和导入导出），翻页行就整行压到最后一排存档格上。
+        ## 改成 vbox 之后翻页行永远排在格子之后，几何上叠不上；屏幕再矮也只是
+        ## 整块内容垂直居中后被裁，不会两行糊在一起。
+        vbox:
+            xfill True
+            yalign 0.5
+            spacing gui.slot_spacing
 
-            ## This ensures the input will get the enter
-            ## event before any of the buttons do.
+            ## 让页名输入框先拿到 Enter，别被下面的存档格抢走。
             order_reverse True
 
             ## The page name, which can be edited by clicking on a button.
@@ -633,7 +642,6 @@ screen file_slots(title):
                 style_prefix "slot"
 
                 xalign 0.5
-                yalign 0.5
 
                 spacing gui.slot_spacing
 
@@ -657,45 +665,28 @@ screen file_slots(title):
                         key "save_delete" action FileDelete(slot)
 
             ## Buttons to access other pages.
-            vbox:
+            hbox:
                 style_prefix "page"
 
                 xalign 0.5
-                yalign 1.0
 
-                hbox:
-                    xalign 0.5
+                spacing gui.page_spacing
 
-                    spacing gui.page_spacing
+                textbutton _("<") action FilePagePrevious()
+                key "save_page_prev" action FilePagePrevious()
 
-                    textbutton _("<") action FilePagePrevious()
-                    key "save_page_prev" action FilePagePrevious()
+                if config.has_autosave:
+                    textbutton _("{#auto_page}A") action FilePage("auto")
 
-                    if config.has_autosave:
-                        textbutton _("{#auto_page}A") action FilePage("auto")
+                if config.has_quicksave:
+                    textbutton _("{#quick_page}Q") action FilePage("quick")
 
-                    if config.has_quicksave:
-                        textbutton _("{#quick_page}Q") action FilePage("quick")
+                ## range(1, 10) gives the numbers from 1 to 9.
+                for page in range(1, 10):
+                    textbutton "[page]" action FilePage(page)
 
-                    ## range(1, 10) gives the numbers from 1 to 9.
-                    for page in range(1, 10):
-                        textbutton "[page]" action FilePage(page)
-
-                    textbutton _(">") action FilePageNext()
-                    key "save_page_next" action FilePageNext()
-
-                if config.has_sync:
-                    if CurrentScreenName() == "save":
-                        textbutton _("Upload Sync"):
-                            action UploadSync()
-                            xalign 0.5
-                    else:
-                        textbutton _("Download Sync"):
-                            action DownloadSync()
-                            xalign 0.5
-
-                ## 网页版专用：存档导出 / 导入（见 save_transfer.rpy）
-                use save_transfer_bar
+                textbutton _(">") action FilePageNext()
+                key "save_page_next" action FilePageNext()
 
 
 style page_label is gui_label
@@ -1548,13 +1539,9 @@ style window:
     variant "small"
     background "gui/phone/textbox.png"
 
-style radio_button:
-    variant "small"
-    foreground "gui/phone/button/radio_[prefix_]foreground.png"
-
-style check_button:
-    variant "small"
-    foreground "gui/phone/button/check_[prefix_]foreground.png"
+## 单选/复选的勾选图标同理：gui/phone/button/ 下只有选项背景，没有
+## radio_/check_foreground，小屏引用它会和滚动条一样抛 DynamicImage。
+## 直接删掉覆写，沿用 gui/button/ 下已有的那套（尺寸差几像素，不会崩）。
 
 style nvl_window:
     variant "small"
@@ -1584,41 +1571,15 @@ style pref_vbox:
     variant "small"
     xsize gui.scale(400)
 
-style bar:
-    variant "small"
-    ysize gui.bar_size
-    left_bar Frame("gui/phone/bar/left.png", gui.bar_borders, tile=gui.bar_tile)
-    right_bar Frame("gui/phone/bar/right.png", gui.bar_borders, tile=gui.bar_tile)
-
-style vbar:
-    variant "small"
-    xsize gui.bar_size
-    top_bar Frame("gui/phone/bar/top.png", gui.vbar_borders, tile=gui.bar_tile)
-    bottom_bar Frame("gui/phone/bar/bottom.png", gui.vbar_borders, tile=gui.bar_tile)
-
-style scrollbar:
-    variant "small"
-    ysize gui.scrollbar_size
-    base_bar Frame("gui/phone/scrollbar/horizontal_[prefix_]bar.png", gui.scrollbar_borders, tile=gui.scrollbar_tile)
-    thumb Frame("gui/phone/scrollbar/horizontal_[prefix_]thumb.png", gui.scrollbar_borders, tile=gui.scrollbar_tile)
-
-style vscrollbar:
-    variant "small"
-    xsize gui.scrollbar_size
-    base_bar Frame("gui/phone/scrollbar/vertical_[prefix_]bar.png", gui.vscrollbar_borders, tile=gui.scrollbar_tile)
-    thumb Frame("gui/phone/scrollbar/vertical_[prefix_]thumb.png", gui.vscrollbar_borders, tile=gui.scrollbar_tile)
-
-style slider:
-    variant "small"
-    ysize gui.slider_size
-    base_bar Frame("gui/phone/slider/horizontal_[prefix_]bar.png", gui.slider_borders, tile=gui.slider_tile)
-    thumb "gui/phone/slider/horizontal_[prefix_]thumb.png"
-
-style vslider:
-    variant "small"
-    xsize gui.slider_size
-    base_bar Frame("gui/phone/slider/vertical_[prefix_]bar.png", gui.vslider_borders, tile=gui.slider_tile)
-    thumb "gui/phone/slider/vertical_[prefix_]thumb.png"
+## 这里原来还有 bar / vbar / scrollbar / vscrollbar / slider / vslider 六组
+## `variant "small"` 覆写，指向 gui/phone/bar/、gui/phone/scrollbar/、
+## gui/phone/slider/ 下的图。**这些图本项目从来没做过**（gui/phone/ 里只有
+## textbox、nvl、button/、overlay/），于是手机上一开带滚动条或滑块的界面
+## ——读档、保存、设置、全文阅读——就抛
+##   DynamicImage 'gui/phone/scrollbar/vertical_[prefix]_bar.png': could not find image
+## 并盖住整个画面。小屏沿用桌面那套图即可（路径一定存在）：手机上翻存档格
+## 本来靠 draggable 拖动，不靠那根 12px 的滚动条。所以这六组覆写直接删掉，
+## 由 tools/check_gui_assets.py 守着「引用的图必须存在」这条底线。
 
 style slider_vbox:
     variant "small"

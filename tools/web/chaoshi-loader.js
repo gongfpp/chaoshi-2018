@@ -271,7 +271,17 @@
     '#inputDiv{z-index:61}',
     '#presplash{transition:opacity 1200ms ease;opacity:0}',
 
-    // 竖屏提示：游戏是 1280×720 横屏，手机竖着打开会被压成一条
+  ].join('\n');
+
+  /* ---------------------------------------------------------------- DOM */
+
+  /* ------------------------------------------------------- 竖屏提示 */
+
+  // 这张样式表**不挂在开屏层的 <style> 上**：开屏层播完会把自己那张 style 删掉
+  // （finish()），而竖屏提示要活到整局游戏。以前两者共用一张，结果首屏淡出后
+  // #csRotate 只剩一个无样式的 div，position 退回 static、文字黑底黑字，等于
+  // 竖屏提示彻底失效。现在由 installRotateHint 自己注入、自己带 id。
+  var ROTATE_CSS = [
     '#csRotate{position:fixed;inset:0;z-index:2147483000;display:none;',
     '  flex-direction:column;align-items:center;justify-content:center;',
     '  background:#0a0a0b;color:#f2ede6;text-align:center;padding:32px;',
@@ -287,14 +297,16 @@
     '@media (prefers-reduced-motion:reduce){#csRotate .csr-ico{animation:none}}'
   ].join('\n');
 
-  /* ---------------------------------------------------------------- DOM */
-
-  /* ------------------------------------------------------- 竖屏提示 */
-
   // 游戏按 1280×720 横屏设计。手机上竖着打开会被压成窄条、字看不清，
   // 而且 Ren'Py 不会自己提示。这里盖一层「请把手机横过来」，转过去自动消失。
   // 只对触屏生效，桌面端把窗口拉窄不会被误伤。
   function installRotateHint() {
+    if (!document.getElementById('chaoshi-rotate-style')) {
+      var rs = document.createElement('style');
+      rs.id = 'chaoshi-rotate-style';
+      rs.textContent = ROTATE_CSS;
+      (document.head || document.documentElement).appendChild(rs);
+    }
     if (document.getElementById('csRotate')) return;
 
     var box = document.createElement('div');
@@ -326,89 +338,6 @@
       setTimeout(sync, 120);   // iOS 的尺寸要等一会儿才更新
     });
     sync();
-  }
-
-  /* ------------------------------------------------------- 存档迁移 */
-
-  // 与 game/save_transfer.rpy 配套。web 版存档在 IndexedDB 里，换设备就丢，
-  // 所以给一个打包下载 / 选文件恢复的通道。
-  //   download() 由 Python 经 emscripten.run_script 调起
-  //   pick()     由 Python 调起，选完文件写进虚拟 FS 再用 renpy_exec 回传
-  function installSaveTransfer() {
-    if (window.ChaoshiSaves) return;
-
-    function onFsReady(cb) {
-      if (window.Module && Module.FS) { cb(Module.FS); return; }
-      if (typeof FS !== 'undefined') { cb(FS); return; }
-      alert('虚拟文件系统还没准备好，请稍后再试');
-    }
-
-    window.ChaoshiSaves = {
-      download: function (b64, name) {
-        try {
-          var bin = atob(b64);
-          var u8 = new Uint8Array(bin.length);
-          for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(new Blob([u8], { type: 'application/zip' }));
-          a.download = name || 'chaoshi-saves.chaoshisave';
-          a.style.position = 'fixed';
-          a.style.left = '-9999px';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function () {
-            URL.revokeObjectURL(a.href);
-            if (a.parentNode) a.parentNode.removeChild(a);
-          }, 5000);
-        } catch (e) {
-          alert('导出失败：' + e.message);
-        }
-      },
-
-      pick: function () {
-        var inp = document.createElement('input');
-        inp.type = 'file';
-        inp.accept = '.chaoshisave,.zip,application/zip';
-        inp.style.position = 'fixed';
-        inp.style.left = '-9999px';
-
-        function done() {
-          if (inp.parentNode) inp.parentNode.removeChild(inp);
-        }
-
-        inp.onchange = function () {
-          var f = inp.files && inp.files[0];
-          if (!f) { done(); return; }
-          var rd = new FileReader();
-          rd.onload = function () {
-            try {
-              onFsReady(function (fsys) {
-                try {
-                  fsys.writeFile('/tmp/cs-import.zip',
-                                 new Uint8Array(rd.result));
-                } catch (e) {
-                  alert('写入失败：' + e.message);
-                  return;
-                }
-                done();
-                if (typeof renpy_exec === 'function') {
-                  renpy_exec('cs_apply_import()');
-                } else {
-                  alert('游戏还没加载完，稍后再试');
-                }
-              });
-            } catch (e) {
-              alert('导入失败：' + e.message);
-            }
-          };
-          rd.onerror = function () { alert('读取文件失败'); done(); };
-          rd.readAsArrayBuffer(f);
-        };
-
-        document.body.appendChild(inp);
-        inp.click();
-      }
-    };
   }
 
   function build() {
@@ -455,7 +384,6 @@
     ].join('');
     document.body.appendChild(root);
     installRotateHint();
-    installSaveTransfer();
 
     el.root = root;
     el.art = root.querySelector('.cb-art');
