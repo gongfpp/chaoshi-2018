@@ -88,6 +88,7 @@
     sz: window.CHAOSHI_SIZES || {},
 
     phase: 'boot',        // boot | engine | zip | ready | error
+    bootDone: false,      // 开屏层淡出完了，竖屏提示才许出现
     errorKind: null,
     errorDetail: '',
 
@@ -271,51 +272,130 @@
     '#inputDiv{z-index:61}',
     '#presplash{transition:opacity 1200ms ease;opacity:0}',
 
-    // 竖屏提示：游戏是 1280×720 横屏，手机竖着打开会被压成一条
-    '#csRotate{position:fixed;inset:0;z-index:2147483000;display:none;',
-    '  flex-direction:column;align-items:center;justify-content:center;',
-    '  background:#0a0a0b;color:#f2ede6;text-align:center;padding:32px;',
-    '  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif}',
-    '#csRotate .csr-ico{width:56px;height:84px;border:2px solid #8c8579;',
-    '  border-radius:8px;margin-bottom:26px;position:relative;',
-    '  animation:csr-tilt 2.4s ease-in-out infinite}',
-    '#csRotate .csr-ico::after{content:"";position:absolute;left:50%;bottom:6px;',
-    '  width:14px;height:2px;margin-left:-7px;background:#8c8579;border-radius:1px}',
-    '#csRotate .csr-t{font-size:17px;font-weight:500;letter-spacing:.04em}',
-    '#csRotate .csr-s{font-size:13px;color:#8c8579;margin-top:10px;line-height:1.6}',
-    '@keyframes csr-tilt{0%,40%{transform:rotate(0)}70%,100%{transform:rotate(90deg)}}',
-    '@media (prefers-reduced-motion:reduce){#csRotate .csr-ico{animation:none}}'
   ].join('\n');
 
   /* ---------------------------------------------------------------- DOM */
 
   /* ------------------------------------------------------- 竖屏提示 */
 
-  // 游戏按 1280×720 横屏设计。手机上竖着打开会被压成窄条、字看不清，
-  // 而且 Ren'Py 不会自己提示。这里盖一层「请把手机横过来」，转过去自动消失。
-  // 只对触屏生效，桌面端把窗口拉窄不会被误伤。
+  // 这张样式表**不挂在开屏层的 <style> 上**：开屏层播完会把自己那张 style 删掉
+  // （finish()），而竖屏提示要活到整局游戏。以前两者共用一张，结果首屏淡出后
+  // #csRotate 只剩一个无样式的 div，position 退回 static、文字黑底黑字，等于
+  // 竖屏提示彻底失效。现在由 installRotateHint 自己注入、自己带 id。
+  var ROTATE_CSS = [
+    // 提示条贴在屏幕底部，只占一条，不再整屏遮罩。
+    // 竖屏下 Ren'Py 的 1280×720 画面会被居中缩成一条，上下本来就是黑边，
+    // 提示条正好落在下黑边上，不压剧情。
+    // 整层 pointer-events:none，只有卡片自己 auto —— 不点按钮时，
+    // 底下该点的地方照样点得到，这是「非强制」的关键。
+    '#csRotate{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;',
+    '  display:none;justify-content:center;padding:0 12px 14px;pointer-events:none;',
+    '  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif}',
+    '#csRotate .csr-card{pointer-events:auto;display:flex;align-items:center;gap:12px;',
+    '  box-sizing:border-box;width:100%;max-width:520px;padding:11px 13px;',
+    '  background:rgba(18,18,20,.93);border:1px solid #3a3833;border-radius:14px;',
+    '  box-shadow:0 8px 28px rgba(0,0,0,.5);color:#f2ede6}',
+    '#csRotate .csr-ico{flex:0 0 auto;width:20px;height:32px;border:2px solid #8c8579;',
+    '  border-radius:5px;position:relative;animation:csr-tilt 2.4s ease-in-out infinite}',
+    '#csRotate .csr-ico::after{content:"";position:absolute;left:50%;bottom:4px;',
+    '  width:8px;height:2px;margin-left:-4px;background:#8c8579;border-radius:1px}',
+    '#csRotate .csr-txt{flex:1 1 auto;min-width:0;line-height:1.45}',
+    '#csRotate .csr-t{font-size:14px;font-weight:500;letter-spacing:.02em}',
+    '#csRotate .csr-s{font-size:12px;color:#9a938a;margin-top:1px}',
+    '#csRotate .csr-acts{flex:0 0 auto;display:flex;gap:8px}',
+    '#csRotate button{font:inherit;font-size:13px;line-height:1;cursor:pointer;',
+    '  padding:9px 11px;border-radius:9px;border:1px solid #4a463e;',
+    '  background:transparent;color:#cfc8bd;white-space:nowrap}',
+    '#csRotate button.csr-primary{background:#c79a4b;border-color:#c79a4b;',
+    '  color:#17150f;font-weight:600}',
+    '#csRotate button:active{transform:translateY(1px)}',
+    '@keyframes csr-tilt{0%,40%{transform:rotate(0)}70%,100%{transform:rotate(90deg)}}',
+    '@media (prefers-reduced-motion:reduce){#csRotate .csr-ico{animation:none}}',
+    // 窄屏把按钮换到第二行，别把文字挤成一条缝
+    '@media (max-width:430px){#csRotate .csr-card{flex-wrap:wrap}',
+    '  #csRotate .csr-txt{flex:1 1 60%}',
+    '  #csRotate .csr-acts{flex:1 1 100%;justify-content:flex-end}}'
+  ].join('\n');
+
+  // 玩家点过「就这样玩」之后不再提醒（记住的是选择，不是这次会话）。
+  var ROTATE_KEY = 'chaoshi_portrait_ok';
+  var rotateSync = null;
+
+  // 游戏按 1280×720 横屏设计。手机上竖着打开会被压成窄条、字看不清，而
+  // Ren'Py 自己不会提示。这里给一条**可以不理**的提示：
+  //   · 「全屏横屏」→ 进全屏 + 试着锁横屏，成功就收起；
+  //   · 「就这样玩」→ 收起并记住，之后不再弹。
+  // 全程不拦截任何操作，玩家竖着照样能玩完整个游戏 —— 以前那版是整屏遮罩，
+  // 不把手机转过去就进不去，这不合理。
   function installRotateHint() {
+    if (!document.getElementById('chaoshi-rotate-style')) {
+      var rs = document.createElement('style');
+      rs.id = 'chaoshi-rotate-style';
+      rs.textContent = ROTATE_CSS;
+      (document.head || document.documentElement).appendChild(rs);
+    }
     if (document.getElementById('csRotate')) return;
 
     var box = document.createElement('div');
     box.id = 'csRotate';
     box.innerHTML = [
-      '<div class="csr-ico"></div>',
-      '<div class="csr-t">请把手机横过来</div>',
-      '<div class="csr-s">这个游戏是横屏的。<br>把手机转 90 度就能正常游玩。</div>'
+      '<div class="csr-card">',
+      '  <div class="csr-ico"></div>',
+      '  <div class="csr-txt">',
+      '    <div class="csr-t">横过来玩更清楚</div>',
+      '    <div class="csr-s">这个游戏是横屏画面。也可以直接这样玩。</div>',
+      '  </div>',
+      '  <div class="csr-acts">',
+      '    <button type="button" class="csr-primary" data-act="fullscreen">全屏横屏</button>',
+      '    <button type="button" data-act="keep">就这样玩</button>',
+      '  </div>',
+      '</div>'
     ].join('');
     document.body.appendChild(box);
+
+    var remembered = false;
+    try { remembered = window.localStorage.getItem(ROTATE_KEY) === '1'; } catch (e) {}
+
+    function shouldShow() {
+      if (remembered) { return false; }
+      var portrait = window.innerHeight > window.innerWidth;
+      var short = Math.min(window.innerWidth, window.innerHeight);
+      return portrait && short < 820;
+    }
+
+    function sync() {
+      // 开屏片头还在放的时候不弹，免得和片名抢注意力
+      box.style.display = (S.bootDone && shouldShow()) ? 'flex' : 'none';
+    }
+
+    function remember() {
+      remembered = true;
+      try { window.localStorage.setItem(ROTATE_KEY, '1'); } catch (e) {}
+    }
+
+    box.addEventListener('click', function (e) {
+      var b = e.target;
+      while (b && b !== box && b.tagName !== 'BUTTON') { b = b.parentNode; }
+      if (!b || b === box) { return; }
+      e.preventDefault();
+
+      var act = b.getAttribute('data-act');
+      if (act === 'keep') {
+        remember();
+        box.style.display = 'none';
+      } else if (act === 'fullscreen') {
+        // 进全屏 + 锁横屏。锁不上（iOS 没有 screen.orientation.lock，
+        // Safari 也不让元素全屏）就只是收起提示，玩家自己转手机。
+        if (WebUI.enterLandscape()) {
+          box.style.display = 'none';
+        }
+      }
+    });
 
     var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     if (!touch) {
       box.style.display = 'none';
       return;
-    }
-
-    function sync() {
-      var portrait = window.innerHeight > window.innerWidth;
-      var short = Math.min(window.innerWidth, window.innerHeight);
-      box.style.display = (portrait && short < 820) ? 'flex' : 'none';
     }
 
     var mq = window.matchMedia('(orientation: portrait)');
@@ -325,91 +405,77 @@
     window.addEventListener('orientationchange', function () {
       setTimeout(sync, 120);   // iOS 的尺寸要等一会儿才更新
     });
+
+    rotateSync = sync;
     sync();
   }
 
-  /* ------------------------------------------------------- 存档迁移 */
+  /* ---------------------------------------------------- 网页全屏 / 静音 */
 
-  // 与 game/save_transfer.rpy 配套。web 版存档在 IndexedDB 里，换设备就丢，
-  // 所以给一个打包下载 / 选文件恢复的通道。
-  //   download() 由 Python 经 emscripten.run_script 调起
-  //   pick()     由 Python 调起，选完文件写进虚拟 FS 再用 renpy_exec 回传
-  function installSaveTransfer() {
-    if (window.ChaoshiSaves) return;
+  // Ren'Py 的 Preference("display", "fullscreen") 改的是 SDL 窗口状态。
+  // 网页版跑在 wasm 里没有窗口可改，调了等于没调 —— Edge 顶上那条地址栏
+  // 照样占着。真正能让它消失的只有浏览器的 Fullscreen API，所以这一层
+  // 才是全屏的真源。
+  //
+  // 两个入口共用这里：游戏下方菜单栏（web_ui.rpy 经 emscripten 桥调进来）
+  // 和左上角 ≡ 菜单（renpy-pre.js 里直接调 window.ChaoshiWebUI）。
+  var WebUI = {
 
-    function onFsReady(cb) {
-      if (window.Module && Module.FS) { cb(Module.FS); return; }
-      if (typeof FS !== 'undefined') { cb(FS); return; }
-      alert('虚拟文件系统还没准备好，请稍后再试');
+    isFullscreen: function () {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                document.mozFullScreenElement || document.msFullscreenElement);
+    },
+
+    canFullscreen: function () {
+      return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled ||
+                document.mozFullScreenEnabled || document.msFullscreenEnabled);
+    },
+
+    // 进全屏。返回值只表示「请求发出去了」，真正的结果看 fullscreenchange。
+    enter: function () {
+      if (WebUI.isFullscreen()) { return true; }
+      try {
+        var el = document.documentElement;
+        var rq = el.requestFullscreen || el.webkitRequestFullscreen ||
+                 el.mozRequestFullScreen || el.msRequestFullscreen;
+        if (!rq) { return false; }
+        var p = rq.call(el, { navigationUI: 'hide' });
+        if (p && p['catch']) { p['catch'](function () {}); }
+        return true;
+      } catch (e) { return false; }
+    },
+
+    exit: function () {
+      try {
+        var ex = document.exitFullscreen || document.webkitExitFullscreen ||
+                 document.mozCancelFullScreen || document.msExitFullscreen;
+        if (!ex) { return false; }
+        var p = ex.call(document);
+        if (p && p['catch']) { p['catch'](function () {}); }
+        return true;
+      } catch (e) { return false; }
+    },
+
+    toggle: function () {
+      if (WebUI.isFullscreen()) { WebUI.exit(); return false; }
+      return WebUI.enter();
+    },
+
+    // 只给竖屏提示用：进全屏顺手把方向锁成横屏。
+    enterLandscape: function () {
+      var ok = WebUI.enter();
+      try {
+        var so = window.screen && window.screen.orientation;
+        if (so && so.lock) {
+          var p = so.lock('landscape');
+          if (p && p['catch']) { p['catch'](function () {}); }
+        }
+      } catch (e) { /* 不支持就算了 */ }
+      return ok;
     }
+  };
 
-    window.ChaoshiSaves = {
-      download: function (b64, name) {
-        try {
-          var bin = atob(b64);
-          var u8 = new Uint8Array(bin.length);
-          for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(new Blob([u8], { type: 'application/zip' }));
-          a.download = name || 'chaoshi-saves.chaoshisave';
-          a.style.position = 'fixed';
-          a.style.left = '-9999px';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function () {
-            URL.revokeObjectURL(a.href);
-            if (a.parentNode) a.parentNode.removeChild(a);
-          }, 5000);
-        } catch (e) {
-          alert('导出失败：' + e.message);
-        }
-      },
-
-      pick: function () {
-        var inp = document.createElement('input');
-        inp.type = 'file';
-        inp.accept = '.chaoshisave,.zip,application/zip';
-        inp.style.position = 'fixed';
-        inp.style.left = '-9999px';
-
-        function done() {
-          if (inp.parentNode) inp.parentNode.removeChild(inp);
-        }
-
-        inp.onchange = function () {
-          var f = inp.files && inp.files[0];
-          if (!f) { done(); return; }
-          var rd = new FileReader();
-          rd.onload = function () {
-            try {
-              onFsReady(function (fsys) {
-                try {
-                  fsys.writeFile('/tmp/cs-import.zip',
-                                 new Uint8Array(rd.result));
-                } catch (e) {
-                  alert('写入失败：' + e.message);
-                  return;
-                }
-                done();
-                if (typeof renpy_exec === 'function') {
-                  renpy_exec('cs_apply_import()');
-                } else {
-                  alert('游戏还没加载完，稍后再试');
-                }
-              });
-            } catch (e) {
-              alert('导入失败：' + e.message);
-            }
-          };
-          rd.onerror = function () { alert('读取文件失败'); done(); };
-          rd.readAsArrayBuffer(f);
-        };
-
-        document.body.appendChild(inp);
-        inp.click();
-      }
-    };
-  }
+  window.ChaoshiWebUI = WebUI;
 
   function build() {
     if (S.domReady) return;
@@ -455,7 +521,6 @@
     ].join('');
     document.body.appendChild(root);
     installRotateHint();
-    installSaveTransfer();
 
     el.root = root;
     el.art = root.querySelector('.cb-art');
@@ -1005,6 +1070,10 @@
       var st = document.getElementById('chaoshi-boot-style');
       if (st && st.parentNode) { st.parentNode.removeChild(st); }
       el.root = null;
+
+      // 开屏层淡完了才让竖屏提示出现，不和片名抢眼睛
+      S.bootDone = true;
+      if (rotateSync) { rotateSync(); }
     }, FADE_OUT_MS + 80);
     startPrefetch();
   }

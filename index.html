@@ -133,56 +133,6 @@
       color: #ffffff;
     }
 
-    #ContextContainer {
-      position: absolute;
-      left: 0px;
-      top: 0px;
-      color: white;
-    }
-
-    #ContextContainer.shown {
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 0px 0px 5px 0px;
-    }
-
-    #ContextButton {
-      text-decoration: none;
-      color: lightgrey;
-      font-size: xx-large;
-      cursor: pointer;
-      user-select: none;
-      -moz-user-select: none;
-      padding: 10px 10px;
-      opacity: .75;
-    }
-
-    #ContextButton:focus {
-      outline: none;
-      color: #ffffff;
-      opacity: 1.0;
-    }
-
-    #ContextMenu a {
-      text-decoration: none;
-      color: lightgrey;
-      background: #444;
-      height: 48px;
-      width: 250px;
-      border-radius: 5px;
-      border: 1px solid lightgrey;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 5px 5px;
-      opacity: 1.0;
-    }
-
-    #ContextMenu a:hover {
-      text-decoration: none;
-      background: #666666;
-      color: #ffffff
-    }
-
     #presplash {
         position: absolute;
         top: 0;
@@ -196,6 +146,83 @@
 
   </style>
 
+  <style id="chaoshi-web-menu">
+    /* 左上角 ≡ 菜单：模板自带的样式是「白色、不透明、整块盖住」，
+       压在剧情画面左上角很碍事。这里改成默认半透明、hover/展开才亮，
+       并且把菜单项做成暗色卡片，手机上好点（每项 44px 高）。 */
+    #ContextContainer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 2147482000;
+      color: #fff;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    }
+
+    #ContextButton {
+      display: block;
+      width: 34px;
+      height: 34px;
+      line-height: 34px;
+      text-align: center;
+      font-size: 21px;
+      color: #e8e4dc;
+      opacity: .3;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      border-radius: 0 0 8px 0;
+      transition: opacity .18s ease, background .18s ease;
+    }
+
+    #ContextButton:hover,
+    #ContextButton:active,
+    #ContextButton:focus,
+    #ContextContainer.shown #ContextButton {
+      opacity: 1;
+      outline: none;
+      background: rgba(0, 0, 0, .45);
+    }
+
+    #ContextMenu {
+      position: absolute;
+      left: 6px;
+      top: 40px;
+      display: none;
+    }
+
+    #ContextMenu a {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      width: 172px;
+      height: 44px;
+      padding: 0 14px;
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: #ded8cd;
+      text-decoration: none;
+      background: rgba(20, 19, 17, .94);
+      border: 1px solid #46423a;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+    }
+
+    #ContextMenu a:hover,
+    #ContextMenu a:active {
+      background: #2b2823;
+      color: #fff;
+    }
+
+    #ContextMenu a[data-cs="about"] {
+      margin-top: 12px;
+      height: 40px;
+      font-size: 13px;
+      color: #9a938a;
+      background: rgba(20, 19, 17, .8);
+    }
+  </style>
 </head>
 
 <body>
@@ -204,22 +231,23 @@
 
   <img id="presplash" src="web-presplash.jpg">
 
+    <!-- CHAOSHI_WEB_MENU_START -->
   <div id="ContextContainer">
-    <a id="ContextButton">&#8801;</a><br />
+    <a id="ContextButton" role="button" tabindex="0" title="菜单">&#8801;</a>
     <div id="ContextMenu" style="display: none;">
       <input id="ID_SavegamesImport" type="file" onchange="onSavegamesImport(this)" accept="application/zip"
-        style=display:none></input>
-      <a href="javascript:document.getElementById('ID_SavegamesImport').click();">Import Saves</a>
-      <a href="javascript:onSavegamesExport();">Export Saves</a>
-      <a href="javascript:FSDownload('/log.txt', 'text/plain');">Download Log</a>
-      <a href="https://www.renpy.org/" target="_blank">
-          Powered by Ren'Py
-      </a>
-      </span>
+        style="display:none">
+      <a href="javascript:void(0)" data-cs="fullscreen" id="ID_Fullscreen">全屏</a>
+      <a href="javascript:void(0)" data-cs="mute" id="ID_Mute">静音</a>
+      <a href="javascript:void(0)" data-cs="import">导入存档</a>
+      <a href="javascript:void(0)" data-cs="export">导出存档</a>
+      <a href="javascript:void(0)" data-cs="log">下载日志</a>
+      <a href="https://www.renpy.org/" target="_blank" rel="noopener" data-cs="about">关于 Ren&#39;Py</a>
     </div>
   </div>
+  <!-- CHAOSHI_WEB_MENU_END -->
 
-  <div id="statusDiv" class="hidden">
+<div id="statusDiv" class="hidden">
     <div id="statusTextDiv"></div>
     <progress id="statusProgress" value="0" max="100"></progress>
   </div>
@@ -235,10 +263,9 @@
       // The URL to game.zip, relative to the URL of this file.
       window.gameZipURL = 'game.zip';
       // 分片信息（tools/patch_web.py 注入）
-      window.gameZipParts = ["game.zip.000?b=594e8c9", "game.zip.001?b=594e8c9", "game.zip.002?b=594e8c9", "game.zip.003?b=594e8c9", "game.zip.004?b=594e8c9", "game.zip.005?b=594e8c9", "game.zip.006?b=594e8c9", "game.zip.007?b=594e8c9", "game.zip.008?b=594e8c9", "game.zip.009?b=594e8c9", "game.zip.010?b=594e8c9"];
-      window.gameZipPartSizes = [1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 817865];
-      window.gameZipTotal = 10817865;
-
+      window.gameZipParts = ["game.zip.000?b=bbb5b4b", "game.zip.001?b=bbb5b4b", "game.zip.002?b=bbb5b4b", "game.zip.003?b=bbb5b4b", "game.zip.004?b=bbb5b4b", "game.zip.005?b=bbb5b4b", "game.zip.006?b=bbb5b4b", "game.zip.007?b=bbb5b4b", "game.zip.008?b=bbb5b4b", "game.zip.009?b=bbb5b4b", "game.zip.010?b=bbb5b4b"];
+      window.gameZipPartSizes = [1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 817143];
+      window.gameZipTotal = 10817143;
 
 
             // 旧的 service worker 会把上一版 game.zip 分片与 index.html 钉在缓存里，
@@ -255,11 +282,11 @@
           }
       })();
     </script>
-  <script>window.CHAOSHI_BUILD="594e8c9";window.CHAOSHI_MIRRORS={"gh": "https://gongfpp.github.io/chaoshi-2018/", "cf": "https://chaoshi-2018.pages.dev/"};window.CHAOSHI_SIZES={"zip": 10817865, "wasm": 21586559, "data": 15057379};</script>
+  <script>window.CHAOSHI_BUILD="bbb5b4b";window.CHAOSHI_MIRRORS={"gh": "https://gongfpp.github.io/chaoshi-2018/", "cf": "https://chaoshi-2018.pages.dev/"};window.CHAOSHI_SIZES={"zip": 10817143, "wasm": 21586559, "data": 15057379};</script>
   <script>
   (function () {
     if (window.chaoshiTrack) { return; }
-    var BUILD = "594e8c9";
+    var BUILD = "bbb5b4b";
     // 线上发到 Cloudflare Worker + D1；本地（localhost/127.0.0.1）仍走同源
     // /api/collect，由 tools/collector.py 接收，避免调试时污染生产数据。
     var host = location.hostname;

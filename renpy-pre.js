@@ -358,7 +358,7 @@ Module.preRun = Module.preRun || [ ];
         console.log(s);
     }
 
-        /* CHAOSHI_LOADER_V2 */
+    /* CHAOSHI_LOADER_V2 */
     // ---- 并行分片 + 空闲超时 + 后台预取（由 tools/patch_web.py 注入）------
     // 与 Windows 无关的三条约束：
     //   1) 不能用墙钟超时判失败 —— 弱网是「慢」不是「死」，只有连续 IDLE_MS
@@ -744,69 +744,179 @@ Module.preRun = Module.preRun || [ ];
      * Context menu.
      **************************************************************************/
 
-    const menu = document.getElementById('ContextMenu');
+    /* CHAOSHI_WEB_MENU_START */
+    /*
+     * 左上角 ≡ 菜单。
+     *
+     * Ren'Py 模板自带的是英文的 Import Saves / Export Saves / Download Log /
+     * Powered by Ren'Py。这一版整块换成中文，并挂上「全屏」「静音」——
+     * 这两件事 Ren'Py 自己做不到（全屏要浏览器的 Fullscreen API）或做起来
+     * 要绕一圈（静音要保住和游戏内菜单栏同一份状态），放在这一层最直接。
+     *
+     * 全屏/静音的正式入口在游戏下方菜单栏；这里是同一套能力的第二个入口，
+     * 两边都调 window.ChaoshiWebUI 与 Python 侧的 chaoshi_set_mute()。
+     */
+    (function () {
 
-    const contextContainer = document.getElementById('ContextContainer');
+        var menu = document.getElementById('ContextMenu');
+        var container = document.getElementById('ContextContainer');
+        var button = document.getElementById('ContextButton');
 
-    document.getElementById('ContextButton').addEventListener('click', function (e) {
-        if (menu.style.display == 'none') {
+        if (!menu || !container || !button) {
+            return;
+        }
+
+        function close() {
+            menu.style.display = 'none';
+            container.classList.remove('shown');
+        }
+
+        function open() {
             menu.style.display = 'block';
-            contextContainer.classList.add("shown");
-        } else {
-            menu.style.display = 'none';
-            contextContainer.classList.remove("shown");
+            container.classList.add('shown');
+            sync();
         }
-        e.preventDefault();
-    });
 
-    menu.addEventListener('click', function (e) {
-        if (e.target.tagName == 'A') {
-            // Close context menu when a menu item is selected
-            menu.style.display = 'none';
+        function isFull() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                document.mozFullScreenElement || document.msFullscreenElement);
         }
-    });
 
+        function canFull() {
+            return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled ||
+                document.mozFullScreenEnabled || document.msFullscreenEnabled);
+        }
+
+        /* 文案跟着真实状态走。静音状态问 Ren'Py —— 它才是真源：设置页的
+           「全部静音」、下方菜单栏的「静音」都会改它，这一层只负责显示。 */
+        function sync(muted) {
+            var fs = document.getElementById('ID_Fullscreen');
+            if (fs) {
+                fs.textContent = isFull() ? '退出全屏' : '全屏';
+                fs.style.display = canFull() ? '' : 'none';
+            }
+
+            var mu = document.getElementById('ID_Mute');
+
+            if (!mu) {
+                return;
+            }
+
+            if (typeof muted !== 'undefined') {
+                mu.textContent = muted ? '取消静音' : '静音';
+            } else if (window.renpy_exec) {
+                window.renpy_exec('result = chaoshi_is_muted()').then(function (m) {
+                    mu.textContent = m ? '取消静音' : '静音';
+                }).catch(function () { });
+            }
+        }
+
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (menu.style.display === 'block') {
+                close();
+            } else {
+                open();
+            }
+        });
+
+        document.addEventListener('fullscreenchange', function () { sync(); });
+        document.addEventListener('webkitfullscreenchange', function () { sync(); });
+
+        menu.addEventListener('click', function (e) {
+            var a = e.target;
+
+            while (a && a !== menu && a.tagName !== 'A') {
+                a = a.parentNode;
+            }
+
+            if (!a || a === menu) {
+                return;
+            }
+
+            e.preventDefault();
+            var act = a.getAttribute('data-cs');
+            close();
+
+            if (act === 'fullscreen') {
+                if (window.ChaoshiWebUI) {
+                    window.ChaoshiWebUI.toggle();
+                }
+            } else if (act === 'mute') {
+                if (window.renpy_exec) {
+                    window.renpy_exec(
+                        'chaoshi_set_mute(not chaoshi_is_muted()); result = chaoshi_is_muted()'
+                    ).then(function (m) {
+                        sync(m);
+                    }).catch(function () { });
+                }
+            } else if (act === 'import') {
+                var inp = document.getElementById('ID_SavegamesImport');
+                if (inp) {
+                    inp.click();
+                }
+            } else if (act === 'export') {
+                if (typeof onSavegamesExport === 'function') {
+                    onSavegamesExport();
+                }
+            } else if (act === 'log') {
+                if (typeof FSDownload === 'function') {
+                    FSDownload('/log.txt', 'text/plain');
+                }
+            }
+        });
+    })();
+
+    /* 存档导入/导出沿用 Ren'Py 官方实现，只把提示文案换成中文。
+       （官方实现把 saves 目录 zip 到 /savegames.zip，再经 FSDownload 下载；
+       导入反过来写回 wasm FS 并 syncfs，所以刷新后还在。） */
     async function onSavegamesImport(input) {
-        reader = new FileReader();
+        var reader = new FileReader();
+
         reader.onload = function (e) {
             FS.writeFile('savegames.zip', new Uint8Array(e.target.result));
 
-            renpy_exec('result = renpy.savelocation.unzip_saves()').then((result) => {
+            renpy_exec('result = renpy.savelocation.unzip_saves()').then(function (result) {
                 FS.syncfs(false, function (err) {
                     if (err) {
                         console.trace();
                         console.log(err, err.message);
-                        printMessage("Warning: cannot import savegames: write error: " + err.message );
+                        printMessage("导入失败：写不进存档目录（" + err.message + "）");
                     } else {
-                        renpy_exec('renpy.loadsave.location.scan()').then(result => {
-                            printMessage("Saves imported successfully.");
-                        }).catch(error => {
-                            console.error('Cannot rescan saves folder:', error);
-                            printMessage("Saves imported - restart game to apply.");
+                        renpy_exec('renpy.loadsave.location.scan()').then(function () {
+                            printMessage("存档已导入。刷新页面后读档列表更新。");
+                        }).catch(function () {
+                            printMessage("存档已导入，刷新页面后生效。");
                         });
                     }
                 });
-            }).catch(error => {
+            }).catch(function (error) {
                 console.error('Cannot import savegames', error);
-                printMessage("Couldn't import the savegames: " + error.message);
-            })
-        }
-        reader.readAsArrayBuffer(input.files[0])
-        input.type = ''; input.type = 'file'; // reset field
+                printMessage("导入失败：" + error.message);
+            });
+        };
+
+        reader.readAsArrayBuffer(input.files[0]);
+        input.type = '';
+        input.type = 'file';   // 允许重复选同一个文件
     }
 
     window.onSavegamesImport = onSavegamesImport;
 
     function onSavegamesExport() {
-        renpy_exec('result = renpy.savelocation.zip_saves()').then((ret) => {
+        renpy_exec('result = renpy.savelocation.zip_saves()').then(function (ret) {
             if (ret) {
                 FSDownload('savegames.zip', 'application/zip');
-                printMessage("Saves exported successfully.\n");
+                printMessage("存档已导出。");
             }
+        }).catch(function (error) {
+            printMessage("导出失败：" + error.message);
         });
     }
 
     window.onSavegamesExport = onSavegamesExport;
+    /* CHAOSHI_WEB_MENU_END */
+
 
     function FSDownload(filename, mimetype) {
         console.log('download', filename);
