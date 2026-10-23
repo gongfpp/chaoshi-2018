@@ -68,6 +68,23 @@ bash tools/deploy_worker.sh
 
 `lint` 必须为 0 错误。构建后必须实际打开，不得只凭 lint 判断可玩性。
 
+## 交付与验收
+
+- **每批改动都同步部署到三端**（GitHub Pages / EdgeOne / Cloudflare Pages），一条
+  `tools/deploy_pages.sh both` 全覆盖。交付时给出线上地址；验收在线上做，
+  不接受"本地 `build/web` 验完就算完成"。
+- 三端不是同时生效：Cloudflare 每次 deploy 立即清自己的 CDN；EdgeOne 跟随
+  `gh-pages` 约 60 秒；GitHub Pages 还要等一次 Pages 构建 + HTML 缓存（约 10 分钟）。
+  另外 `?b=` 指纹只覆盖 `game.zip` 分片，`index.html` / `renpy-pre.js` /
+  `chaoshi-loader.js` **没有指纹** —— 别用旧标签页验收，也别在推完 30 秒就断言"没变化"。
+- 版本核对认 `build.json` 的 `"build"` 字段（产出该构建的提交号）：三端各拉一次
+  `/build.json?nv=$(date +%s)`，三个都一样、且等于**最后一次改代码的提交**才算真上线。
+  纯文档提交不触发重新构建，所以它允许比 `HEAD` 落后一两个。
+- Mac 上的 `gh` 凭据会过期，报 `no oauth token found for github.com` 或
+  `The token in default is invalid` 时，从 Windows 侧灌一次：
+  `gh auth token | ssh mac "umask 077; cat > /tmp/.cs_ghtoken"`，再
+  `ssh mac "gh auth login -h github.com --with-token < /tmp/.cs_ghtoken && rm -f /tmp/.cs_ghtoken"`。
+
 ## 边界
 
 - 不把不同用工模式（专送/众包）的规则混用在同一个人物身上。
