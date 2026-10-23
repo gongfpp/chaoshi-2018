@@ -584,72 +584,374 @@ def patch_loader(root):
     open(path, "w", encoding="utf-8").write(s)
 
 
-WEB_MENU_HTML_OPEN = '<div id="ContextContainer">'
-WEB_MENU_HTML_END = '<div id="statusDiv"'
-WEB_MENU_JS_OPEN = "    const menu = document.getElementById('ContextMenu');"
-WEB_MENU_JS_END = "    window.onSavegamesExport = onSavegamesExport;"
-WEB_MENU_SENTINEL = "/* CHAOSHI_NO_WEB_MENU */"
+WEB_MENU_HTML_START = "<!-- CHAOSHI_WEB_MENU_START -->"
+WEB_MENU_HTML_END = "<!-- CHAOSHI_WEB_MENU_END -->"
+WEB_MENU_TPL_OPEN = '<div id="ContextContainer">'
+WEB_MENU_TPL_END = '<div id="statusDiv"'
+
+WEB_MENU_JS_START = "/* CHAOSHI_WEB_MENU_START */"
+WEB_MENU_JS_END = "/* CHAOSHI_WEB_MENU_END */"
+WEB_MENU_JS_TPL_OPEN = "    const menu = document.getElementById('ContextMenu');"
+WEB_MENU_JS_TPL_END = "    window.onSavegamesExport = onSavegamesExport;"
+
+WEB_MENU_CSS_ID = "chaoshi-web-menu"
+
+WEB_MENU_HTML = '''  <!-- CHAOSHI_WEB_MENU_START -->
+  <div id="ContextContainer">
+    <a id="ContextButton" role="button" tabindex="0" title="菜单">&#8801;</a>
+    <div id="ContextMenu" style="display: none;">
+      <input id="ID_SavegamesImport" type="file" onchange="onSavegamesImport(this)" accept="application/zip"
+        style="display:none">
+      <a href="javascript:void(0)" data-cs="fullscreen" id="ID_Fullscreen">全屏</a>
+      <a href="javascript:void(0)" data-cs="mute" id="ID_Mute">静音</a>
+      <a href="javascript:void(0)" data-cs="import">导入存档</a>
+      <a href="javascript:void(0)" data-cs="export">导出存档</a>
+      <a href="javascript:void(0)" data-cs="log">下载日志</a>
+      <a href="https://www.renpy.org/" target="_blank" rel="noopener" data-cs="about">关于 Ren&#39;Py</a>
+    </div>
+  </div>
+  <!-- CHAOSHI_WEB_MENU_END -->'''
+
+WEB_MENU_CSS = '''  <style id="chaoshi-web-menu">
+    /* 左上角 ≡ 菜单：模板自带的样式是「白色、不透明、整块盖住」，
+       压在剧情画面左上角很碍事。这里改成默认半透明、hover/展开才亮，
+       并且把菜单项做成暗色卡片，手机上好点（每项 44px 高）。 */
+    #ContextContainer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 2147482000;
+      color: #fff;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    }
+
+    #ContextButton {
+      display: block;
+      width: 34px;
+      height: 34px;
+      line-height: 34px;
+      text-align: center;
+      font-size: 21px;
+      color: #e8e4dc;
+      opacity: .3;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      border-radius: 0 0 8px 0;
+      transition: opacity .18s ease, background .18s ease;
+    }
+
+    #ContextButton:hover,
+    #ContextButton:active,
+    #ContextButton:focus,
+    #ContextContainer.shown #ContextButton {
+      opacity: 1;
+      outline: none;
+      background: rgba(0, 0, 0, .45);
+    }
+
+    #ContextMenu {
+      position: absolute;
+      left: 6px;
+      top: 40px;
+      display: none;
+    }
+
+    #ContextMenu a {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      width: 172px;
+      height: 44px;
+      padding: 0 14px;
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: #ded8cd;
+      text-decoration: none;
+      background: rgba(20, 19, 17, .94);
+      border: 1px solid #46423a;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+    }
+
+    #ContextMenu a:hover,
+    #ContextMenu a:active {
+      background: #2b2823;
+      color: #fff;
+    }
+
+    #ContextMenu a[data-cs="about"] {
+      margin-top: 12px;
+      height: 40px;
+      font-size: 13px;
+      color: #9a938a;
+      background: rgba(20, 19, 17, .8);
+    }
+  </style>'''
+
+WEB_MENU_JS = '''    /* CHAOSHI_WEB_MENU_START */
+    /*
+     * 左上角 ≡ 菜单。
+     *
+     * Ren'Py 模板自带的是英文的 Import Saves / Export Saves / Download Log /
+     * Powered by Ren'Py。这一版整块换成中文，并挂上「全屏」「静音」——
+     * 这两件事 Ren'Py 自己做不到（全屏要浏览器的 Fullscreen API）或做起来
+     * 要绕一圈（静音要保住和游戏内菜单栏同一份状态），放在这一层最直接。
+     *
+     * 全屏/静音的正式入口在游戏下方菜单栏；这里是同一套能力的第二个入口，
+     * 两边都调 window.ChaoshiWebUI 与 Python 侧的 chaoshi_set_mute()。
+     */
+    (function () {
+
+        var menu = document.getElementById('ContextMenu');
+        var container = document.getElementById('ContextContainer');
+        var button = document.getElementById('ContextButton');
+
+        if (!menu || !container || !button) {
+            return;
+        }
+
+        function close() {
+            menu.style.display = 'none';
+            container.classList.remove('shown');
+        }
+
+        function open() {
+            menu.style.display = 'block';
+            container.classList.add('shown');
+            sync();
+        }
+
+        function isFull() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                document.mozFullScreenElement || document.msFullscreenElement);
+        }
+
+        function canFull() {
+            return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled ||
+                document.mozFullScreenEnabled || document.msFullscreenEnabled);
+        }
+
+        /* 文案跟着真实状态走。静音状态问 Ren'Py —— 它才是真源：设置页的
+           「全部静音」、下方菜单栏的「静音」都会改它，这一层只负责显示。 */
+        function sync(muted) {
+            var fs = document.getElementById('ID_Fullscreen');
+            if (fs) {
+                fs.textContent = isFull() ? '退出全屏' : '全屏';
+                fs.style.display = canFull() ? '' : 'none';
+            }
+
+            var mu = document.getElementById('ID_Mute');
+
+            if (!mu) {
+                return;
+            }
+
+            if (typeof muted !== 'undefined') {
+                mu.textContent = muted ? '取消静音' : '静音';
+            } else if (window.renpy_exec) {
+                window.renpy_exec('result = chaoshi_is_muted()').then(function (m) {
+                    mu.textContent = m ? '取消静音' : '静音';
+                }).catch(function () { });
+            }
+        }
+
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (menu.style.display === 'block') {
+                close();
+            } else {
+                open();
+            }
+        });
+
+        document.addEventListener('fullscreenchange', function () { sync(); });
+        document.addEventListener('webkitfullscreenchange', function () { sync(); });
+
+        menu.addEventListener('click', function (e) {
+            var a = e.target;
+
+            while (a && a !== menu && a.tagName !== 'A') {
+                a = a.parentNode;
+            }
+
+            if (!a || a === menu) {
+                return;
+            }
+
+            e.preventDefault();
+            var act = a.getAttribute('data-cs');
+            close();
+
+            if (act === 'fullscreen') {
+                if (window.ChaoshiWebUI) {
+                    window.ChaoshiWebUI.toggle();
+                }
+            } else if (act === 'mute') {
+                if (window.renpy_exec) {
+                    window.renpy_exec(
+                        'chaoshi_set_mute(not chaoshi_is_muted()); result = chaoshi_is_muted()'
+                    ).then(function (m) {
+                        sync(m);
+                    }).catch(function () { });
+                }
+            } else if (act === 'import') {
+                var inp = document.getElementById('ID_SavegamesImport');
+                if (inp) {
+                    inp.click();
+                }
+            } else if (act === 'export') {
+                if (typeof onSavegamesExport === 'function') {
+                    onSavegamesExport();
+                }
+            } else if (act === 'log') {
+                if (typeof FSDownload === 'function') {
+                    FSDownload('/log.txt', 'text/plain');
+                }
+            }
+        });
+    })();
+
+    /* 存档导入/导出沿用 Ren'Py 官方实现，只把提示文案换成中文。
+       （官方实现把 saves 目录 zip 到 /savegames.zip，再经 FSDownload 下载；
+       导入反过来写回 wasm FS 并 syncfs，所以刷新后还在。） */
+    async function onSavegamesImport(input) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            FS.writeFile('savegames.zip', new Uint8Array(e.target.result));
+
+            renpy_exec('result = renpy.savelocation.unzip_saves()').then(function (result) {
+                FS.syncfs(false, function (err) {
+                    if (err) {
+                        console.trace();
+                        console.log(err, err.message);
+                        printMessage("导入失败：写不进存档目录（" + err.message + "）");
+                    } else {
+                        renpy_exec('renpy.loadsave.location.scan()').then(function () {
+                            printMessage("存档已导入。刷新页面后读档列表更新。");
+                        }).catch(function () {
+                            printMessage("存档已导入，刷新页面后生效。");
+                        });
+                    }
+                });
+            }).catch(function (error) {
+                console.error('Cannot import savegames', error);
+                printMessage("导入失败：" + error.message);
+            });
+        };
+
+        reader.readAsArrayBuffer(input.files[0]);
+        input.type = '';
+        input.type = 'file';   // 允许重复选同一个文件
+    }
+
+    window.onSavegamesImport = onSavegamesImport;
+
+    function onSavegamesExport() {
+        renpy_exec('result = renpy.savelocation.zip_saves()').then(function (ret) {
+            if (ret) {
+                FSDownload('savegames.zip', 'application/zip');
+                printMessage("存档已导出。");
+            }
+        }).catch(function (error) {
+            printMessage("导出失败：" + error.message);
+        });
+    }
+
+    window.onSavegamesExport = onSavegamesExport;
+    /* CHAOSHI_WEB_MENU_END */'''
 
 
-def strip_web_menu(root):
-    """删掉 Ren'Py 网页模板自带的左上角 ≡ 菜单。
+def rebuild_web_menu(root):
+    """把 Ren'Py 网页模板自带的左上角 ≡ 菜单换成中文版，并接上全屏/静音。
 
-    模板在 index.html 里放了一个 `<a id="ContextButton">≡</a>`，点开是
-    `#ContextMenu`：Import Saves / Export Saves / Download Log / Powered by
-    Ren'Py。它在 canvas 之上、所有游戏界面之下，手机上正好压在游戏标题或
-    存档界面的左上角，还会被误当成游戏内的按钮。
+    模板在 index.html 里放了一个 `<a id="ContextButton">≡</a>`，点开是英文的
+    Import Saves / Export Saves / Download Log / Powered by Ren'Py。它在 canvas
+    之上、所有游戏界面之下，手机上正好压在游戏标题或存档界面的左上角。
 
-    我们不需要这四项能力（网页版存档在浏览器的 IndexedDB 里，导入导出一
-    半会失败；日志走 F12），所以连按钮带菜单一起删：
-      · index.html —— 整块 <div id="ContextContainer">…</div> 剪掉；
-      · renpy-pre.js —— 绑定 ContextButton 的监听器与 onSavegamesImport /
-        onSavegamesExport 两个函数一起剪掉（保留后面的 FSDownload，别处还在用）。
+    这一版做四件事：
+      · 菜单项全部中文（导入存档 / 导出存档 / 下载日志 / 关于 Ren'Py）；
+      · 新增「全屏」「静音」—— 全屏只能靠浏览器的 Fullscreen API，
+        静音借 Python 侧的 chaoshi_set_mute()，与游戏内菜单栏共用状态；
+      · 按钮改成默认半透明（opacity .3），hover / 展开才亮起来，
+        不再一直压在剧情画面左上角抢注意力；
+      · 菜单项文案跟着真实状态走（退出全屏 / 取消静音）。
 
-    两处都必须改：只删 DOM 会在 `document.getElementById('ContextButton')
-    .addEventListener` 处抛 TypeError，整个 renpy-pre.js 后面的初始化全部不执行。
+    三处必须一起改，缺一处就炸：
+      · index.html —— DOM 与样式；
+      · renpy-pre.js —— 事件绑定（模板原有的 ContextButton 监听器与
+        import/export 两个函数被整段替换，后面别处还在用的 FSDownload 不动）。
+
+    只改 DOM 不改 JS，renpy-pre.js 会在
+    `document.getElementById('ContextButton').addEventListener` 处抛 TypeError，
+    整个初始化链后面全不执行。
     """
     html_path = os.path.join(root, "index.html")
     s = open(html_path, encoding="utf-8").read()
 
-    i = s.find(WEB_MENU_HTML_OPEN)
-    if i != -1:
-        j = s.find(WEB_MENU_HTML_END, i)
-        if j == -1:
-            raise SystemExit("index.html 里 ContextContainer 之后找不到 statusDiv")
-        s = s[:i] + s[j:]
+    if WEB_MENU_HTML_START in s:
+        i = s.index(WEB_MENU_HTML_START)
+        j = s.index(WEB_MENU_HTML_END, i) + len(WEB_MENU_HTML_END)
+        s = s[:i] + WEB_MENU_HTML + s[j:]
+    else:
+        i = s.find(WEB_MENU_TPL_OPEN)
+        j = s.find(WEB_MENU_TPL_END, i) if i != -1 else -1
+        if i == -1 or j == -1:
+            raise SystemExit(
+                "index.html 里找不到模板自带的 ≡ 菜单（SDK 升级了？）。\n"
+                "期望：%r … %r" % (WEB_MENU_TPL_OPEN, WEB_MENU_TPL_END))
+        s = s[:i] + WEB_MENU_HTML + "\n\n" + s[j:]
 
-    # 模板自带的这几条 CSS 也一并清掉（元素都删了，留着只会让人以为还有入口）
-    for sel in ("#ContextContainer", "#ContextContainer.shown",
-                "#ContextButton", "#ContextButton:focus"):
-        s = re.sub(r"\n\s*%s\s*\{[^}]*\}" % re.escape(sel), "", s)
+        # 模板自带的这几条 CSS 一并清掉，全部由下面这张表接管。
+        #
+        # 只在**第一次**打补丁时做：这些选择器在 WEB_MENU_CSS 里也有
+        # （写成了 `#ContextButton {` 这种带空格的形式，同样能被下面的正则
+        # 命中）。如果每次都跑，`SKIP_BUILD=1` 二次打补丁就会把刚插进去的
+        # 样式连自己一起删掉 —— 表现是 ≡ 按钮丢了 z-index，被 #overlayDiv
+        # 盖住点不动，Playwright 会报 element intercepts pointer events。
+        for sel in ("#ContextContainer", "#ContextContainer.shown",
+                    "#ContextButton", "#ContextButton:focus",
+                    "#ContextMenu a", "#ContextMenu a:hover"):
+            s = re.sub(r"\n\s*%s\s*\{[^}]*\}" % re.escape(sel), "", s)
 
-    # 兜底：万一哪天 SDK 又塞回来同 ID 的元素（DOM 已删，这里只防手滑），CSS 也不显示
-    if "chaoshi-no-web-menu" not in s:
         if "</head>" not in s:
             raise SystemExit("index.html 里找不到 </head>")
-        s = s.replace("</head>", (
-            '  <style id="chaoshi-no-web-menu">'
-            '#ContextContainer,#ContextButton,#ContextMenu{display:none!important}'
-            '</style>\n</head>'), 1)
+        s = s.replace("</head>", WEB_MENU_CSS + "\n</head>", 1)
 
     open(html_path, "w", encoding="utf-8").write(s)
 
     js_path = os.path.join(root, "renpy-pre.js")
     t = open(js_path, encoding="utf-8").read()
-    if WEB_MENU_SENTINEL not in t:
-        i = t.find(WEB_MENU_JS_OPEN)
-        j = t.find(WEB_MENU_JS_END, i) if i != -1 else -1
+
+    if WEB_MENU_JS_START in t:
+        i = t.index(WEB_MENU_JS_START)
+        j = t.index(WEB_MENU_JS_END, i) + len(WEB_MENU_JS_END)
+        t = t[:i] + WEB_MENU_JS + t[j:]
+    else:
+        i = t.find(WEB_MENU_JS_TPL_OPEN)
+        j = t.find(WEB_MENU_JS_TPL_END, i) if i != -1 else -1
         if i == -1 or j == -1:
             head = "\n".join(t.splitlines()[:40])
             raise SystemExit(
                 "renpy-pre.js 结构变了（SDK 升级？），找不到 ContextMenu 锚点。\n"
-                "期望：%r / %r\n文件头：\n%s" % (WEB_MENU_JS_OPEN, WEB_MENU_JS_END, head))
-        t = (t[:i] + WEB_MENU_SENTINEL + "\n"
-             + "    // 网页版不提供 ≡ 菜单（导入/导出存档），已在构建期移除。\n"
-             + t[j + len(WEB_MENU_JS_END):])
-        open(js_path, "w", encoding="utf-8").write(t)
+                "期望：%r / %r\n文件头：\n%s" % (
+                    WEB_MENU_JS_TPL_OPEN, WEB_MENU_JS_TPL_END, head))
+        t = (t[:i] + WEB_MENU_JS + "\n"
+             + t[j + len(WEB_MENU_JS_TPL_END):])
 
-    return WEB_MENU_SENTINEL in open(js_path, encoding="utf-8").read()
+    open(js_path, "w", encoding="utf-8").write(t)
+
+    done = open(js_path, encoding="utf-8").read()
+
+    # 顺手验一下样式表还在：二次打补丁一旦把 #ContextContainer 的 z-index 删了，
+    # ≡ 按钮就会被 #overlayDiv 盖住点不动，而这种坏法在截图里几乎看不出来。
+    html_now = open(html_path, encoding="utf-8").read()
+    if "z-index: 2147482000" not in html_now:
+        raise SystemExit("≡ 菜单的样式表丢了（多半是二次打补丁被自己的正则删掉）")
+
+    return (WEB_MENU_JS_START in done) and ("ID_Fullscreen" in done)
 
 
 PRIORITY = [
@@ -885,8 +1187,8 @@ def main():
     copy_loader(root)
     patch_index(root, meta, build)
     patch_loader(root)
-    if not strip_web_menu(root):
-        raise SystemExit("≡ 菜单没有移干净")
+    if not rebuild_web_menu(root):
+        raise SystemExit("≡ 菜单没有改好")
     manifest = make_prefetch_manifest(root, build)
     write_build_json(root, build)
     patch_catalog(root, meta)

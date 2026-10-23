@@ -45,7 +45,7 @@ else
   "$RENPY" "$(dirname "$RENPY")/launcher" web_build "$ROOT/game" --destination "$ROOT/build/web" >/tmp/web_build.log 2>&1
   echo "   build/web 生成完成"
 
-  echo "== 2/3 打补丁（分片 / 续传 / 停用 SW / 启动图 / 去掉 ≡ 菜单） =="
+  echo "== 2/3 打补丁（分片 / 续传 / 停用 SW / 启动图 / 中文 ≡ 菜单） =="
   "$PY" tools/patch_web.py build/web
 fi
 

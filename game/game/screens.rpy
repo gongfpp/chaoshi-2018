@@ -255,6 +255,12 @@ screen quick_menu():
             textbutton _("Save") action ShowMenu('save')
             textbutton _("Q.Save") action QuickSave()
             textbutton _("Q.Load") action QuickLoad()
+            ## 全屏只在网页版出现：桌面版窗口全屏走「设置 → 显示」。
+            ## 手机横屏后 Edge / Safari 顶上那条地址栏只有浏览器的
+            ## Fullscreen API 能收掉，见 web_ui.rpy。
+            if chaoshi_can_fullscreen:
+                textbutton (_("Exit Fullscreen") if chaoshi_is_fullscreen() else _("Fullscreen")) action Function(chaoshi_toggle_fullscreen)
+            textbutton (_("Unmute") if chaoshi_is_muted() else _("Mute")) action Function(chaoshi_toggle_mute)
             textbutton _("Prefs") action ShowMenu('preferences')
 
 
@@ -1532,6 +1538,9 @@ screen quick_menu():
             textbutton _("Back") action Rollback()
             textbutton _("Skip") action Skip() alternate Skip(fast=True, confirm=True)
             textbutton _("Auto") action Preference("auto-forward", "toggle")
+            if chaoshi_can_fullscreen:
+                textbutton (_("Exit Fullscreen") if chaoshi_is_fullscreen() else _("Fullscreen")) action Function(chaoshi_toggle_fullscreen)
+            textbutton (_("Unmute") if chaoshi_is_muted() else _("Mute")) action Function(chaoshi_toggle_mute)
             textbutton _("Menu") action ShowMenu()
 
 

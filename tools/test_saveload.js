@@ -36,7 +36,7 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'build/shots/12_after_reload.png' });
 
   // 标题 → 读取 → 第一格
-  await page.mouse.click(130, 400);  // 「读取」
+  await page.mouse.click(130, 507);  // 「读取」（标题页左栏第 4 项，1280x720 下的 CSS 坐标）
   await page.waitForTimeout(1800);
   await page.screenshot({ path: 'build/shots/13_load_menu.png' });
   await page.mouse.click(450, 260);
