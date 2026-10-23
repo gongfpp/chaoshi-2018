@@ -21,6 +21,8 @@ translate None strings:
 
     old "Chapters"
     new "章节目录"
+    old "Novel"
+    new "全文"
     old "Skip"
     new "快进"
     old "Auto"
@@ -140,6 +142,7 @@ screen main_menu():
         null height 46
         textbutton "开始" action Start() style "main_menu_textbutton"
         textbutton "章节目录" action ShowMenu("chapter_list") style "main_menu_textbutton"
+        textbutton "全文" action ShowMenu("text_novel_index") style "main_menu_textbutton"
         textbutton "读取" action ShowMenu("load") style "main_menu_textbutton"
         textbutton "设置" action ShowMenu("preferences") style "main_menu_textbutton"
         textbutton "关于" action ShowMenu("about") style "main_menu_textbutton"

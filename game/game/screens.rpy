@@ -249,6 +249,7 @@ screen quick_menu():
             textbutton _("Back") action Rollback()
             textbutton _("History") action ShowMenu('history')
             textbutton _("Chapters") action ShowMenu('chapter_list')
+            textbutton _("Novel") action ShowMenu('text_novel_index')
             textbutton _("Skip") action Skip() alternate Skip(fast=True, confirm=True)
             textbutton _("Auto") action Preference("auto-forward", "toggle")
             textbutton _("Save") action ShowMenu('save')
@@ -310,6 +311,8 @@ screen navigation():
             textbutton _("Save") action ShowMenu("save")
 
         textbutton _("Load") action ShowMenu("load")
+
+        textbutton _("Novel") action ShowMenu("text_novel_index")
 
         textbutton _("Preferences") action ShowMenu("preferences")
 

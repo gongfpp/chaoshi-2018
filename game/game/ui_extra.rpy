@@ -70,7 +70,14 @@ screen chapter_list():
 
             text _("跳转会以该章的标准起始状态进入，不会修改你原来的存档。") size 20 color "#A9A49A"
 
-            null height 8
+            null height 10
+
+            textbutton "不玩，直接读全文 ›" action ShowMenu("text_novel_index"):
+                text_size 22
+                text_color "#C79A4B"
+                text_hover_color "#F2EDE4"
+
+            null height 14
 
             for cid, num, title, when in CHAPTERS:
                 textbutton (num + "　" + title + "　" + when):

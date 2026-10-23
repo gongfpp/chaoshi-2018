@@ -498,6 +498,185 @@ def emit_jump_table(names):
     with open(os.path.join(OUT, "jump.rpy"), "w", encoding="utf-8") as f:
         f.write("\n".join(code) + "\n")
 
+## ── 全文阅读（文字版小说）───────────────────────────────────────────────
+#
+# 阅读页只吃「段落」，不吃演出。所以这里把 blocks 摊平成 (说话人, 正文, 类型)，
+# 条件块（<!-- when: ... -->）按 defs.rpy 的默认 flag 展开主线，另一条收进岔路，
+# 附在该章之后 —— 章节跳转时用的也是这套默认值，两边口径一致。
+
+TEXT_NOVEL_PATH = os.path.join(OUT, "text_novel.rpy")
+
+# 缺省（defs.rpy 的 default）全部为 False，这里显式写出来，免得以后改了默认值两边不一致
+FLAG_DEFAULT_VALUE = {f: False for f in FLAG_DEFAULTS}
+
+WHEN_TRUE_LABEL = {
+    "c_call": "给姐姐打了电话",
+    "c_siyu": "私了，花钱买平安",
+    "c_gongzi": "把工资卡交给她",
+}
+WHEN_FALSE_LABEL = {
+    "c_call": "没给姐姐打电话",
+    "c_siyu": "报警，走程序",
+    "c_gongzi": "工资卡自己留着",
+}
+
+BRANCH_TITLES = {
+    "ch03_alt": ("岔路", "第三章 · 把钥匙还回去"),
+    "ch07_alt": ("岔路", "第七章 · 报警，走程序"),
+    "ch09_alt": ("岔路", "第九章 · 工资卡自己留着"),
+    "ch12_alt": ("岔路", "第十二章 · 立刻掉头回家"),
+}
+
+
+def text_esc(t):
+    """把正文转成 Ren'Py 能原样显示的字符串。
+
+    Markdown 的 **粗体** 到阅读页就退化成普通文字：Noto CJK 没有粗体字重，
+    Ren'Py 只能靠笔画偏移合成，长段中文一粗就糊成一片（行高也会被撑开）。
+    """
+    t = re.sub(r"\*\*(.+?)\*\*", r"\1", t)
+    return t.replace("{", "{{").replace("[", "[[")
+
+
+def eval_when(cond):
+    """按默认 flag 判断条件块是否属于主线。只支持 `flag` / `not flag`。"""
+    c = cond.strip()
+    neg = c.startswith("not ")
+    if neg:
+        c = c[4:].strip()
+    val = FLAG_DEFAULT_VALUE.get(c, False)
+    return (not val) if neg else val
+
+
+def when_label(cond):
+    c = cond.strip()
+    neg = c.startswith("not ")
+    if neg:
+        c = c[4:].strip()
+    return (WHEN_FALSE_LABEL if neg else WHEN_TRUE_LABEL).get(c, "另一条路线")
+
+
+def novel_paragraphs(blocks):
+    """返回 (主线段落, 岔路列表)。段落是 (说话人, 正文, 类型)。"""
+    main, alts = [], []
+    buf, cond = None, None
+    for b in blocks:
+        kind = b[0]
+        if kind == "when":
+            buf, cond = [], b[1]
+            continue
+        if kind == "endwhen":
+            if buf is not None:
+                if eval_when(cond):
+                    main.extend(buf)
+                elif buf:
+                    alts.append({"label": when_label(cond), "paras": buf})
+            buf, cond = None, None
+            continue
+        para = None
+        if kind == "say":
+            spk, text = b[1], b[2]
+            name = SPEAKERS.get(spk, ("", ""))[0] if spk else ""
+            para = (name, text_esc(text), "say" if spk else "nar")
+        elif kind == "choice":
+            opts = " ／ ".join(o["text"] for o in CHOICES.get(b[1], []))
+            if opts:
+                para = ("", "〔此处分岔：%s〕" % opts, "note")
+        if para is None:
+            continue
+        if buf is not None:
+            buf.append(para)
+        else:
+            main.append(para)
+    return main, alts
+
+
+def novel_entry(nid, num, title, when, paras, alts=None):
+    # 同一章的同一个 flag 可能出现两处（例如 ch09 交出工资卡后有两段反应），
+    # 标签会重名，读起来像是重复了，这里给第二个之后加「（续）」。
+    seen = {}
+    for a in alts or []:
+        n = seen.get(a["label"], 0) + 1
+        seen[a["label"]] = n
+        if n > 1:
+            a["label"] = "%s（续）" % a["label"]
+    return {
+        "id": nid, "num": num, "title": title, "time": when,
+        "chars": sum(len(re.findall(r"[\u4e00-\u9fff]", p[1])) for p in paras),
+        "paras": paras, "alts": alts or [],
+    }
+
+
+def emit_text_novel(ch_files, names):
+    """生成 gen/text_novel.rpy：全文阅读的数据源。"""
+    entries = []
+    for path, name in zip(ch_files, names):
+        main, alts = novel_paragraphs(parse_file(path))
+        num, title = CH_TITLES.get(name, ("", name))
+        entries.append(novel_entry(name, num, title, CHAPTER_TIME.get(name, ""),
+                                   main, alts))
+
+    for path in sorted(glob.glob(os.path.join(NOVEL, "endings", "*.md"))):
+        blocks = parse_file(path)
+        base = os.path.splitext(os.path.basename(path))[0]
+        nid = "ending_" + base.replace("ending_", "")
+        titles = [b[1] for b in blocks if b[0] == "title"]
+        main, alts = novel_paragraphs(blocks)
+        entries.append(novel_entry(nid, "结局", titles[0] if titles else base,
+                                   "", main, alts))
+
+    for path in sorted(glob.glob(os.path.join(ROOT, "game", "branches", "*.md"))):
+        nid = os.path.splitext(os.path.basename(path))[0]
+        num, title = BRANCH_TITLES.get(nid, ("岔路", nid))
+        main, alts = novel_paragraphs(parse_file(path))
+        entries.append(novel_entry(nid, num, title, "", main, alts))
+
+    def dump(paras, indent):
+        pad = " " * indent
+        return ["%s(%s, %s, %s)," % (
+            pad, json.dumps(p[0], ensure_ascii=False),
+            json.dumps(p[1], ensure_ascii=False),
+            json.dumps(p[2], ensure_ascii=False)) for p in paras]
+
+    code = ["# 由 tools/gen_game.py 自动生成，请勿手改。", "",
+            "## 全文阅读数据：只有正文段落，演出指令一概不进。",
+            "## 主线 = 所有 flag 取 defs.rpy 默认值（与章节跳转的口径相同），",
+            "## 另一条分支收在该篇的 alts 里，由阅读页附在正文之后。",
+            "define TEXT_NOVEL = ["]
+    for e in entries:
+        code.append("    {")
+        code.append('        "id": %s, "num": %s, "title": %s,' % (
+            json.dumps(e["id"], ensure_ascii=False),
+            json.dumps(e["num"], ensure_ascii=False),
+            json.dumps(e["title"], ensure_ascii=False)))
+        code.append('        "time": %s, "chars": %d,' % (
+            json.dumps(e["time"], ensure_ascii=False), e["chars"]))
+        code.append('        "paras": [')
+        code.extend(dump(e["paras"], 12))
+        code.append("        ],")
+        if e["alts"]:
+            code.append('        "alts": [')
+            for a in e["alts"]:
+                code.append("            {")
+                code.append('                "label": %s,' % json.dumps(
+                    a["label"], ensure_ascii=False))
+                code.append('                "paras": [')
+                code.extend(dump(a["paras"], 20))
+                code.append("                ],")
+                code.append("            },")
+            code.append("        ],")
+        else:
+            code.append('        "alts": [],')
+        code.append("    },")
+    code.append("]")
+    code.append("")
+    code.append("define TEXT_NOVEL_TOTAL = %d" % sum(e["chars"] for e in entries))
+    code.append("")
+    with open(TEXT_NOVEL_PATH, "w", encoding="utf-8") as f:
+        f.write("\n".join(code) + "\n")
+    return entries
+
+
 def validate_output():
     """生成后的控制流自检：标签唯一、跳转目标存在、无意外顺序落入。"""
     labels = {}
@@ -717,9 +896,11 @@ def main():
         json.dump(mapping, f, ensure_ascii=False, indent=2)
 
     emit_jump_table(names)
+    novel = emit_text_novel(files, names)
     validate_output()
     print("生成完成：%d 章，%d 个结局，%d 个分支" % (len(files), len(endings), len(branches)))
     print("总字数（汉字）：", sum(m["chars"] for m in mapping))
+    print("全文阅读：%d 篇，%d 字" % (len(novel), sum(e["chars"] for e in novel)))
 
 
 if __name__ == "__main__":
