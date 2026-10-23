@@ -167,7 +167,7 @@ def split_text(text, limit):
 
 KNOWN_DIRECTIVES = {"scene", "show", "hide", "bgm", "sfx", "choice",
                     "anchor", "stat", "money", "ending", "title", "jump", "branch",
-                    "when", "end", "expr"}
+                    "when", "end", "expr", "ambient", "pa"}
 
 
 def parse_file(path):
@@ -207,6 +207,12 @@ def parse_file(path):
                 blocks.append(("bgm", val))
             elif key == "sfx":
                 blocks.append(("sfx", val))
+            elif key == "ambient":
+                # 场所底噪：<!-- ambient: foodcourt -->；<!-- ambient: none --> 淡出
+                blocks.append(("ambient", val.strip()))
+            elif key == "pa":
+                # 现场播报（叫号/收款/车站广播）：<!-- pa: merchant_37 -->
+                blocks.append(("pa", val.strip()))
             elif key == "choice":
                 blocks.append(("choice", val))
             elif key == "anchor":
@@ -266,11 +272,16 @@ def emit_chapter(name, blocks, next_label):
     lines.append("label %s:" % name)
     lines.append('    call screen chapter_card("%s", "%s")' % (num, title))
     lines.append('    $ track("chapter_enter", chapter="%s")' % name)
+    # 上一章的环境音不能漏进新章（章节卡停留期间尤其明显）
+    lines.append('    $ amb_layer_pause(0.0)')
     for b in blocks:
         kind = b[0]
         if kind == "scene":
-            lines.append('    scene %s' % BG_ALIAS.get(b[1], b[1]))
+            scene_name = BG_ALIAS.get(b[1], b[1])
+            lines.append('    scene %s' % scene_name)
             lines.append("    with fade")
+            # 换场景就换环境底噪。同名不重播（见 audio_layers.rpy 的 amb()）
+            lines.append('    $ implicit_amb("%s")' % scene_name)
             stage.clear()
             expr_state.clear()
         elif kind == "expr":
@@ -296,6 +307,10 @@ def emit_chapter(name, blocks, next_label):
             lines.append('    play music "audio/bgm/%s.ogg" fadein 1.5' % b[1])
         elif kind == "sfx":
             lines.append('    play sound "audio/sfx/%s.ogg"' % b[1])
+        elif kind == "ambient":
+            lines.append('    $ amb("%s")' % b[1])
+        elif kind == "pa":
+            lines.append('    $ pa("%s")' % b[1])
         elif kind in ("stat", "money"):
             d = b[1]
             cond = b[2] if len(b) > 2 else None
@@ -603,8 +618,10 @@ def main():
         for b in blocks:
             kind = b[0]
             if kind == "scene":
-                code.append("    scene %s" % BG_ALIAS.get(b[1], b[1]))
+                sc = BG_ALIAS.get(b[1], b[1])
+                code.append("    scene %s" % sc)
                 code.append("    with fade")
+                code.append('    $ implicit_amb("%s")' % sc)
             elif kind == "show":
                 cmd = "    show %s %s" % (b[1], b[2])
                 if b[3]:
@@ -618,6 +635,10 @@ def main():
                 code.append('    play music "audio/bgm/%s.ogg" fadein 1.5' % b[1])
             elif kind == "sfx":
                 code.append('    play sound "audio/sfx/%s.ogg"' % b[1])
+            elif kind == "ambient":
+                code.append('    $ amb("%s")' % b[1])
+            elif kind == "pa":
+                code.append('    $ pa("%s")' % b[1])
             elif kind == "ending":
                 code.append("    $ persistent.ending_%s = True" % b[1])
             elif kind == "say":
@@ -644,11 +665,17 @@ def main():
         for b in blocks:
             kind = b[0]
             if kind == "scene":
-                code += ["    scene %s" % BG_ALIAS.get(b[1], b[1]), "    with fade"]
+                sc = BG_ALIAS.get(b[1], b[1])
+                code += ["    scene %s" % sc, "    with fade",
+                         '    $ implicit_amb("%s")' % sc]
             elif kind == "bgm":
                 code.append('    play music "audio/bgm/%s.ogg" fadein 1.0' % b[1])
             elif kind == "sfx":
                 code.append('    play sound "audio/sfx/%s.ogg"' % b[1])
+            elif kind == "ambient":
+                code.append('    $ amb("%s")' % b[1])
+            elif kind == "pa":
+                code.append('    $ pa("%s")' % b[1])
             elif kind == "jump":
                 code.append("    jump %s" % b[1])
             elif kind == "say":

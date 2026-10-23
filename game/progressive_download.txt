@@ -13,6 +13,12 @@
 # 音效共 120 KB，全部随包 —— 界面点击音和演出音效不能有「第一次点没声」
 - music game/audio/sfx/**
 
+# 环境层与现场播报随包（约 1.5 MB）。这两组都是「场景一换就要响」，
+# 按需下载会先静音几百毫秒，正好落在最需要氛围的那一下。
+# 环境层是 22.05 kHz q1 单声道循环，17 条约 1.3 MB。
+- music game/audio/amb/**
+- music game/audio/pa/**
+
 # 其余全部按需（配合 tools/patch_web.py 的后台预取）
 + image game/**
 + music game/audio/**
