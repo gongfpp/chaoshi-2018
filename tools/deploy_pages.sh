@@ -2,9 +2,9 @@
 # 重新生成网页版并部署：Cloudflare Pages / EdgeOne Pages / GitHub Pages。
 # 用法：tools/deploy_pages.sh [cf|eo|gh|both]
 #   cf   Cloudflare Pages（需 CLOUDFLARE_API_TOKEN 或已 wrangler 登录）
-#   eo   EdgeOne Pages（需 EDGEONE_PAGES_API_TOKEN）
-#   gh   GitHub Pages（推 gh-pages 分支）
-#   both = cf + gh
+#   eo   EdgeOne Pages —— 已改为 gh-pages 自动部署，此目标只打印说明后退出
+#   gh   GitHub Pages（推 gh-pages 分支；EdgeOne 会跟着自动部署）
+#   both = cf + gh（默认，覆盖全部三个站）
 #
 # 环境变量：
 #   SKIP_BUILD=1   复用现有 build/web（已经构建并打过补丁时用）
@@ -52,6 +52,20 @@ fi
 
 if [[ "$TARGET" == "eo" ]]; then
   echo "== 3/3c 部署 EdgeOne Pages =="
+  # 2026-10-23 实测结论：EdgeOne 项目 chaoshi 已绑定 GitHub 仓库、生产分支 gh-pages、
+  # 自动部署开启，站点 https://chaoshi.gongfpp.icu/ 由 Server: edgeone makers 提供，
+  # CNAME → pages.dnsoe4.com。推 gh-pages 后约 60s 新文件上线、约 2min 删除同步。
+  # 所以「直传」这条路既不需要也不支持（Provider 'Github' 会拒绝 Upload）。
+  # 想强制回退到本地上传：EO_FORCE_UPLOAD=1（需先在控制台把项目改回 Upload 类型）。
+  if [[ "${EO_FORCE_UPLOAD:-0}" != "1" ]]; then
+    cat <<'MSG'
+   EdgeOne 现在是「GitHub 仓库 → gh-pages 分支 → 自动部署」，无需本地直传。
+   跟 gh 目标一起用即可：部署脚本推完 gh-pages，EdgeOne 会自己跟上。
+     站点：https://chaoshi.gongfpp.icu/
+   要强制直传请设 EO_FORCE_UPLOAD=1（项目需为 Upload 类型）。
+MSG
+    exit 0
+  fi
   : "${EDGEONE_PAGES_API_TOKEN:?需要 EDGEONE_PAGES_API_TOKEN（可写入 .secrets/edgeone.env）}"
   # 不设区域会报 Invalid region: undefined 并退化成「未登录」
   export EDGEONE_PAGES_API_REGION="${EDGEONE_PAGES_API_REGION:-china}"
@@ -60,19 +74,9 @@ if [[ "$TARGET" == "eo" ]]; then
   if printf '%s' "$EO_JSON" | grep -q "Provider 'Github'"; then
     cat <<'MSG'
 
-   EdgeOne 项目已改为 GitHub 仓库类型，不再接受本地直传。
-   这条路要么到控制台把它改回「本地上传」，要么新建一个 Upload 类型项目
-   （会换掉预览域名）。仓库里没有构建产物（build/ 被 gitignore），
-   所以 Git 类型项目即使自动构建也产不出游戏。
+   该项目当前是 GitHub 仓库类型，拒绝本地直传（Only projects with Provider
+   'Upload' are supported）。先在控制台改回「本地上传」，再重跑。
 MSG
-  fi
-  EO_URL="$(printf '%s' "$EO_JSON" | grep -o '"url":"[^"]*"' | tail -1 | cut -d'"' -f4)"
-  if [[ -n "$EO_URL" ]]; then
-    mkdir -p "$ROOT/build/analytics"
-    printf '%s\n' "$EO_URL" > "$ROOT/build/analytics/edgeone-url.txt"
-    echo
-    echo "预览地址（token 有效期约 3 小时，过期需重新部署）："
-    echo "  $EO_URL"
   fi
 fi
 
