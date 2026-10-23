@@ -22,10 +22,14 @@ TARGET="${1:-both}"
 
 cd "$ROOT"
 
-# 自动加载本地凭据（EdgeOne token 等），文件已被 .gitignore 排除
-if [[ -f "$ROOT/.secrets/edgeone.env" ]]; then
-  set -a; . "$ROOT/.secrets/edgeone.env"; set +a
-fi
+# 自动加载本地凭据（Cloudflare / EdgeOne），.secrets/ 已被 .gitignore 排除
+for f in cloudflare.env edgeone.env; do
+  if [[ -f "$ROOT/.secrets/$f" ]]; then
+    set -a; . "$ROOT/.secrets/$f"; set +a
+  fi
+done
+# wrangler 走系统代理；EdgeOne / GH 各自处理
+CF_ENV=(HTTPS_PROXY="$PROXY" HTTP_PROXY="$PROXY" https_proxy="$PROXY" http_proxy="$PROXY")
 
 if [[ "${SKIP_BUILD:-0}" == "1" ]]; then
   echo "== 1-2/3 跳过构建与打补丁（SKIP_BUILD=1） =="
@@ -40,7 +44,10 @@ fi
 
 if [[ "$TARGET" == "cf" || "$TARGET" == "both" ]]; then
   echo "== 3/3a 部署 Cloudflare Pages =="
-  "$WRANGLER" pages deploy build/web --project-name "$PROJECT" --branch main --commit-dirty=true
+  : "${CLOUDFLARE_API_TOKEN:?需要 CLOUDFLARE_API_TOKEN（写入 .secrets/cloudflare.env）}"
+  # 只靠 wrangler 的 OAuth 登录会 10000 Authentication error，必须显式给 API Token
+  env "${CF_ENV[@]}" "$WRANGLER" pages deploy build/web --project-name "$PROJECT" \
+      --branch main --commit-dirty=true 2>&1 | grep -Ei "success|uploaded|deployment|error|✘|pages\.dev" | tail -6
 fi
 
 if [[ "$TARGET" == "eo" ]]; then
@@ -50,6 +57,15 @@ if [[ "$TARGET" == "eo" ]]; then
   export EDGEONE_PAGES_API_REGION="${EDGEONE_PAGES_API_REGION:-china}"
   EO_JSON="$("$EDGEONE" makers deploy build/web -n "${EO_PROJECT:-chaoshi}" --json 2>&1)"
   echo "$EO_JSON" | tail -5
+  if printf '%s' "$EO_JSON" | grep -q "Provider 'Github'"; then
+    cat <<'MSG'
+
+   EdgeOne 项目已改为 GitHub 仓库类型，不再接受本地直传。
+   这条路要么到控制台把它改回「本地上传」，要么新建一个 Upload 类型项目
+   （会换掉预览域名）。仓库里没有构建产物（build/ 被 gitignore），
+   所以 Git 类型项目即使自动构建也产不出游戏。
+MSG
+  fi
   EO_URL="$(printf '%s' "$EO_JSON" | grep -o '"url":"[^"]*"' | tail -1 | cut -d'"' -f4)"
   if [[ -n "$EO_URL" ]]; then
     mkdir -p "$ROOT/build/analytics"
