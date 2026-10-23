@@ -694,6 +694,9 @@ screen file_slots(title):
                             action DownloadSync()
                             xalign 0.5
 
+                ## 网页版专用：存档导出 / 导入（见 save_transfer.rpy）
+                use save_transfer_bar
+
 
 style page_label is gui_label
 style page_label_text is gui_label_text

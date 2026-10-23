@@ -47,6 +47,10 @@ MIRRORS = {
     "cf": "https://chaoshi-2018.pages.dev/",
 }
 
+# 分享卡片（og:*）。首选线路是 EdgeOne，解析到国内节点、也支持 Range。
+SHARE_SITE = "https://chaoshi.gongfpp.icu/"
+SHARE_DESC = "2018—2023，杭州，一个外卖骑手的五年。一条可以计算、却不由他计算的账。"
+
 # 生产埋点端点（Cloudflare Worker + D1）。本地调试时 tracker 自动回落到同源
 # /api/collect，由 tools/collector.py 接收，所以这里只填线上地址。
 COLLECT_URL = os.environ.get(
@@ -357,6 +361,33 @@ def patch_index(root, meta, build):
     # --- 中文界面 ---
     s = s.replace('<html lang="en-us">', '<html lang="zh-CN">', 1)
 
+    # --- 分享卡片 ---
+    # 微信 / QQ / 微博抓的是 og:* 标签；没有就只剩一行灰字加空白方块。
+    # og:image 必须是绝对地址，且首选线路放前面（EdgeOne 最快）。
+    s = re.sub(r"\n?\s*<!-- CHAOSHI_SHARE_BEGIN -->[\s\S]*?<!-- CHAOSHI_SHARE_END -->", "", s)
+    share = """
+  <!-- CHAOSHI_SHARE_BEGIN -->
+  <meta name="description" content="%s" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="超时" />
+  <meta property="og:title" content="超时" />
+  <meta property="og:description" content="%s" />
+  <meta property="og:url" content="%s" />
+  <meta property="og:image" content="%sog-cover.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="雨夜里的外卖骑手，标题为「超时」" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="超时" />
+  <meta name="twitter:description" content="%s" />
+  <meta name="twitter:image" content="%sog-cover.jpg" />
+  <!-- CHAOSHI_SHARE_END -->""" % (SHARE_DESC, SHARE_DESC, SHARE_SITE, SHARE_SITE,
+                                   SHARE_DESC, SHARE_SITE)
+    t_anchor = "<title>超时</title>"
+    if t_anchor not in s:
+        raise SystemExit("index.html 中找不到 <title>超时</title>")
+    s = s.replace(t_anchor, t_anchor + share, 1)
+
     # --- 分片清单（带 build 指纹，避免命中上一版的强缓存） ---
     s = re.sub(r"\n\s*// 分片信息（tools/patch_web\.py 注入）[\s\S]*?window\.gameZipTotal = \d+;\n",
                "\n", s)
@@ -648,6 +679,9 @@ def write_headers(root):
 /index.html
   Cache-Control: public, max-age=300
 
+/og-cover.jpg
+  Cache-Control: public, max-age=604800
+
 /renpy.wasm
   Cache-Control: public, max-age=604800
   Content-Type: application/wasm
@@ -695,6 +729,85 @@ def make_presplash(root):
     return True
 
 
+def make_og_cover(root):
+    """合成 1200×630 的分享封面（微信 / QQ / 微博 / Twitter 通用）。
+
+    底图用标题 CG，左下压一层渐变把文字托住。文字烧进图里没问题——
+    这里用的是 `assets-src/fonts` 里的**全字库**，不是运行时子集化字库，
+    只有 9 个汉字，不会出现缺字方框。字库缺失时退化成纯图，不让构建失败。
+    """
+    title = os.path.normpath(os.path.join(ROOT, "game", "game", "images", "cg", "title.jpg"))
+    if not os.path.exists(title):
+        return False
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        raise SystemExit("需要 Pillow：请用 "
+                         "$HOME/.workbuddy/binaries/python/envs/default/bin/python")
+
+    W, H = 1200, 630
+    im = Image.open(title).convert("RGB")
+    # 1280×720 → 先按宽铺满，再纵向裁成 1200×630
+    k = W / im.width
+    im = im.resize((W, int(round(im.height * k))), Image.LANCZOS)
+    top = max(0, (im.height - H) // 2)
+    im = im.crop((0, top, W, top + H))
+    im = Image.eval(im, lambda v: int(v * 0.90))
+
+    # 左下角的压暗层：横向由左向右衰减，纵向越往下越重
+    m = Image.new("L", (120, 63))
+    px = m.load()
+    for y in range(63):
+        fy = (y / 62.0) ** 1.6
+        for x in range(120):
+            fx = 1.0 - x / 119.0
+            px[x, y] = int(min(0.90, 0.86 * fx * fy + 0.10 * fy) * 255)
+    im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im,
+                         m.resize((W, H), Image.LANCZOS))
+
+    d = ImageDraw.Draw(im)
+    font_dir = os.path.normpath(os.path.join(ROOT, "assets-src", "fonts"))
+
+    def load(names, size):
+        for p in names:
+            if p and os.path.exists(p):
+                try:
+                    return ImageFont.truetype(p, size)
+                except OSError:
+                    pass
+        return None
+
+    serif = load([
+        os.path.join(font_dir, "NotoSerifSC-Regular.otf"),
+        "/System/Library/Fonts/Supplemental/Songti.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+    ], 132)
+    sub = load([
+        os.path.join(font_dir, "NotoSansSC-Regular.otf"),
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+    ], 40)
+    small = load([
+        os.path.join(font_dir, "NotoSansSC-Regular.otf"),
+        "/System/Library/Fonts/PingFang.ttc",
+    ], 24)
+
+    if serif:
+        # 标题上方一道暖色短线，呼应 CG 里的尾灯
+        d.rectangle([84, 358, 140, 361], fill=(224, 169, 79))
+        d.text((82, 386), "超时", font=serif, fill=(250, 247, 242))
+    if sub:
+        d.text((86, 530), "再跑一单，就回去。", font=sub, fill=(238, 232, 223))
+    if small:
+        d.text((86, 584), "2018—2023，杭州，一个外卖骑手的五年",
+               font=small, fill=(184, 178, 170))
+
+    # 只出 JPEG：PNG 版 945 KB，微信抓取会很慢；JPEG q88 约 130 KB，肉眼无差
+    out = os.path.join(root, "og-cover.jpg")
+    im.save(out, quality=88, optimize=True, progressive=True)
+    return True
+
+
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else "build/web"
     root = os.path.abspath(root)
@@ -710,6 +823,7 @@ def main():
     write_headers(root)
     copy_dashboard(root)
     made = make_presplash(root)
+    cover = make_og_cover(root)
 
     biggest = max(p["size"] for p in meta["parts"])
     print("build id: %s" % build)
@@ -717,6 +831,7 @@ def main():
         len(meta["parts"]), biggest / 1e6, meta["total"] / 1e6))
     print("预取清单: %d 个资源，%.1f MB" % (len(manifest["files"]), manifest["total"] / 1e6))
     print("启动图: %s（无文字）" % ("已替换" if made else "跳过"))
+    print("分享封面: %s（1200×630）" % ("已生成" if cover else "跳过"))
 
 
 if __name__ == "__main__":
