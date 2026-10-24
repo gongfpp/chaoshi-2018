@@ -85,6 +85,29 @@ bash tools/deploy_worker.sh
   `gh auth token | ssh mac "umask 077; cat > /tmp/.cs_ghtoken"`，再
   `ssh mac "gh auth login -h github.com --with-token < /tmp/.cs_ghtoken && rm -f /tmp/.cs_ghtoken"`。
 
+## 健壮性与对抗测试
+
+- **铁律：任何情况下都不许把玩家推到白屏或 Ren'Py `_exception` 全屏错误页。**
+  资源失败弱化（占位图+toast）、异常吞掉（toast）、启动失败给可恢复面板。
+- 三条防线在 `game/game/robust.rpy`（`init -45 python`）：
+  1. `webloader.process_downloaded_resources` 的替换版——「XHR 结束但文件没落地」
+     不再 raise，退避重试 4 次后放弃并只 toast 一次；原版那句
+     `# trigger Ren'Py's error handler` 就是网页版错误页的总源头，别改回去。
+  2. `DynamicImage.find_target` 包一层，失败置 `Null()` 继续渲染。
+  3. `config.exception_handler` 收口所有未预期异常（官方钩子，返回 True 即不再弹错误页）。
+- 启动期兜底在 `tools/web/chaoshi-loader.js`：`fatal()` 在已进游戏后只 toast 不盖画面；
+  下载类失败自动重载一次（`?csretry=` 计数）；错误面板贴底可关闭。
+  静态兜底层（`#csFallback`）由 `tools/patch_web.py` 注入 index.html：loader JS
+  本身被拦时 4 秒后亮出，不再纯白。`window.__csLoaderOk` 是两边之间的信号。
+- 跑对抗测试（本地 `http.server 8080` 起着）：
+  `NODE_PATH=$HOME/.workbuddy/binaries/node/workspace/node_modules node tools/test_adversarial.js [T0,T4a,...]`
+  13 项：标题菜单遍历 / 200 次随机点击 / 菜单狂开关 / 图片全 404 / 图片全 abort /
+  启动断 game.zip / 中途断网 / 视口狂切 / ≡ 菜单六项狂点 / 启动中切视口+刷新 /
+  loader 被拦 / renpy-pre.js 被拦。判定核心是 `renpy.get_screen("_exception")` 必须为 false。
+  截图落在 `build/shots/adv/`。
+- 已知行为（不是 bug）：游戏中按 Escape 直接进「存档」页（`_game_menu_screen` 指向
+  `save_screen` 标签），返回游戏要点左下角「返回」按钮。
+
 ## 边界
 
 - 不把不同用工模式（专送/众包）的规则混用在同一个人物身上。

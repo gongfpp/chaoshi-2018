@@ -7,11 +7,13 @@
 ##   IOError("Download error: network error") → 直接进英文报错界面。
 ##   弱网上这就是「玩到一半突然黑了」。
 ##
-## 做两件事：
-##   1) 把 dl_new 换成带重试的版本（实现在 tools/web/chaoshi-loader.js 的
-##      installAssetRetry）：20 秒无数据才中断、指数退避、后两次自动换镜像。
-##      重试期间 readyState 保持 0，占位图继续显示，Python 侧不会抛错。
-##   2) 彻底失败时，把英文原因换成中文，玩家才知道该刷新还是换网络。
+## 做一件事：
+##   把 dl_new 换成带重试的版本（实现在 tools/web/chaoshi-loader.js 的
+##   installAssetRetry）：20 秒无数据才中断、指数退避、后两次自动换镜像。
+##   重试期间 readyState 保持 0，占位图继续显示，Python 侧不会抛错。
+##
+## 重试也救不回来的情况（彻底失败）不在本文件处理，见 robust.rpy：
+## 退避重试 4 次 → 放弃该文件 → toast 告知，立绘留在占位图上继续演。
 
 init -50 python:
 
@@ -28,18 +30,6 @@ init -50 python:
         except Exception:
             pass
 
-        import renpy.webloader as _cs_wl
-
-        if not getattr(_cs_wl, "_cs_wrapped", False):
-            _cs_orig_process = _cs_wl.process_downloaded_resources
-
-            def _cs_process_downloaded():
-                try:
-                    _cs_orig_process()
-                except IOError as e:
-                    raise IOError(
-                        u"剧本资源没有下载成功（%s）。"
-                        u"多半是网络中断：刷新页面会接着下，已经下过的不再重来。" % (e,))
-
-            _cs_wl.process_downloaded_resources = _cs_process_downloaded
-            _cs_wl._cs_wrapped = True
+        # 「下载失败该不该 raise」这件事挪到 robust.rpy 了（init -45，晚于本文件的
+        # -50，所以它的替换会生效）：那里改成退避重试 + 放弃 + toast，不再把玩家
+        # 推到错误页。本文件只管补下载重试。

@@ -13,6 +13,7 @@ init -20 python:
         "choice_shown", "choice_pick", "ending_enter", "ending_complete",
         "save_ok", "save_fail", "load_ok", "load_fail",
         "skip_on", "auto_on", "mute_on", "voice_fail",
+        "res_fail",          # 资源下载重试耗尽后放弃（robust.rpy）
     }
 
     ## 只允许这些键，防止把整段对白塞进埋点

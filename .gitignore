@@ -27,3 +27,8 @@ worker/node_modules/
 build/analytics/token.txt
 # 部署凭据（EdgeOne / Cloudflare 等），只在本地
 .secrets/
+
+# ---- 运行时日志（仓库根目录，SDK 在根下跑时产生）----
+/log.txt
+/traceback.txt
+/errors.txt

@@ -154,7 +154,7 @@ screen main_menu():
         textbutton "读取" action ShowMenu("load") style "main_menu_textbutton"
         textbutton "设置" action ShowMenu("preferences") style "main_menu_textbutton"
         textbutton "关于" action ShowMenu("about") style "main_menu_textbutton"
-        textbutton "退出" action Quit(confirm=False) style "main_menu_textbutton"
+        textbutton "退出" action WebQuit(confirm=False) style "main_menu_textbutton"
 
     text "杭州 · 2018—2023":
         xalign 0.98
