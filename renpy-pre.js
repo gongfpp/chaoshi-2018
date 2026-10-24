@@ -766,6 +766,20 @@ Module.preRun = Module.preRun || [ ];
             return;
         }
 
+        /* 菜单里任何一步失败都只提示，不抛错、不中断：核心是让玩家知道该干什么，
+           而不是把异常堆在他脸上。 */
+        function csSay(msg) {
+            try {
+                if (window.ChaoshiToast) {
+                    window.ChaoshiToast(msg, 'warn', 6000);
+                } else if (window.renpy_exec) {
+                    window.renpy_exec(
+                        'result = ' + JSON.stringify(String(msg))
+                    ).catch(function () { });
+                }
+            } catch (e) { /* 提示自己坏掉就算了 */ }
+        }
+
         function close() {
             menu.style.display = 'none';
             container.classList.remove('shown');
@@ -838,31 +852,57 @@ Module.preRun = Module.preRun || [ ];
             var act = a.getAttribute('data-cs');
             close();
 
-            if (act === 'fullscreen') {
-                if (window.ChaoshiWebUI) {
-                    window.ChaoshiWebUI.toggle();
+            /* 每一项都可能失败：浏览器不支持全屏、游戏还没起来、FS 未就绪、
+               日志文件不存在。失败只提示，绝不让异常冒到页面上。 */
+            try {
+                if (act === 'fullscreen') {
+                    if (!window.ChaoshiWebUI) {
+                        csSay('全屏这会儿不可用，刷新页面再试。');
+                    } else {
+                        window.ChaoshiWebUI.toggle();
+                    }
+                } else if (act === 'mute') {
+                    if (!window.renpy_exec) {
+                        csSay('游戏还没起来，稍等一下再静音。');
+                    } else {
+                        window.renpy_exec(
+                            'chaoshi_set_mute(not chaoshi_is_muted()); result = chaoshi_is_muted()'
+                        ).then(function (m) {
+                            sync(m);
+                        }).catch(function () {
+                            csSay('静音没切换成功，游戏下方菜单栏上也能静音。');
+                        });
+                    }
+                } else if (act === 'import') {
+                    var inp = document.getElementById('ID_SavegamesImport');
+                    if (!inp) {
+                        csSay('导入入口没找到，刷新页面再试。');
+                    } else if (typeof FS === 'undefined') {
+                        csSay('存档系统还没就绪，先进游戏再导入。');
+                    } else {
+                        inp.click();
+                    }
+                } else if (act === 'export') {
+                    if (typeof onSavegamesExport !== 'function') {
+                        csSay('导出不可用，刷新页面再试。');
+                    } else if (typeof FS === 'undefined') {
+                        csSay('存档系统还没就绪，先进游戏再导出。');
+                    } else {
+                        onSavegamesExport();
+                    }
+                } else if (act === 'log') {
+                    if (typeof FSDownload !== 'function' || typeof FS === 'undefined') {
+                        csSay('日志这会儿拿不到，按 F12 看控制台更直接。');
+                    } else {
+                        try {
+                            FSDownload('/log.txt', 'text/plain');
+                        } catch (e2) {
+                            csSay('这一局还没写过日志文件。');
+                        }
+                    }
                 }
-            } else if (act === 'mute') {
-                if (window.renpy_exec) {
-                    window.renpy_exec(
-                        'chaoshi_set_mute(not chaoshi_is_muted()); result = chaoshi_is_muted()'
-                    ).then(function (m) {
-                        sync(m);
-                    }).catch(function () { });
-                }
-            } else if (act === 'import') {
-                var inp = document.getElementById('ID_SavegamesImport');
-                if (inp) {
-                    inp.click();
-                }
-            } else if (act === 'export') {
-                if (typeof onSavegamesExport === 'function') {
-                    onSavegamesExport();
-                }
-            } else if (act === 'log') {
-                if (typeof FSDownload === 'function') {
-                    FSDownload('/log.txt', 'text/plain');
-                }
+            } catch (e) {
+                csSay('这个操作没成功，刷新页面通常就好了。');
             }
         });
     })();
@@ -874,7 +914,12 @@ Module.preRun = Module.preRun || [ ];
         var reader = new FileReader();
 
         reader.onload = function (e) {
-            FS.writeFile('savegames.zip', new Uint8Array(e.target.result));
+            try {
+                FS.writeFile('savegames.zip', new Uint8Array(e.target.result));
+            } catch (e0) {
+                printMessage('导入失败：写不进存档目录（' + e0.message + '）');
+                return;
+            }
 
             renpy_exec('result = renpy.savelocation.unzip_saves()').then(function (result) {
                 FS.syncfs(false, function (err) {
@@ -896,6 +941,12 @@ Module.preRun = Module.preRun || [ ];
             });
         };
 
+        // 用户取消选择时 files 是空的：input.files[0] 是 undefined，
+        // 直接 readAsArrayBuffer 会抛 “parameter 1 is not of type 'Blob'”。
+        // 取消是正常操作，静默返回即可。
+        if (!input.files || !input.files[0]) {
+            return;
+        }
         reader.readAsArrayBuffer(input.files[0]);
         input.type = '';
         input.type = 'file';   // 允许重复选同一个文件
@@ -906,8 +957,14 @@ Module.preRun = Module.preRun || [ ];
     function onSavegamesExport() {
         renpy_exec('result = renpy.savelocation.zip_saves()').then(function (ret) {
             if (ret) {
-                FSDownload('savegames.zip', 'application/zip');
-                printMessage("存档已导出。");
+                try {
+                    FSDownload('savegames.zip', 'application/zip');
+                    printMessage("存档已导出。");
+                } catch (e) {
+                    printMessage("导出失败：读不到打包好的存档（" + e.message + "）");
+                }
+            } else {
+                printMessage("导出失败：没有可导出的存档。");
             }
         }).catch(function (error) {
             printMessage("导出失败：" + error.message);

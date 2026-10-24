@@ -25,6 +25,13 @@
 (function () {
   'use strict';
 
+  /* 静态兜底层（index.html 里的 #csFallback）到此为止：loader 跑起来了，
+     说明 JS 没被拦，剩下的任何失败都走本文件自己的 toast / 面板逻辑。 */
+  window.__csLoaderOk = true;
+  try {
+    if (window.__csKillFallback) { window.__csKillFallback(); }
+  } catch (e) { /* 兜底自己坏掉就算了 */ }
+
   /* ---------------------------------------------------------------- 常量 */
 
   var VERSION = '2';
@@ -222,14 +229,20 @@
     '#chaoshiBoot .cb-hintline a{color:#C79A4B;text-decoration:none;pointer-events:auto;',
     '  border-bottom:1px solid rgba(199,154,75,.35);cursor:pointer;}',
 
-    // 错误态
-    '#chaoshiBoot .cb-err{display:none;position:absolute;left:50%;top:50%;',
-    '  transform:translate(-50%,-50%);width:min(620px,88vw);',
-    '  background:rgba(12,14,18,.94);border:1px solid rgba(199,154,75,.28);',
-    '  border-radius:4px;padding:clamp(22px,3.4vw,34px);pointer-events:auto;',
-    '  box-shadow:0 24px 80px rgba(0,0,0,.72);}',
+    // 错误态：不再是居中盖住整个画面的错误页，改成贴底的一条提示。
+    // 玩家可以关掉它继续等，也可以自己选重新加载 / 换线路。
+    '#chaoshiBoot .cb-err{display:none;position:absolute;left:50%;bottom:0;',
+    '  transform:translateX(-50%);width:min(620px,94vw);',
+    '  background:rgba(12,14,18,.96);border:1px solid rgba(199,154,75,.28);',
+    '  border-radius:12px 12px 0 0;padding:16px 18px 18px;pointer-events:auto;',
+    '  box-shadow:0 -12px 48px rgba(0,0,0,.6);}',
     '#chaoshiBoot.cb-dead .cb-err{display:block;}',
     '#chaoshiBoot.cb-dead .cb-stage,#chaoshiBoot.cb-dead .cb-panel{opacity:.18;}',
+    '#chaoshiBoot .cb-err .cb-close{position:absolute;right:10px;top:8px;',
+    '  width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer;',
+    '  color:#8C8579;font-size:17px;border:0;background:none;padding:0;',
+    '  font-family:inherit;}',
+    '#chaoshiBoot .cb-err .cb-close:hover{color:#E8E4DC;}',
     '#chaoshiBoot .cb-err h2{margin:0 0 12px;font-size:19px;font-weight:500;',
     '  letter-spacing:.06em;color:#E8E4DC;}',
     '#chaoshiBoot .cb-err p{margin:0 0 8px;font-size:13.5px;line-height:1.85;color:#A8A39A;}',
@@ -271,6 +284,27 @@
     '#statusDiv{display:none!important}',
     '#inputDiv{z-index:61}',
     '#presplash{transition:opacity 1200ms ease;opacity:0}',
+
+    // 轻量 toast：页面级、不抢焦点、自动消失、可点掉。z-index 低于 ≡ 菜单，
+    // 位置在顶部居中（Ren'Py 的对白在底部，顶部一般是空的，不会挡住操作）。
+    '#csToast{position:fixed;left:50%;transform:translateX(-50%);',
+    '  top:calc(10px + env(safe-area-inset-top));z-index:2147481000;',
+    '  display:flex;flex-direction:column;gap:8px;width:min(560px,92vw);pointer-events:none;',
+    '  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif}',
+    '.cs-toast{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;',
+    '  box-sizing:border-box;width:100%;padding:11px 13px;border-radius:12px;',
+    '  font-size:13.5px;line-height:1.6;color:#F2EDE6;',
+    '  background:rgba(18,18,20,.95);border:1px solid #3A3833;',
+    '  box-shadow:0 8px 28px rgba(0,0,0,.5);animation:csToastIn 180ms ease-out}',
+    '.cs-toast.warn{border-color:#7A5A1E;background:rgba(30,24,12,.96)}',
+    '.cs-toast.err{border-color:#7A2E2E;background:rgba(32,16,16,.96)}',
+    '.cs-toast .cs-tx{flex:1 1 auto;min-width:0;word-break:break-word}',
+    '.cs-toast .cs-x{flex:0 0 auto;cursor:pointer;color:#8C8579;font-size:15px;',
+    '  line-height:1;padding:2px 4px;border:0;background:none;font-family:inherit}',
+    '.cs-toast .cs-x:hover{color:#E8E4DC}',
+    '@keyframes csToastIn{from{opacity:0;transform:translateY(-6px)}',
+    '  to{opacity:1;transform:none}}',
+    '@media (prefers-reduced-motion:reduce){.cs-toast{animation:none}}',
 
   ].join('\n');
 
@@ -477,6 +511,80 @@
 
   window.ChaoshiWebUI = WebUI;
 
+  /* -------------------------------------------------- 轻量 toast 与全局兜底 */
+
+  // 自动重载一次。用 URL 参数计数，避免「失败→重载→又失败」无限循环。
+  function autoReloadOnce() {
+    try {
+      var u = new URL(window.location.href);
+      var n = Number(u.searchParams.get('csretry') || 0);
+      if (n >= 1) { return false; }
+      u.searchParams.set('csretry', String(n + 1));
+      setTimeout(function () { window.location.replace(u.toString()); }, 2600);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // 页面级 toast。最多同时留 3 条，每条自动消失、可点掉。
+  // Ren'Py 侧（robust.rpy 的 cs_toast）经 emscripten 调到这里。
+  window.ChaoshiToast = function (msg, kind, ms) {
+    try {
+      var host = document.getElementById('csToast');
+      if (!host) {
+        host = document.createElement('div');
+        host.id = 'csToast';
+        document.body.appendChild(host);
+      }
+
+      var t = document.createElement('div');
+      t.className = 'cs-toast' + (kind && kind !== 'info' ? ' ' + kind : '');
+      t.setAttribute('role', 'status');
+
+      var tx = document.createElement('div');
+      tx.className = 'cs-tx';
+      tx.textContent = String(msg);
+
+      var x = document.createElement('button');
+      x.className = 'cs-x';
+      x.type = 'button';
+      x.innerHTML = '&times;';
+      x.setAttribute('aria-label', '关闭');
+
+      var timer = null;
+      function kill() {
+        if (timer) { clearTimeout(timer); }
+        if (t.parentNode) {
+          t.style.opacity = '0';
+          setTimeout(function () {
+            if (t.parentNode) { t.parentNode.removeChild(t); }
+          }, 200);
+        }
+      }
+      x.onclick = kill;
+      timer = setTimeout(kill, Number(ms) || 5200);
+
+      t.appendChild(tx);
+      t.appendChild(x);
+      host.appendChild(t);
+      while (host.children.length > 3) { host.removeChild(host.firstChild); }
+    } catch (e) { /* toast 自己坏掉也不能影响游戏 */ }
+  };
+
+  // JS 层任何未捕获异常都不许变成白屏：最多一条 toast，其余静默记 console。
+  // 已知无害的噪声（ResizeObserver、跨域 Script error）直接忽略。
+  var CS_NOISE = /ResizeObserver|Script error\.|importScripts|playwright/i;
+  function csGlobalError(msg) {
+    try {
+      var m = String((msg && msg.message) || msg || '');
+      if (!m || CS_NOISE.test(m)) { return; }
+      window.ChaoshiToast('页面出了点问题，游戏本身还在跑。若画面异常，刷新一下就好。', 'warn', 7000);
+    } catch (e) { /* ignore */ }
+  }
+  window.addEventListener('error', function (e) { csGlobalError(e); });
+  window.addEventListener('unhandledrejection', function (e) {
+    csGlobalError(e && e.reason ? e.reason : 'unhandled rejection');
+  });
+
   function build() {
     if (S.domReady) return;
     S.domReady = true;
@@ -510,10 +618,12 @@
       '  <h2>装载没有完成</h2>',
       '  <p class="cb-why"></p>',
       '  <p>已经下载的部分不会重来。点「重新加载」通常几秒就能进；如果反复失败，换一条线路试试。</p>',
+      '  <button class="cb-close" data-act="close" title="关掉这条提示，继续等">&times;</button>',
       '  <div class="cb-acts">',
       '    <button class="cb-btn primary" data-act="reload">重新加载</button>',
       '    <a class="cb-btn" data-act="gh" href="#">换 GitHub 线路</a>',
       '    <a class="cb-btn" data-act="cf" href="#">换 Cloudflare 线路</a>',
+      '    <button class="cb-btn" data-act="wait">继续等待</button>',
       '  </div>',
       '  <details><summary>技术细节</summary><pre></pre></details>',
       '</div>',
@@ -545,6 +655,15 @@
       if (!act) return;
       ev.preventDefault();
       if (act === 'reload') { hardReload(); return; }
+      if (act === 'close' || act === 'wait') {
+        // 关掉提示条，把画面还给玩家：他已经知道出了什么事，可以自己决定
+        removeCls('cb-dead');
+        addCls('cb-panel-on');
+        if (act === 'close') {
+          window.ChaoshiToast('提示已收起。装载仍在后台继续，好了会自己进游戏。', 'info', 6000);
+        }
+        return;
+      }
       var url = MIRRORS[act];
       if (!url) return;
       try { localStorage.setItem('chaoshi_prefer_mirror', act); } catch (e) {}
@@ -781,10 +900,18 @@
       setTimeout(finish, wait + 120);
     },
 
-    /** 致命错误：kind = idle | http | incomplete | abort | engine | unknown */
+    /** 致命错误：kind = idle | http | incomplete | abort | engine | unknown
+     *
+     * 原则：不把玩家按在一个错误页上。先自动重载一次（只一次，避免无限循环），
+     * 同时给一条可关闭的贴底提示；已经进过游戏的只弹 toast，不碰画面。
+     */
     fatal: function (kind, detail) {
       if (S.dead) return;
-      if (S.phase === 'ready') return;      // 已经进游戏了，别盖住画面
+      if (S.phase === 'ready') {
+        // 已经进游戏了：只提示，不盖画面
+        window.ChaoshiToast('有资源没下载成功，已用占位内容继续，剧情不受影响。', 'warn');
+        return;
+      }
       S.dead = true;
       S.errorKind = kind || 'unknown';
       S.errorDetail = detail || '';
@@ -820,14 +947,32 @@
       el.details.textContent = tech.join('\n');
 
       track('error', { reason: 'loader:' + S.errorKind });
+
+      // 下载类失败值得自动重试一次：断流 / 切标签页导致的 abort 重来就好，
+      // 引擎不兼容（engine）重试没用，就不浪费玩家时间。
+      var auto = (S.errorKind === 'idle' || S.errorKind === 'http' ||
+                  S.errorKind === 'incomplete' || S.errorKind === 'abort') &&
+                 autoReloadOnce();
+
+      window.ChaoshiToast(
+        (auto ? '装载中断，正在自动重试（只试一次）。' : '装载没有完成。') + copy,
+        'warn', auto ? 4000 : 14000);
+
       console.error('[chaoshi] boot failed:', S.errorKind, S.errorDetail || '');
     },
 
-    /** 按需资源下载失败（由 web_fixes.rpy 的 installAssetRetry 调用） */
+    /** 自动重载一次：靠 ?csretry= 计数，绝不无限循环 */
+    autoReloadOnce: autoReloadOnce,
+
+    /** 按需资源下载失败（由 web_boot.rpy 的 installAssetRetry 调用）
+     *
+     * 这里只做轻提示：真正的重试/放弃在 Python 侧（robust.rpy）——
+     * 退避重试 4 次后放弃该文件，立绘留在占位图上继续演，不阻断剧情。
+     */
     assetError: function (path) {
       logLine('asset error: ' + path);
       track('error', { reason: 'asset:' + String(path).slice(0, 80) });
-      // 这里不接管 UI：Python 侧会抛中文错误页，玩家能看到是哪个资源
+      window.ChaoshiToast('有张图没拿到，正在后台重试；再不行会先用占位图继续。', 'warn', 5000);
     },
 
     isDone: function () { return S.phase === 'ready' || S.dead; },
