@@ -19,6 +19,8 @@
 | `game/game/gui.rpy`、`screens.rpy`、`options.rpy` | Ren'Py 界面与工程配置 | 是 |
 | `game/game/images/` | 背景、立绘、CG | 由 `tools/finish_art.py` 产出 |
 | `game/game/audio/` | 程序化合成的音乐与音效 | 由 `tools/gen_audio.py` 产出 |
+| `server/chaoshi-analytics/` | 自部署埋点服务与看板（腾讯云） | 是 |
+| `worker/` | 旧的 Cloudflare Worker 版埋点 | 冻结（已被 `server/` 取代） |
 | `tools/` | 生成器与构建工具 | 是 |
 | `docs/` | 研究、设定、验收记录 | 是 |
 | `build/` | 构建产物、中间文件 | 否（可重建） |
@@ -64,7 +66,29 @@ tools/deploy_pages.sh both
 # 6. 埋点端点（只在 worker/ 有改动、或首次建库时才需要）
 export CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=...
 bash tools/deploy_worker.sh
+
+# 7. 埋点服务（只在 server/chaoshi-analytics 有改动时才需要）
+tools/deploy_analytics.sh          # 部署到腾讯云并挂 https://gongfpp.icu/chaoshi/
+tools/deploy_analytics.sh token    # 打印看板令牌
 ```
+
+## 埋点
+
+线上事件发到自部署的 **chaoshi-analytics**（腾讯云 `212.64.11.71`，Caddy 挂在
+`https://gongfpp.icu/chaoshi/api/collect`）。看板 `https://gongfpp.icu/chaoshi/`，
+令牌存本机 `.secrets/chaoshi-analytics.env`（600，git 忽略），也可
+`tools/deploy_analytics.sh token` 现取。
+
+- **事件口径**：`run_start` / `chapter_enter` / `chapter_complete` / `choice_pick`
+  （带 `opt` 短标签）/ `ending_enter` / `ending_complete` / `play_beat`（60 秒心跳）。
+- **时长**：网页侧按「页面可见 + 最近 5 分钟有过输入」逐秒累计（`sec` 字段），
+  `run_start` / `chapter_jump` 清零；服务端取单局 `MAX(sec)`。不要改成墙钟，
+  也别用 `renpy.get_game_runtime()` —— 对白停在屏幕上等点击也会计入。
+- **标题页脚注**的数字走 `GET /api/live`，只在主菜单轮询，进游戏即停。
+- **验收时用 `?cs_test=1` 打开游戏**，事件打 `test=1`，看板默认排除；
+  看板右上「含测试」可临时并入。
+- 同机还跑着 Umami（`stats.gongfpp.icu`）与 journey-collector（3101），
+  **不要动它们**：本服务独占 `127.0.0.1:3155` 与 `/var/lib/chaoshi-analytics`。
 
 `lint` 必须为 0 错误。构建后必须实际打开，不得只凭 lint 判断可玩性。
 
