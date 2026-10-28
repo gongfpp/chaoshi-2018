@@ -30,7 +30,8 @@ ALLOWED = {
     "page_view", "game_ready", "run_start", "chapter_enter", "chapter_complete",
     "chapter_jump", "choice_shown", "choice_pick", "ending_enter",
     "ending_complete", "save_ok", "save_fail", "load_ok", "load_fail",
-    "skip_on", "auto_on", "mute_on", "voice_fail", "error",
+    "skip_on", "auto_on", "mute_on", "voice_fail", "error", "res_fail",
+    "play_beat",
 }
 
 
@@ -66,7 +67,8 @@ def aggregate(events, exclude_test=True):
     runs = {e.get("run_id") for e in ev if e.get("event") == "run_start"}
     chapters = collections.Counter(e.get("chapter") for e in ev if e.get("event") == "chapter_enter")
     choices = collections.Counter(
-        "%s#%s" % (e.get("choice"), e.get("option")) for e in ev if e.get("event") == "choice_pick")
+        "%s#%s" % (e.get("choice"), e.get("opt") or e.get("option"))
+        for e in ev if e.get("event") == "choice_pick")
     endings = collections.Counter(e.get("ending") for e in ev if e.get("event") == "ending_complete")
     sites = collections.Counter(e.get("site") for e in ev if e.get("event") == "page_view")
     builds = collections.Counter(e.get("build") for e in ev)
@@ -96,6 +98,18 @@ def aggregate(events, exclude_test=True):
     }
 
 
+def live_stats(events):
+    """在线 / 累计访客，口径与线上 chaoshi-analytics 一致（5 分钟窗口）。"""
+    now = int(time.time() * 1000)
+    online = {e.get("vid") for e in events
+              if e.get("vid") and not e.get("test")
+              and (e.get("t_server") or 0) >= now - 300000}
+    total = {e.get("vid") for e in events
+             if e.get("vid") and not e.get("test") and e.get("event") == "page_view"}
+    return {"ok": True, "online": len(online), "total": len(total),
+            "today": len(total), "window": 300}
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=WEB, **kw)
@@ -108,6 +122,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -139,6 +155,9 @@ class Handler(SimpleHTTPRequestHandler):
         self._json({"ok": True, "kept": kept})
 
     def do_GET(self):
+        if self.path.startswith("/api/live"):
+            self._json(live_stats(load_events()), 200)
+            return
         if self.path.startswith("/api/stats"):
             from urllib.parse import urlparse, parse_qs
             q = parse_qs(urlparse(self.path).query)

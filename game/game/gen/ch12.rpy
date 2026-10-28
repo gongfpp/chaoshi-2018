@@ -17,11 +17,11 @@ label ch12:
     $ track("choice_shown", choice="ch12")
     menu:
         "先把手上那单送完":
-            $ track("choice_pick", choice="ch12", option=0)
+            $ track("choice_pick", choice="ch12", option=0, opt="先送单")
             $ c_zaodao = False
             $ qian += 6
         "立刻掉头回家":
-            $ track("choice_pick", choice="ch12", option=1)
+            $ track("choice_pick", choice="ch12", option=1, opt="掉头回家")
             $ c_zaodao = True
             jump ch12_alt
     "他点了“接单”。"

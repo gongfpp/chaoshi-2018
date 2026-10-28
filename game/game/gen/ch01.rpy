@@ -22,11 +22,11 @@ label ch01:
     $ track("choice_shown", choice="ch01")
     menu:
         "给姐姐打个电话":
-            $ track("choice_pick", choice="ch01", option=0)
+            $ track("choice_pick", choice="ch01", option=0, opt="打电话")
             $ c_call = True
             $ xin += 1
         "把手机揣回去，先找住处":
-            $ track("choice_pick", choice="ch01", option=1)
+            $ track("choice_pick", choice="ch01", option=1, opt="找住处")
             $ c_call = False
             $ shen += 1
     if c_call:

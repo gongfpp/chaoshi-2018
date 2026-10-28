@@ -163,6 +163,18 @@ screen main_menu():
         size 15
         color "#8A8F96"
 
+    # 标题页脚注：同时在线 / 累计访客。数字来自自部署埋点（gongfpp.icu/chaoshi），
+    # 还没取到或站点还没有访客时整行不显示，不留空占位。
+    # 放正中偏下：左侧菜单一直排到「退出」，右下角是地点，只有这一条横线是空的。
+    if CHAOSHI_LIVE_TEXT:
+        text "[CHAOSHI_LIVE_TEXT]":
+            xalign 0.5
+            yalign 0.972
+            font "NotoSansSC-Regular.otf"
+            size 14
+            color "#A5A199"
+            outlines [(3, "#00000099", 0, 0)]
+
 style main_menu_textbutton:
     font "NotoSerifSC-Regular.otf"
     size 30

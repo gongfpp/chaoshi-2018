@@ -280,11 +280,11 @@ label ch14:
     $ track("choice_shown", choice="ch14")
     menu:
         "当晚带她走":
-            $ track("choice_pick", choice="ch14", option=0)
+            $ track("choice_pick", choice="ch14", option=0, opt="带她走")
             $ xf_saved = True
             jump ending_raolu
         "下个月再来接她":
-            $ track("choice_pick", choice="ch14", option=1)
+            $ track("choice_pick", choice="ch14", option=1, opt="下月再接")
             $ xf_saved = False
     "祥子看着她。"
     "霓虹灯把她的脸照成两种颜色，一半红，一半黑。"

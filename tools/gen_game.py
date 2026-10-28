@@ -338,7 +338,8 @@ def emit_chapter(name, blocks, next_label):
             lines.append("    menu:")
             for oi, opt in enumerate(CHOICES[cid]):
                 lines.append('        "%s":' % opt["text"])
-                lines.append('            $ track("choice_pick", choice="%s", option=%d)' % (cid, oi))
+                lines.append('            $ track("choice_pick", choice="%s", option=%d, opt="%s")'
+                             % (cid, oi, opt.get("opt", "")))
                 for act in opt["actions"]:
                     lines.append("            %s" % act)
                 if opt.get("jump"):
@@ -409,32 +410,32 @@ def emit_chapter(name, blocks, next_label):
 
 CHOICES = {
     "ch01": [
-        {"text": "给姐姐打个电话", "actions": ["$ c_call = True", "$ xin += 1"]},
-        {"text": "把手机揣回去，先找住处", "actions": ["$ c_call = False", "$ shen += 1"]},
+        {"text": "给姐姐打个电话", "opt": "打电话", "actions": ["$ c_call = True", "$ xin += 1"]},
+        {"text": "把手机揣回去，先找住处", "opt": "找住处", "actions": ["$ c_call = False", "$ shen += 1"]},
     ],
     "ch03": [
-        {"text": "接下这些“刚好”的单子", "actions": ["$ c_haodan = True", "$ xin += 1", "$ qian += 300"]},
-        {"text": "把钥匙还回去", "actions": ["$ c_haodan = False", "$ xin -= 1"], "jump": "ch03_alt"},
+        {"text": "接下这些“刚好”的单子", "opt": "接单", "actions": ["$ c_haodan = True", "$ xin += 1", "$ qian += 300"]},
+        {"text": "把钥匙还回去", "opt": "还钥匙", "actions": ["$ c_haodan = False", "$ xin -= 1"], "jump": "ch03_alt"},
     ],
     "ch07": [
-        {"text": "报警，走程序", "actions": ["$ c_siyu = False", "$ qian -= 4000", "$ shen -= 1"], "jump": "ch07_alt"},
-        {"text": "私了，花钱买平安", "actions": ["$ c_siyu = True", "$ qian -= 12000", "$ debt += 8000"]},
+        {"text": "报警，走程序", "opt": "报警", "actions": ["$ c_siyu = False", "$ qian -= 4000", "$ shen -= 1"], "jump": "ch07_alt"},
+        {"text": "私了，花钱买平安", "opt": "私了", "actions": ["$ c_siyu = True", "$ qian -= 12000", "$ debt += 8000"]},
     ],
     "ch09": [
-        {"text": "把工资卡交给她", "actions": ["$ c_gongzi = True", "$ xin += 2"]},
-        {"text": "工资卡自己留着", "actions": ["$ c_gongzi = False", "$ xin -= 1"], "jump": "ch09_alt"},
+        {"text": "把工资卡交给她", "opt": "交卡", "actions": ["$ c_gongzi = True", "$ xin += 2"]},
+        {"text": "工资卡自己留着", "opt": "留卡", "actions": ["$ c_gongzi = False", "$ xin -= 1"], "jump": "ch09_alt"},
     ],
     "ch12": [
-        {"text": "先把手上那单送完", "actions": ["$ c_zaodao = False", "$ qian += 6"]},
-        {"text": "立刻掉头回家", "actions": ["$ c_zaodao = True"], "jump": "ch12_alt"},
+        {"text": "先把手上那单送完", "opt": "先送单", "actions": ["$ c_zaodao = False", "$ qian += 6"]},
+        {"text": "立刻掉头回家", "opt": "掉头回家", "actions": ["$ c_zaodao = True"], "jump": "ch12_alt"},
     ],
     "ch14": [
-        {"text": "当晚带她走", "actions": ["$ xf_saved = True"], "jump_ending": "ending_raolu"},
-        {"text": "下个月再来接她", "actions": ["$ xf_saved = False"]},
+        {"text": "当晚带她走", "opt": "带她走", "actions": ["$ xf_saved = True"], "jump_ending": "ending_raolu"},
+        {"text": "下个月再来接她", "opt": "下月再接", "actions": ["$ xf_saved = False"]},
     ],
     "ch19": [
-        {"text": "交出陈立的住址和聊天记录", "actions": ["$ sold_chen = True", "$ qian += 2000", "$ debt -= 2000"]},
-        {"text": "拒绝", "actions": ["$ sold_chen = False", "$ xin += 2"], "jump_ending": "ending_zhundian"},
+        {"text": "交出陈立的住址和聊天记录", "opt": "交地址", "actions": ["$ sold_chen = True", "$ qian += 2000", "$ debt -= 2000"]},
+        {"text": "拒绝", "opt": "拒绝", "actions": ["$ sold_chen = False", "$ xin += 2"], "jump_ending": "ending_zhundian"},
     ],
 }
 

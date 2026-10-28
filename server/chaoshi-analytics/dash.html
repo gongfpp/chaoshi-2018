@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>《超时》数据看板</title>
+<style>
+  :root {
+    --bg:#14161a; --card:#1c1f24; --line:#2c3038; --text:#e8e4dc;
+    --dim:#8f8b84; --accent:#c79a4b; --red:#c8553d; --green:#5b8c5a;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:14px/1.7 -apple-system,"PingFang SC","Noto Sans SC",sans-serif; }
+  header { padding:18px 28px; border-bottom:1px solid var(--line);
+           display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+           position:sticky; top:0; background:var(--bg); z-index:5; }
+  h1 { font-size:17px; margin:0; font-weight:600; letter-spacing:.06em; }
+  h1 span { color:var(--accent); }
+  .dim { color:var(--dim); font-size:12px; }
+  main { padding:22px 28px 80px; max-width:1240px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(142px,1fr)); gap:10px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px;
+          padding:12px 14px; }
+  .card .k { color:var(--dim); font-size:12px; letter-spacing:.03em; }
+  .card .v { font-size:23px; font-variant-numeric:tabular-nums; margin-top:2px; }
+  .card .s { color:var(--dim); font-size:11px; margin-top:2px; }
+  .card.live .v { color:var(--accent); }
+  h2 { font-size:13px; margin:26px 0 9px; color:var(--accent);
+       font-weight:600; letter-spacing:.08em; }
+  h2 em { color:var(--dim); font-style:normal; font-weight:400;
+          letter-spacing:0; margin-left:8px; font-size:12px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:500; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; width:78px; }
+  td.bar { width:42%; }
+  .b { height:6px; background:var(--accent); opacity:.5; border-radius:3px; min-width:2px; }
+  .b.alt { background:#6b7f9e; }
+  input,select { background:#0f1114; border:1px solid var(--line); color:var(--text);
+          padding:6px 10px; border-radius:6px; font-size:13px; }
+  button { background:var(--accent); border:0; color:#14161a; padding:7px 16px;
+           border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; }
+  button.ghost { background:transparent; color:var(--dim); border:1px solid var(--line); }
+  .split { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  @media (max-width:860px) { .split { grid-template-columns:1fr; } }
+  .note { color:var(--dim); font-size:12px; margin-top:10px; line-height:1.9; }
+  .empty { color:var(--dim); padding:6px 10px; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>《超时》<span>数据看板</span></h1>
+  <input id="token" placeholder="访问令牌" size="22" />
+  <select id="days">
+    <option value="1">近 1 天</option>
+    <option value="7">近 7 天</option>
+    <option value="30" selected>近 30 天</option>
+    <option value="90">近 90 天</option>
+    <option value="365">近 1 年</option>
+  </select>
+  <button id="load">刷新</button>
+  <button id="test" class="ghost" title="临时把测试流量算进来">含测试</button>
+  <span class="dim" id="stamp"></span>
+</header>
+
+<main>
+  <div class="grid" id="cards"></div>
+
+  <h2>玩家进度 <em>每章到达的独立「局」数，括号为相对第一章的留存</em></h2>
+  <table id="funnel"></table>
+
+  <div class="split">
+    <div>
+      <h2>游玩时长 <em>单局累计有效游玩时间</em></h2>
+      <table id="playdist"></table>
+      <div class="note" id="playsum"></div>
+    </div>
+    <div>
+      <h2>分支选择 <em>各选择点被选中的次数</em></h2>
+      <table id="choices"></table>
+    </div>
+  </div>
+
+  <div class="split">
+    <div>
+      <h2>结局</h2>
+      <table id="endings"></table>
+    </div>
+    <div>
+      <h2>站点与版本</h2>
+      <table id="sites"></table>
+    </div>
+  </div>
+
+  <h2>按日访问 <em>PV / 独立访客，北京时间</em></h2>
+  <table id="daily"></table>
+
+  <p class="note">
+    同时在线 = 5 分钟内有过任何事件的匿名浏览器数；它不是真实人数，也不做设备指纹。<br />
+    单局时长取 <span class="mono">play_beat</span> 心跳里的累计秒数最大值 —— 心跳丢一两拍不影响结果。<br />
+    「局」按 <span class="mono">run_id</span> 去重，跳章进入会新开一局，所以漏斗里包含跳读。<br />
+    金额、正文内容不上报；服务端对字段做了白名单，客户端被改也塞不进别的键。
+  </p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const Q = new URLSearchParams(location.search);
+const API = Q.get('api') || location.pathname.replace(/\/$/, '');
+let showTest = false;
+
+const fmt = n => (n === null || n === undefined) ? '-'
+  : (typeof n === 'number' ? n.toLocaleString('zh-CN') : n);
+function dur(s) {
+  if (s === null || s === undefined) return '-';
+  if (s < 60) return s + ' 秒';
+  const m = Math.round(s / 60);
+  if (m < 60) return m + ' 分钟';
+  return (m / 60).toFixed(1).replace(/\.0$/, '') + ' 小时';
+}
+
+function table(el, head, rows) {
+  if (!rows || !rows.length) {
+    el.innerHTML = '<tr><td class="empty">暂无数据</td></tr>';
+    return;
+  }
+  el.innerHTML = '<tr><th>' + head[0] + '</th><th class="num">' + head[1] +
+    '</th><th class="bar"></th></tr>' + rows.map(r => {
+      const pct = r.max ? Math.max(1.5, r.n / r.max * 100) : 0;
+      return `<tr><td>${r.label}</td><td class="num">${fmt(r.n)}${r.suffix || ''}</td>
+        <td class="bar"><div class="b ${r.alt ? 'alt' : ''}" style="width:${pct}%"></div></td></tr>`;
+    }).join('');
+}
+
+function bars(rows, key, val) {
+  const max = Math.max(...rows.map(r => r[val]), 1);
+  return rows.map(r => ({ label: r[key], n: r[val], max }));
+}
+
+async function load() {
+  const token = $('token').value || Q.get('token') || '';
+  localStorage.setItem('chaoshi_dash_token', token);
+  $('stamp').textContent = '读取中…';
+  let r;
+  try {
+    r = await fetch(API + '/api/stats?token=' + encodeURIComponent(token) +
+                    '&days=' + $('days').value + (showTest ? '&test=1' : ''));
+  } catch (e) {
+    $('stamp').textContent = '网络失败'; return;
+  }
+  if (!r.ok) { $('stamp').textContent = r.status === 401 ? '令牌无效' : ('读取失败 ' + r.status); return; }
+  const d = await r.json();
+  render(d);
+}
+
+function render(d) {
+  const L = d.live || {};
+  const cards = [
+    ['此刻在线', L.online, L.window ? '5 分钟窗口' : '', 'live'],
+    ['累计访客', L.total, '独立浏览器', 'live'],
+    ['今日访客', L.today, '北京时间', ''],
+    ['页面访问 PV', d.pv, '近 ' + d.days + ' 天', ''],
+    ['独立访客 UV', d.uv, '', ''],
+    ['开始游玩', d.runs, '至少点了「开始」', ''],
+    ['加载完成', d.ready, '首屏 P50 ' + (d.ready_p50_ms ? d.ready_p50_ms + ' ms' : '-'), ''],
+    ['读完章节', d.chapter_done, '平均 ' + (d.runs ? (d.chapter_done / d.runs).toFixed(1) : '-') + ' 章/局', ''],
+    ['通关结局', d.endings_done, '', ''],
+    ['平均单局时长', d.play && d.play.avg ? dur(d.play.avg) : '-', 'P90 ' + dur(d.play && d.play.p90), ''],
+    ['错误事件', d.errors, '', ''],
+    ['事件总数', fmt(d.events), d.builds && d.builds.length ? '版本 ' + d.builds.join(' ') : '', ''],
+  ];
+  $('cards').innerHTML = cards.map(([k, v, s, cls]) =>
+    `<div class="card ${cls}"><div class="k">${k}</div><div class="v">${fmt(v)}</div>
+     <div class="s">${s || '&nbsp;'}</div></div>`).join('');
+
+  // 漏斗
+  const chs = d.chapters || [];
+  const top = chs.length ? chs[0][1] : 0;
+  const maxCh = chs.length ? Math.max(...chs.map(c => c[1])) : 1;
+  $('funnel').innerHTML = chs.length
+    ? '<tr><th>章节</th><th class="num">到达局数</th><th class="bar">相对首章</th></tr>' +
+      chs.map(([c, n]) => {
+        const p = top ? Math.round(n / top * 100) : 0;
+        return `<tr><td class="mono">${c}</td><td class="num">${n} <span class="dim">${p}%</span></td>
+        <td class="bar"><div class="b" style="width:${Math.max(1.5, n / maxCh * 100)}%"></div></td></tr>`;
+      }).join('')
+    : '<tr><td class="empty">暂无数据</td></tr>';
+
+  // 时长分布
+  const p = d.play || {};
+  table($('playdist'), ['时长区间', '局数'],
+    (p.dist || []).map(b => ({ label: b.label, n: b.n, max: Math.max(...(p.dist || []).map(x => x.n), 1) })));
+  $('playsum').textContent = p.runs
+    ? `有效样本 ${p.runs} 局 · 中位 ${dur(p.p50)} · 平均 ${dur(p.avg)} · 最长 ${dur(p.max)}`
+    : '还没有心跳数据（心跳每 60 秒一次，需要真的在玩）';
+
+  // 选择
+  const chsRows = d.choices || [];
+  const chMax = Math.max(...chsRows.map(c => c.n), 1);
+  // 每个选择点单独一行，选项用 / 分隔，避免同一点的两项被拆到很远
+  const byChoice = {};
+  chsRows.forEach(c => { (byChoice[c.choice] = byChoice[c.choice] || []).push(c); });
+  const rows = Object.entries(byChoice).map(([k, arr]) => {
+    const total = arr.reduce((s, x) => s + x.n, 0);
+    const label = arr.map(x => `${x.opt} ${total ? Math.round(x.n / total * 100) : 0}%`).join('　/　');
+    return { label: k + '　' + label, n: total, max: chMax, suffix: ' 次' };
+  });
+  table($('choices'), ['选择点 / 选项占比', '总次数'],
+    rows.length ? rows : []);
+
+  table($('endings'), ['结局', '完成次数'],
+    bars(d.endings || [], 'ending', 'n'));
+
+  const siteRows = (d.sites || []).map(s => ({
+    label: (s.site || '-').replace(/^www\./, ''), n: s.n,
+    max: Math.max(...(d.sites || []).map(x => x.n), 1)
+  }));
+  table($('sites'), ['站点', 'PV'], siteRows);
+
+  table($('daily'), ['日期', 'PV / UV'],
+    (d.daily || []).map(x => ({ label: x.d, n: x.pv, max: Math.max(...(d.daily || []).map(y => y.pv), 1),
+                                suffix: ' <span class="dim">/ ' + x.uv + '</span>' })));
+
+  const t = new Date();
+  $('stamp').textContent = '更新于 ' + t.toLocaleTimeString('zh-CN') +
+    ' · 统计口径近 ' + d.days + ' 天' + (showTest ? ' · 含测试' : '');
+}
+
+$('token').value = Q.get('token') || localStorage.getItem('chaoshi_dash_token') || '';
+$('days').value = localStorage.getItem('chaoshi_dash_days') || '30';
+$('days').onchange = () => { localStorage.setItem('chaoshi_dash_days', $('days').value); load(); };
+$('load').onclick = load;
+$('test').onclick = () => {
+  showTest = !showTest;
+  $('test').style.color = showTest ? 'var(--accent)' : '';
+  load();
+};
+load();
+</script>
+</body>
+</html>

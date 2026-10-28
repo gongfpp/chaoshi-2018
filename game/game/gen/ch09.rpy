@@ -158,11 +158,11 @@ label ch09:
     $ track("choice_shown", choice="ch09")
     menu:
         "把工资卡交给她":
-            $ track("choice_pick", choice="ch09", option=0)
+            $ track("choice_pick", choice="ch09", option=0, opt="交卡")
             $ c_gongzi = True
             $ xin += 2
         "工资卡自己留着":
-            $ track("choice_pick", choice="ch09", option=1)
+            $ track("choice_pick", choice="ch09", option=1, opt="留卡")
             $ c_gongzi = False
             $ xin -= 1
             jump ch09_alt

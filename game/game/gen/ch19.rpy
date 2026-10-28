@@ -95,12 +95,12 @@ label ch19:
     $ track("choice_shown", choice="ch19")
     menu:
         "交出陈立的住址和聊天记录":
-            $ track("choice_pick", choice="ch19", option=0)
+            $ track("choice_pick", choice="ch19", option=0, opt="交地址")
             $ sold_chen = True
             $ qian += 2000
             $ debt -= 2000
         "拒绝":
-            $ track("choice_pick", choice="ch19", option=1)
+            $ track("choice_pick", choice="ch19", option=1, opt="拒绝")
             $ sold_chen = False
             $ xin += 2
             jump ending_zhundian

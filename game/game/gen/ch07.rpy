@@ -124,13 +124,13 @@ label ch07:
     $ track("choice_shown", choice="ch07")
     menu:
         "报警，走程序":
-            $ track("choice_pick", choice="ch07", option=0)
+            $ track("choice_pick", choice="ch07", option=0, opt="报警")
             $ c_siyu = False
             $ qian -= 4000
             $ shen -= 1
             jump ch07_alt
         "私了，花钱买平安":
-            $ track("choice_pick", choice="ch07", option=1)
+            $ track("choice_pick", choice="ch07", option=1, opt="私了")
             $ c_siyu = True
             $ qian -= 12000
             $ debt += 8000

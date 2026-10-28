@@ -97,12 +97,12 @@ label ch03:
     $ track("choice_shown", choice="ch03")
     menu:
         "接下这些“刚好”的单子":
-            $ track("choice_pick", choice="ch03", option=0)
+            $ track("choice_pick", choice="ch03", option=0, opt="接单")
             $ c_haodan = True
             $ xin += 1
             $ qian += 300
         "把钥匙还回去":
-            $ track("choice_pick", choice="ch03", option=1)
+            $ track("choice_pick", choice="ch03", option=1, opt="还钥匙")
             $ c_haodan = False
             $ xin -= 1
             jump ch03_alt

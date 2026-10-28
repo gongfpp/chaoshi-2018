@@ -51,10 +51,11 @@ MIRRORS = {
 SHARE_SITE = "https://chaoshi.gongfpp.icu/"
 SHARE_DESC = "2018—2023，杭州，一个外卖骑手的五年。一条可以计算、却不由他计算的账。"
 
-# 生产埋点端点（Cloudflare Worker + D1）。本地调试时 tracker 自动回落到同源
+# 生产埋点端点：自部署在腾讯云的 chaoshi-analytics（server/chaoshi-analytics，
+# 经 Caddy 挂在 gongfpp.icu/chaoshi/）。本地调试时 tracker 自动回落到同源
 # /api/collect，由 tools/collector.py 接收，所以这里只填线上地址。
 COLLECT_URL = os.environ.get(
-    "CHAOSHI_COLLECT", "https://chaoshi-analytics.gong7968.workers.dev/api/collect")
+    "CHAOSHI_COLLECT", "https://gongfpp.icu/chaoshi/api/collect")
 
 
 # ---------------------------------------------------------------------------
@@ -512,11 +513,16 @@ def tracker_script(build):
   (function () {
     if (window.chaoshiTrack) { return; }
     var BUILD = %(build)s;
-    // 线上发到 Cloudflare Worker + D1；本地（localhost/127.0.0.1）仍走同源
-    // /api/collect，由 tools/collector.py 接收，避免调试时污染生产数据。
+    // 线上发到自部署的 chaoshi-analytics（腾讯云，gongfpp.icu/chaoshi/）；
+    // 本地（localhost/127.0.0.1）仍走同源 /api/collect，由 tools/collector.py
+    // 接收，避免调试时污染生产数据。
     var host = location.hostname;
     var ENDPOINT = window.CHAOSHI_COLLECT ||
       ((host === "localhost" || host === "127.0.0.1" || !host) ? "/api/collect" : %(collect)s);
+    // 看板首页之外只有这一个读接口；?cs_test=1 打开游戏即为测试流量，
+    // 看板默认排除，免得自己验收时的数据混进真实统计。
+    var LIVE_ENDPOINT = ENDPOINT.replace(/\\/api\\/collect\\/?$/, "/api/live");
+    var TEST = /[?&]cs_test=1/.test(location.search) ? 1 : 0;
     function rid(p) { return p + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 
     var vid = localStorage.getItem("chaoshi_vid");
@@ -527,11 +533,27 @@ def tracker_script(build):
 
     var queue = [], seq = 0, readySent = false, t0 = performance.now();
 
+    // ---- 有效游玩时间 ----------------------------------------------------
+    // 单纯用墙钟会把「标签页挂在那儿三天」算成玩了三天，用引擎的运行计数器
+    // 又会把「对白停在屏幕上等点击」的时间一并计入。这里按「页面可见 + 最近
+    // 5 分钟内有过输入」逐秒累计，随每条事件上报（sec 字段），服务端取单局
+    // 最大值即为该局有效时长。run_start / chapter_jump 会把计数清零。
+    var activeSec = 0, lastInput = Date.now();
+    function anaTouch() { lastInput = Date.now(); }
+    ["pointerdown", "keydown", "wheel", "touchstart", "mousemove"].forEach(function (k) {
+      window.addEventListener(k, anaTouch, { passive: true });
+    });
+    setInterval(function () {
+      if (document.visibilityState !== "visible") { return; }
+      if (Date.now() - lastInput > 300000) { return; }
+      activeSec += 1;
+    }, 1000);
+
     // 关键节点立刻发，不等攒够 8 条：否则玩家关页/切走时这些事件会丢在队列里
     var IMMEDIATE = {
       page_view: 1, game_ready: 1, run_start: 1, chapter_enter: 1,
       chapter_complete: 1, choice_pick: 1, ending_enter: 1,
-      ending_complete: 1, error: 1, voice_fail: 1
+      ending_complete: 1, error: 1, voice_fail: 1, play_beat: 1
     };
 
     function flush() {
@@ -557,8 +579,12 @@ def tracker_script(build):
     window.chaoshiTrack = function (raw) {
       try {
         var e = (typeof raw === "string") ? JSON.parse(raw) : raw;
+        // 新开一局（或跳章）从零计时，否则单局时长会把上一局也算进来
+        if (e.event === "run_start" || e.event === "chapter_jump") { activeSec = 0; }
         e.vid = vid; e.sid = sid; e.seq = ++seq; e.build = BUILD;
         e.site = location.host; e.t_client = e.t || Date.now();
+        e.sec = activeSec;
+        if (TEST) { e.test = 1; }
         e.ref = document.referrer ? document.referrer.replace(/[?#].*$/, "") : "";
         queue.push(e);
         if (queue.length >= 8 || IMMEDIATE[e.event]) { flush(); }
@@ -593,6 +619,35 @@ def tracker_script(build):
         event: "error", reason: String(ev.message || "script").slice(0, 120)
       });
     });
+
+    // ---- 标题页脚注：同时在线 / 累计访客 --------------------------------
+    // 只在标题页轮询（进游戏后由 analytics.rpy 的 ana_tick 关掉），免得和剧情
+    // 抢请求。数字经 renpy_exec 回填到 store，脚注本身由 Ren'Py 排字。
+    var liveOn = false, liveTimer = null;
+    function pushLive() {
+      if (!LIVE_ENDPOINT) { return; }
+      fetch(LIVE_ENDPOINT, { mode: "cors", cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d || typeof d.online !== "number" || typeof d.total !== "number") { return; }
+          if (!window.renpy_exec) { return; }
+          try {
+            window.renpy_exec("ana_set_live(" + (d.online | 0) + "," + (d.total | 0) + ")")
+              .catch(function () {});
+          } catch (e) {}
+        })
+        .catch(function () {});
+    }
+    window.ChaoshiLive = {
+      setActive: function (on) {
+        on = !!on;
+        if (on === liveOn) { return; }
+        liveOn = on;
+        if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+        if (on) { pushLive(); liveTimer = setInterval(pushLive, 60000); }
+      },
+      refresh: pushLive
+    };
   })();
   </script>""" % {"build": json.dumps(build), "collect": json.dumps(COLLECT_URL)}
 

@@ -1,0 +1,41 @@
+[Unit]
+Description=《超时》自部署埋点采集与看板 (chaoshi-analytics)
+Documentation=file:/opt/chaoshi-analytics/current/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chaoshi-analytics
+Group=chaoshi-analytics
+WorkingDirectory=/opt/chaoshi-analytics/current
+EnvironmentFile=/etc/chaoshi-analytics/runtime.env
+ExecStart=/usr/bin/python3 /opt/chaoshi-analytics/current/app.py
+Restart=always
+RestartSec=3
+
+# 数据目录由 systemd 建 /var/lib/chaoshi-analytics，属主即运行用户
+StateDirectory=chaoshi-analytics
+StateDirectoryMode=0750
+
+# 只读系统 + 只放开自己的数据目录，避免这台共用机器上互相踩到
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/var/lib/chaoshi-analytics
+
+# 与 umami / journey-collector 共用这台 3.7G 内存的机器，给个硬上限
+MemoryMax=256M
+TasksMax=64
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=chaoshi-analytics
+
+[Install]
+WantedBy=multi-user.target
